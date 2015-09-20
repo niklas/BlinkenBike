@@ -8,6 +8,7 @@
 #include "SPI.h"
 
 #define ON_BOARD_LED 13
+#define MAX_BRIGHTNESS 127
 
 
 // Number of RGB LEDs in strand
@@ -16,6 +17,9 @@ int nLEDs = 96;
 // Chose 2 pins for output; can be any valid output pins:
 int dataPin  = 2;
 int clockPin = 3;
+int potPin = 5;
+
+int brightness = 8;
 
 // First parameter is the number of LEDs in the strand.  The LED strips
 // are 32 LEDs per meter but you can extend or cut the strip.  Next two
@@ -51,9 +55,20 @@ void colorChase(uint32_t c, uint8_t wait) {
   delay(wait);
 }
 
+void potToBrightness(int pin) {
+  int val = analogRead(pin) / 8;
+
+  if (val < MAX_BRIGHTNESS) {
+    brightness = val;
+  } else {
+    brightness = MAX_BRIGHTNESS;
+  }
+}
+
 void loop() {
-  colorChase(strip.Color(127,  0,  0), 100); // Red
-  colorChase(strip.Color(  0,127,  0), 100); // Green
-  colorChase(strip.Color(  0,  0,127), 100); // Blue
-  colorChase(strip.Color(127,127,127), 100); // White
+  potToBrightness(potPin);
+  colorChase(strip.Color(brightness,  0,  0), 23); // Red
+  colorChase(strip.Color(  0,brightness,  0), 23); // Green
+  colorChase(strip.Color(  0,  0,brightness), 23); // Blue
+  colorChase(strip.Color(brightness,brightness,brightness), 23); // White
 }
