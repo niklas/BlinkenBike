@@ -11,7 +11,7 @@
 
 
 // Number of RGB LEDs in strand
-int nLEDs = 32;
+int nLEDs = 96;
 
 // Chose 2 pins for output; can be any valid output pins:
 int dataPin  = 2;
@@ -42,7 +42,7 @@ void colorChase(uint32_t c, uint8_t wait) {
   for(i=0; i<strip.numPixels(); i++) {
     strip.setPixelColor(i, c); // Set new pixel 'on'
     strip.show();              // Refresh LED states
-    strip.setPixelColor(i, 0); // Erase pixel, but don't refresh!
+    //strip.setPixelColor(i, 0); // Erase pixel, but don't refresh!
     delay(wait);
   }
 
