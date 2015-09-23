@@ -1,11 +1,7 @@
-#ifdef ENERGIA
-  #include "Energia.h"
-#else
-  #include "Arduino.h"
-#endif
-
+#include "Arduino.h"
 #include "LPD8806.h"
 #include "SPI.h"
+#include "buttons.h"
 
 #define ON_BOARD_LED 13
 #define MAX_BRIGHTNESS 127
@@ -38,7 +34,6 @@ void setup()
 
 void potToBrightness(int pin) {
   int val = analogRead(pin);
-  Serial.println(val);
 
   if (val < MAX_BRIGHTNESS) {
     brightness = val;
@@ -55,6 +50,7 @@ void loop() {
   strip.show();
   tick++;
   potToBrightness(potPin);
+  dispatchButtons();
 
   // clear old position
   strip.setPixelColor(pos, strip.Color(0,0,0));
