@@ -29,6 +29,7 @@ LPD8806 strip = LPD8806(nLEDs, dataPin, clockPin);
 void setup()
 {
   pinMode(ON_BOARD_LED, OUTPUT);     // set pin as output
+  pinMode(potPin, INPUT);
   Serial.begin(9600);
   Serial.println("will print poti");
   strip.begin();
