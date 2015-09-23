@@ -8,14 +8,18 @@
 #include "SPI.h"
 
 #define ON_BOARD_LED 13
+#define MAX_BRIGHTNESS 127
 
 
 // Number of RGB LEDs in strand
-int nLEDs = 32;
+int nLEDs = 96;
 
 // Chose 2 pins for output; can be any valid output pins:
 int dataPin  = 2;
 int clockPin = 3;
+int potPin = 0;
+
+int brightness = 8;
 
 // First parameter is the number of LEDs in the strand.  The LED strips
 // are 32 LEDs per meter but you can extend or cut the strip.  Next two
@@ -25,35 +29,39 @@ LPD8806 strip = LPD8806(nLEDs, dataPin, clockPin);
 void setup()
 {
   pinMode(ON_BOARD_LED, OUTPUT);     // set pin as output
+  pinMode(potPin, INPUT);
+  Serial.begin(9600);
+  Serial.println("will print poti");
   strip.begin();
   strip.show();
 }
 
-// Chase one dot down the full strip.  Good for testing purposes.
-void colorChase(uint32_t c, uint8_t wait) {
-  int i;
+void potToBrightness(int pin) {
+  int val = analogRead(pin);
+  Serial.println(val);
 
-  digitalWrite(ON_BOARD_LED, HIGH);
-
-  // Start by turning all pixels off:
-  for(i=0; i<strip.numPixels(); i++) strip.setPixelColor(i, 0);
-
-  // Then display one pixel at a time:
-  for(i=0; i<strip.numPixels(); i++) {
-    strip.setPixelColor(i, c); // Set new pixel 'on'
-    strip.show();              // Refresh LED states
-    strip.setPixelColor(i, 0); // Erase pixel, but don't refresh!
-    delay(wait);
+  if (val < MAX_BRIGHTNESS) {
+    brightness = val;
+  } else {
+    brightness = MAX_BRIGHTNESS;
   }
-
-  strip.show(); // Refresh to turn off last pixel
-  digitalWrite(ON_BOARD_LED, LOW);   // set the LED off
-  delay(wait);
 }
 
+uint32_t tick = 0;
+uint32_t color;
+int pos;
+
 void loop() {
-  colorChase(strip.Color(127,  0,  0), 100); // Red
-  colorChase(strip.Color(  0,127,  0), 100); // Green
-  colorChase(strip.Color(  0,  0,127), 100); // Blue
-  colorChase(strip.Color(127,127,127), 100); // White
+  strip.show();
+  tick++;
+  potToBrightness(potPin);
+
+  // clear old position
+  strip.setPixelColor(pos, strip.Color(0,0,0));
+
+  // one point chasing down
+  pos = tick % nLEDs;
+  color = strip.Color( brightness, 0, 0);
+  strip.setPixelColor(pos, color);
+  delay(23);
 }
