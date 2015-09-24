@@ -42,11 +42,8 @@ void setup()
 void potToBrightness(int pin) {
   int val = analogRead(pin);
 
-  if (val < MAX_BRIGHTNESS) {
-    brightness = val;
-  } else {
-    brightness = MAX_BRIGHTNESS;
-  }
+  val = constrain(val, 1, 1023);
+  brightness = map(val, 0, 1023, 0, MAX_BRIGHTNESS);
 }
 
 uint32_t tick = 0;
