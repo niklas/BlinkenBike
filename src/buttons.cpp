@@ -8,6 +8,13 @@ enum {
   BUTTON_3 = 3
 };
 
+byte pressedButton = BUTTON_NONE;
+byte pressedButtonTimes = 0;
+
+void sig_buttonPressed(byte button) {
+  Serial.println(button);
+}
+
 void dispatchButtons() {
   int val;
   byte button = BUTTON_NONE;
@@ -23,12 +30,35 @@ void dispatchButtons() {
     button = BUTTON_3;
   }
 
-  if (button != BUTTON_NONE) {
-    Serial.print(button);
-    Serial.print("  ");
-    Serial.print(val);
-    Serial.println();
+  // Debounce Buttons
+  //
+  // Must keep a button pressed for a while (BUTTONS_PRESS_DURATION)  until it is registered.
+  // Tapping shorty works, too for half the BUTTONS_PRESS_DURATION.
+
+  if (button != BUTTON_NONE) {                                  // something pressed
+    if (pressedButton == button) {                              // button kept pressed
+      pressedButtonTimes++;
+
+      if (pressedButtonTimes > BUTTONS_PRESS_DURATION) {
+        pressedButtonTimes = 0;
+        sig_buttonPressed(button);
+      }
+    } else {                                                    // different button
+      pressedButtonTimes = 0;
+    }
+  } else {                                                      // no button pressed
+
+    if (
+        (pressedButton != BUTTON_NONE) &&
+        (pressedButtonTimes > BUTTONS_PRESS_DURATION >> 1)) {   // just released
+      sig_buttonPressed(pressedButton);
+    }
+
+    pressedButtonTimes = 0;
   }
+
+  pressedButton = button;
+
 }
 
 
