@@ -1,6 +1,11 @@
 #include "Arduino.h"
 #include "LPD8806.h"
 #include "SPI.h"
+#include <MsTimer2.h>
+
+#define FPS 60
+
+
 #include "buttons.h"
 
 #define ON_BOARD_LED 13
@@ -25,6 +30,7 @@ int brightness = 8;
 LPD8806 strip = LPD8806(nLEDs, dataPin, clockPin);
 LPD8806 preview = LPD8806(2, PIN_PREVIEW_DATA, PIN_PREVIEW_CLOCK);
 
+void each_tick();
 void setup()
 {
   pinMode(ON_BOARD_LED, OUTPUT);     // set pin as output
@@ -37,6 +43,9 @@ void setup()
 
   strip.begin();
   strip.show();
+
+  MsTimer2::set(1000 / FPS, each_tick);
+  MsTimer2::start();
 }
 
 void potToBrightness(int pin) {
@@ -50,7 +59,7 @@ uint32_t tick = 0;
 uint32_t color;
 int pos;
 
-void loop() {
+void each_tick() {
   strip.show();
   tick++;
   potToBrightness(potPin);
@@ -67,5 +76,6 @@ void loop() {
   preview.setPixelColor(0, preview.Color(23,0,0));
   preview.setPixelColor(1, preview.Color(0,0,23));
   preview.show();
-  delay(23);
 }
+
+void loop() { } // see each_tick()
