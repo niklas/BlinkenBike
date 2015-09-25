@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "buttons.h"
+#include "modes.h"
 
 enum {
   BUTTON_NONE = 0,
@@ -13,6 +14,12 @@ byte pressedButtonTimes = 0;
 
 void sig_buttonPressed(byte button) {
   Serial.println(button);
+
+  switch(button) {
+    case BUTTON_1: mode_select_next()       ; break;
+    case BUTTON_2: mode_apply()             ; break;
+    case BUTTON_3: mode_select_previous()   ; break;
+  }
 }
 
 void dispatchButtons() {

@@ -7,6 +7,7 @@
 
 
 #include "buttons.h"
+#include "modes.h"
 
 #define ON_BOARD_LED 13
 #define MAX_BRIGHTNESS 127
@@ -56,11 +57,12 @@ void potToBrightness(int pin) {
 }
 
 uint32_t tick = 0;
-uint32_t color;
 int pos;
 
 void each_tick() {
+  uint32_t color, previewColor;
   strip.show();
+  preview.show();
   tick++;
   potToBrightness(potPin);
   dispatchButtons();
@@ -70,12 +72,25 @@ void each_tick() {
 
   // one point chasing down
   pos = tick % nLEDs;
-  color = strip.Color( 0, brightness, 0);
+
+  // TODO strip.Color is actually RBG?!
+  switch(mode) {
+    case ModeWandererRed:   color = strip.Color( brightness, 0, 0)                   ; break ;
+    case ModeWandererBlue:  color = strip.Color( 0, brightness, 0)                   ; break ;
+    case ModeWandererGreen: color = strip.Color( 0, 0, brightness)                   ; break ;
+    case ModeWandererWhite: color = strip.Color( brightness, brightness, brightness) ; break ;
+  }
   strip.setPixelColor(pos, color);
 
-  preview.setPixelColor(0, preview.Color(23,0,0));
-  preview.setPixelColor(1, preview.Color(0,0,23));
-  preview.show();
+  switch(selectedMode) {
+    case ModeWandererRed:   previewColor = preview.Color( brightness, 0, 0)                   ; break ;
+    case ModeWandererBlue:  previewColor = preview.Color( 0, brightness, 0)                   ; break ;
+    case ModeWandererGreen: previewColor = preview.Color( 0, 0, brightness)                   ; break ;
+    case ModeWandererWhite: previewColor = preview.Color( brightness, brightness, brightness) ; break ;
+  }
+
+  preview.setPixelColor(0, preview.Color(0,0,0));
+  preview.setPixelColor(1, previewColor);
 }
 
 void loop() { } // see each_tick()
