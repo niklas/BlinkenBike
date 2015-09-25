@@ -6,6 +6,7 @@
 #define FPS 60
 
 
+#include "ModeManager.h"
 #include "buttons.h"
 
 #define ON_BOARD_LED 13
@@ -29,14 +30,27 @@ int brightness = 8;
 // parameters are SPI data and clock pins:
 LPD8806 strip = LPD8806(nLEDs, dataPin, clockPin);
 LPD8806 preview = LPD8806(2, PIN_PREVIEW_DATA, PIN_PREVIEW_CLOCK);
+ModeManager mode = ModeManager();
 
+// Callbacks must be declared early
 void each_tick();
+void buttonPressed(int button) {
+  switch(button) {
+    case BUTTON_1: mode.selectNext()     ; break ;
+    case BUTTON_2: mode.apply()          ; break ;
+    case BUTTON_3: mode.selectPrevious() ; break ;
+  }
+}
+
 void setup()
 {
   pinMode(ON_BOARD_LED, OUTPUT);     // set pin as output
   pinMode(potPin, INPUT);
   Serial.begin(9600);
-  Serial.println("will print poti");
+  Serial.println("Welcome to BlinkenBike © niklas@lanpartei.de");
+
+
+  onPressedButton(buttonPressed);
 
   preview.begin();
 
@@ -56,11 +70,12 @@ void potToBrightness(int pin) {
 }
 
 uint32_t tick = 0;
-uint32_t color;
 int pos;
 
 void each_tick() {
+  uint32_t color, previewColor;
   strip.show();
+  preview.show();
   tick++;
   potToBrightness(potPin);
   dispatchButtons();
@@ -70,12 +85,27 @@ void each_tick() {
 
   // one point chasing down
   pos = tick % nLEDs;
-  color = strip.Color( 0, brightness, 0);
+
+  // TODO strip.Color is actually RBG?!
+  switch(mode.getMode()) {
+    case ModeWandererRed:   color = strip.Color( brightness, 0, 0)                   ; break ;
+    case ModeWandererBlue:  color = strip.Color( 0, brightness, 0)                   ; break ;
+    case ModeWandererGreen: color = strip.Color( 0, 0, brightness)                   ; break ;
+    case ModeWandererWhite: color = strip.Color( brightness, brightness, brightness) ; break ;
+    default:                color = strip.Color(0,0,0)                               ; break ;
+  }
   strip.setPixelColor(pos, color);
 
-  preview.setPixelColor(0, preview.Color(23,0,0));
-  preview.setPixelColor(1, preview.Color(0,0,23));
-  preview.show();
+  switch(mode.getSelectedMode()) {
+    case ModeWandererRed:   previewColor = preview.Color( brightness, 0, 0)                   ; break ;
+    case ModeWandererBlue:  previewColor = preview.Color( 0, brightness, 0)                   ; break ;
+    case ModeWandererGreen: previewColor = preview.Color( 0, 0, brightness)                   ; break ;
+    case ModeWandererWhite: previewColor = preview.Color( brightness, brightness, brightness) ; break ;
+    default:                previewColor = strip.Color(0,0,0)                                 ; break ;
+  }
+
+  preview.setPixelColor(0, preview.Color(0,0,0));
+  preview.setPixelColor(1, previewColor);
 }
 
 void loop() { } // see each_tick()

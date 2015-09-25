@@ -1,18 +1,17 @@
 #include "Arduino.h"
 #include "buttons.h"
 
-enum {
-  BUTTON_NONE = 0,
-  BUTTON_1 = 1,
-  BUTTON_2 = 2,
-  BUTTON_3 = 3
-};
-
 byte pressedButton = BUTTON_NONE;
 byte pressedButtonTimes = 0;
 
+void (*pressedButtonCallback)(int b);
+
+void onPressedButton( void (*f)(int b) ) {
+  pressedButtonCallback = f;
+}
+
 void sig_buttonPressed(byte button) {
-  Serial.println(button);
+  pressedButtonCallback(button);
 }
 
 void dispatchButtons() {
