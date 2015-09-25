@@ -1,3 +1,4 @@
+#include "LPD8806.h"
 #include "ModeManager.h"
 
 ModeManager::ModeManager(void) {
@@ -20,3 +21,13 @@ void ModeManager::apply(void) {
 int ModeManager::getMode(void) { return(mode); }
 int ModeManager::getSelectedMode(void) { return(selectedMode); }
 
+// TODO strip.Color is actually RBG?!
+uint32_t ModeManager::getColor(LPD8806 leds, int bright) {
+  switch(getMode()) {
+    case ModeWandererRed:   return( leds.Color( bright , 0          , 0          ));
+    case ModeWandererBlue:  return( leds.Color( 0          , bright , 0          ));
+    case ModeWandererGreen: return( leds.Color( 0          , 0          , bright ));
+    case ModeWandererWhite: return( leds.Color( bright , bright , bright ));
+    default:                return( leds.Color( 0          , 0          , 0          ));
+  }
+}

@@ -21,6 +21,9 @@ class ModeManager {
       getMode(void),
       getSelectedMode();
 
+    uint32_t
+      getColor(LPD8806 leds, int bright);
+
   private:
     int
       mode,
