@@ -98,6 +98,10 @@ void each_tick() {
   }
   strip.setPixelColor(pos, color);
 
+  if (tick % FPS == 0) {
+    Serial.print("selected mode: ");
+    Serial.println(selectedMode);
+  }
   switch(selectedMode) {
     case ModeWandererRed:   previewColor = preview.Color( brightness, 0, 0)                   ; break ;
     case ModeWandererBlue:  previewColor = preview.Color( 0, brightness, 0)                   ; break ;
