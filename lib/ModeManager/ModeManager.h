@@ -22,7 +22,7 @@ class ModeManager {
       getSelectedMode();
 
     uint32_t
-      getColor(LPD8806 leds, int bright);
+      getColor(int m, LPD8806 leds, int bright);
 
   private:
     int

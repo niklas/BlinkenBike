@@ -91,7 +91,7 @@ void each_tick() {
   // one point chasing down
   pos = tick % nLEDs;
 
-  color = mode.getColor(strip, brightness);
+  color = mode.getColor(mode.getMode(), strip, brightness);
 
   strip.setPixelColor(pos, color);
   strip.setPixelColor((pos + 1) % nLEDs, color);
@@ -110,7 +110,7 @@ void each_tick() {
   strip.setPixelColor((pos + 5 * nLEDs/6) % nLEDs, color);
   strip.setPixelColor((pos + 5 * nLEDs/6 + 1) % nLEDs, color);
 
-  previewColor = mode.getColor(preview, brightness);
+  previewColor = mode.getColor(mode.getSelectedMode(), preview, brightness);
 
   preview.setPixelColor(0, black);
   preview.setPixelColor(1, previewColor);
