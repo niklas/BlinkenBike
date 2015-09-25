@@ -6,7 +6,7 @@
 #define FPS 60
 
 
-#include "modes.h"
+#include "ModeManager.h"
 #include "buttons.h"
 
 #define ON_BOARD_LED 13
@@ -30,15 +30,16 @@ int brightness = 8;
 // parameters are SPI data and clock pins:
 LPD8806 strip = LPD8806(nLEDs, dataPin, clockPin);
 LPD8806 preview = LPD8806(2, PIN_PREVIEW_DATA, PIN_PREVIEW_CLOCK);
+ModeManager mode = ModeManager();
 
 // Callbacks must be declared early
 void each_tick();
 void buttonPressed(int button) {
   Serial.println(button);
   switch(button) {
-    case BUTTON_1: mode_select_next()       ; break;
-    case BUTTON_2: mode_apply()             ; break;
-    case BUTTON_3: mode_select_previous()   ; break;
+    case BUTTON_1: mode.selectNext()     ; break ;
+    case BUTTON_2: mode.apply()          ; break ;
+    case BUTTON_3: mode.selectPrevious() ; break ;
   }
 }
 
@@ -50,8 +51,6 @@ void setup()
   Serial.println("will print poti");
 
 
-  mode = ModeWandererRed;
-  selectedMode = mode;
   onPressedButton(buttonPressed);
 
   preview.begin();
@@ -89,7 +88,7 @@ void each_tick() {
   pos = tick % nLEDs;
 
   // TODO strip.Color is actually RBG?!
-  switch(mode) {
+  switch(mode.getMode()) {
     case ModeWandererRed:   color = strip.Color( brightness, 0, 0)                   ; break ;
     case ModeWandererBlue:  color = strip.Color( 0, brightness, 0)                   ; break ;
     case ModeWandererGreen: color = strip.Color( 0, 0, brightness)                   ; break ;
@@ -100,9 +99,9 @@ void each_tick() {
 
   if (tick % FPS == 0) {
     Serial.print("selected mode: ");
-    Serial.println(selectedMode);
+    Serial.println(mode.getSelectedMode());
   }
-  switch(selectedMode) {
+  switch(mode.getSelectedMode()) {
     case ModeWandererRed:   previewColor = preview.Color( brightness, 0, 0)                   ; break ;
     case ModeWandererBlue:  previewColor = preview.Color( 0, brightness, 0)                   ; break ;
     case ModeWandererGreen: previewColor = preview.Color( 0, 0, brightness)                   ; break ;
