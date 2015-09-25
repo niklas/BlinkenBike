@@ -8,7 +8,7 @@ void mode_select_next() {
 }
 
 void mode_select_previous() {
-  selectedMode = (selectedMode - 1) % MODE_NUM;
+  selectedMode = (selectedMode - 1 + MODE_NUM) % MODE_NUM;
   Serial.print("prev mode: ");
   Serial.println(selectedMode);
 }
