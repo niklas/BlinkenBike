@@ -91,14 +91,8 @@ void each_tick() {
   // one point chasing down
   pos = tick % nLEDs;
 
-  // TODO strip.Color is actually RBG?!
-  switch(mode.getMode()) {
-    case ModeWandererRed:   color = strip.Color( brightness, 0, 0)                   ; break ;
-    case ModeWandererBlue:  color = strip.Color( 0, brightness, 0)                   ; break ;
-    case ModeWandererGreen: color = strip.Color( 0, 0, brightness)                   ; break ;
-    case ModeWandererWhite: color = strip.Color( brightness, brightness, brightness) ; break ;
-    default:                color = black                                            ; break ;
-  }
+  color = mode.getColor(mode.getMode(), strip, brightness);
+
   strip.setPixelColor(pos, color);
   strip.setPixelColor((pos + 1) % nLEDs, color);
   strip.setPixelColor((pos + 2) % nLEDs, color);
@@ -116,15 +110,9 @@ void each_tick() {
   strip.setPixelColor((pos + 5 * nLEDs/6) % nLEDs, color);
   strip.setPixelColor((pos + 5 * nLEDs/6 + 1) % nLEDs, color);
 
-  switch(mode.getSelectedMode()) {
-    case ModeWandererRed:   previewColor = preview.Color( brightness, 0, 0)                   ; break ;
-    case ModeWandererBlue:  previewColor = preview.Color( 0, brightness, 0)                   ; break ;
-    case ModeWandererGreen: previewColor = preview.Color( 0, 0, brightness)                   ; break ;
-    case ModeWandererWhite: previewColor = preview.Color( brightness, brightness, brightness) ; break ;
-    default:                previewColor = black                                              ; break ;
-  }
+  previewColor = mode.getColor(mode.getSelectedMode(), preview, brightness);
 
-  preview.setPixelColor(0, preview.Color(0,0,0));
+  preview.setPixelColor(0, black);
   preview.setPixelColor(1, previewColor);
 }
 
