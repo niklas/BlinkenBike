@@ -73,7 +73,7 @@ uint32_t tick = 0;
 int pos;
 
 void each_tick() {
-  uint32_t color, previewColor;
+  uint32_t color, previewColor, black;
   strip.show();
   preview.show();
   tick++;
@@ -81,7 +81,12 @@ void each_tick() {
   dispatchButtons();
 
   // clear old position
-  strip.setPixelColor(pos, strip.Color(0,0,0));
+  black = strip.Color(0,0,0);
+  strip.setPixelColor(pos, black);
+  strip.setPixelColor((pos + nLEDs/2) % nLEDs, black);
+  strip.setPixelColor((pos + nLEDs/3) % nLEDs, black);
+  strip.setPixelColor((pos + 3 * nLEDs/4) % nLEDs, black);
+  strip.setPixelColor((pos + 5 * nLEDs/6) % nLEDs, black);
 
   // one point chasing down
   pos = tick % nLEDs;
@@ -92,16 +97,31 @@ void each_tick() {
     case ModeWandererBlue:  color = strip.Color( 0, brightness, 0)                   ; break ;
     case ModeWandererGreen: color = strip.Color( 0, 0, brightness)                   ; break ;
     case ModeWandererWhite: color = strip.Color( brightness, brightness, brightness) ; break ;
-    default:                color = strip.Color(0,0,0)                               ; break ;
+    default:                color = black                                            ; break ;
   }
   strip.setPixelColor(pos, color);
+  strip.setPixelColor((pos + 1) % nLEDs, color);
+  strip.setPixelColor((pos + 2) % nLEDs, color);
+  strip.setPixelColor((pos + 3) % nLEDs, color);
+  strip.setPixelColor((pos + 4) % nLEDs, color);
+  strip.setPixelColor((pos + nLEDs/2) % nLEDs, color);
+  strip.setPixelColor((pos + nLEDs/2 + 1) % nLEDs, color);
+  strip.setPixelColor((pos + nLEDs/2 + 2) % nLEDs, color);
+  strip.setPixelColor((pos + nLEDs/3) % nLEDs, color);
+  strip.setPixelColor((pos + nLEDs/3 + 1) % nLEDs, color);
+  strip.setPixelColor((pos + 3 * nLEDs/4) % nLEDs, color);
+  strip.setPixelColor((pos + 3 * nLEDs/4 + 1) % nLEDs, color);
+  strip.setPixelColor((pos + 3 * nLEDs/4 + 2) % nLEDs, color);
+  strip.setPixelColor((pos + 3 * nLEDs/4 + 3) % nLEDs, color);
+  strip.setPixelColor((pos + 5 * nLEDs/6) % nLEDs, color);
+  strip.setPixelColor((pos + 5 * nLEDs/6 + 1) % nLEDs, color);
 
   switch(mode.getSelectedMode()) {
     case ModeWandererRed:   previewColor = preview.Color( brightness, 0, 0)                   ; break ;
     case ModeWandererBlue:  previewColor = preview.Color( 0, brightness, 0)                   ; break ;
     case ModeWandererGreen: previewColor = preview.Color( 0, 0, brightness)                   ; break ;
     case ModeWandererWhite: previewColor = preview.Color( brightness, brightness, brightness) ; break ;
-    default:                previewColor = strip.Color(0,0,0)                                 ; break ;
+    default:                previewColor = black                                              ; break ;
   }
 
   preview.setPixelColor(0, preview.Color(0,0,0));
