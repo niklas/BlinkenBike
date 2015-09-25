@@ -16,7 +16,7 @@
 #define PIN_PREVIEW_CLOCK 7
 
 // Number of RGB LEDs in strand
-int nLEDs = 48;
+int nLEDs = 110;
 
 // Chose 2 pins for output; can be any valid output pins:
 int dataPin  = 2;
