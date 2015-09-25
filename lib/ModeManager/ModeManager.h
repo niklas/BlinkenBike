@@ -1,6 +1,7 @@
 #define MODE_NUM 4
 
 enum {
+  ModeOff           = 0,
   ModeWandererBlue  = 1,
   ModeWandererGreen = 2,
   ModeWandererRed   = 3,

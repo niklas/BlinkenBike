@@ -17,6 +17,6 @@ void ModeManager::apply(void) {
   mode = selectedMode;
 }
 
-int ModeManager::getMode(void) { return(mode + 1); }
-int ModeManager::getSelectedMode(void) { return(selectedMode + 1); }
+int ModeManager::getMode(void) { return(mode); }
+int ModeManager::getSelectedMode(void) { return(selectedMode); }
 
