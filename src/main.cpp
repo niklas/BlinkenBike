@@ -35,7 +35,6 @@ ModeManager mode = ModeManager();
 // Callbacks must be declared early
 void each_tick();
 void buttonPressed(int button) {
-  Serial.println(button);
   switch(button) {
     case BUTTON_1: mode.selectNext()     ; break ;
     case BUTTON_2: mode.apply()          ; break ;
@@ -48,7 +47,7 @@ void setup()
   pinMode(ON_BOARD_LED, OUTPUT);     // set pin as output
   pinMode(potPin, INPUT);
   Serial.begin(9600);
-  Serial.println("will print poti");
+  Serial.println("Welcome to BlinkenBike © niklas@lanpartei.de");
 
 
   onPressedButton(buttonPressed);
@@ -97,10 +96,6 @@ void each_tick() {
   }
   strip.setPixelColor(pos, color);
 
-  if (tick % FPS == 0) {
-    Serial.print("selected mode: ");
-    Serial.println(mode.getSelectedMode());
-  }
   switch(mode.getSelectedMode()) {
     case ModeWandererRed:   previewColor = preview.Color( brightness, 0, 0)                   ; break ;
     case ModeWandererBlue:  previewColor = preview.Color( 0, brightness, 0)                   ; break ;
