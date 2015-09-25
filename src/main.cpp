@@ -6,8 +6,8 @@
 #define FPS 60
 
 
-#include "buttons.h"
 #include "modes.h"
+#include "buttons.h"
 
 #define ON_BOARD_LED 13
 #define MAX_BRIGHTNESS 127
@@ -31,13 +31,28 @@ int brightness = 8;
 LPD8806 strip = LPD8806(nLEDs, dataPin, clockPin);
 LPD8806 preview = LPD8806(2, PIN_PREVIEW_DATA, PIN_PREVIEW_CLOCK);
 
+// Callbacks must be declared early
 void each_tick();
+void buttonPressed(int button) {
+  Serial.println(button);
+  switch(button) {
+    case BUTTON_1: mode_select_next()       ; break;
+    case BUTTON_2: mode_apply()             ; break;
+    case BUTTON_3: mode_select_previous()   ; break;
+  }
+}
+
 void setup()
 {
   pinMode(ON_BOARD_LED, OUTPUT);     // set pin as output
   pinMode(potPin, INPUT);
   Serial.begin(9600);
   Serial.println("will print poti");
+
+
+  mode = ModeWandererRed;
+  selectedMode = mode;
+  onPressedButton(buttonPressed);
 
   preview.begin();
 
@@ -79,6 +94,7 @@ void each_tick() {
     case ModeWandererBlue:  color = strip.Color( 0, brightness, 0)                   ; break ;
     case ModeWandererGreen: color = strip.Color( 0, 0, brightness)                   ; break ;
     case ModeWandererWhite: color = strip.Color( brightness, brightness, brightness) ; break ;
+    default:                color = strip.Color(0,0,0)                               ; break ;
   }
   strip.setPixelColor(pos, color);
 
@@ -87,6 +103,7 @@ void each_tick() {
     case ModeWandererBlue:  previewColor = preview.Color( 0, brightness, 0)                   ; break ;
     case ModeWandererGreen: previewColor = preview.Color( 0, 0, brightness)                   ; break ;
     case ModeWandererWhite: previewColor = preview.Color( brightness, brightness, brightness) ; break ;
+    default:                previewColor = strip.Color(0,0,0)                                 ; break ;
   }
 
   preview.setPixelColor(0, preview.Color(0,0,0));

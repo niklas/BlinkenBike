@@ -1,25 +1,17 @@
 #include "Arduino.h"
 #include "buttons.h"
-#include "modes.h"
-
-enum {
-  BUTTON_NONE = 0,
-  BUTTON_1 = 1,
-  BUTTON_2 = 2,
-  BUTTON_3 = 3
-};
 
 byte pressedButton = BUTTON_NONE;
 byte pressedButtonTimes = 0;
 
-void sig_buttonPressed(byte button) {
-  Serial.println(button);
+void (*pressedButtonCallback)(int b);
 
-  switch(button) {
-    case BUTTON_1: mode_select_next()       ; break;
-    case BUTTON_2: mode_apply()             ; break;
-    case BUTTON_3: mode_select_previous()   ; break;
-  }
+void onPressedButton( void (*f)(int b) ) {
+  pressedButtonCallback = f;
+}
+
+void sig_buttonPressed(byte button) {
+  pressedButtonCallback(button);
 }
 
 void dispatchButtons() {

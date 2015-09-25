@@ -11,6 +11,5 @@ enum {
   ModeWandererWhite = 4
 };
 
-int mode = ModeWandererBlue;
-int selectedMode = mode;
-
+static int mode;
+static int selectedMode;
