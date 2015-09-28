@@ -51,6 +51,11 @@ class Frame < OpenStruct
 
       pen.stroke('blue')
       floor_tube.leds.each do |led|
+        if led.connections.empty?
+          pen.stroke 'red'
+        else
+          pen.stroke 'white'
+        end
         annotate_led led, pen
       end
     end
@@ -80,13 +85,21 @@ class Frame < OpenStruct
       led.floor = floor_tube.leds.min_by do |fl|
         (fl.x - led.x).abs
       end
+      led.floor.connections << led
     end
+
+    unass = floor_tube.leds.reject { |l| !l.connections.empty? }.count
+    $stderr.puts "unassigned floor leds: #{unass}" if unass > 0
   end
 end
 
 class Tube < OpenStruct
   class Led < Struct.new(:x, :y)
     attr_accessor :floor
+
+    def connections
+      @connections ||= []
+    end
   end
 
   def leds
