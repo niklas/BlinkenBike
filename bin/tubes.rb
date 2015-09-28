@@ -42,27 +42,29 @@ class Frame < OpenStruct
         pen.stroke_opacity 0.7
         pen.line *tube.from, *tube.to
 
-        pen.stroke_width TubeWidth / 3
-        pen.stroke('white')
         tube.leds.each do |led|
-          annotate_led led, pen
+          annotate_led led, 'white', pen
         end
       end
 
       pen.stroke('blue')
       floor_tube.leds.each do |led|
-        if led.connections.empty?
-          pen.stroke 'red'
-        else
-          pen.stroke 'white'
-        end
-        annotate_led led, pen
+        col = led.connections.empty?? 'red' : 'white'
+        annotate_led led, col, pen
       end
     end
   end
 
-  def annotate_led(led, pen)
+  def annotate_led(led, color, pen)
+    pen.stroke_width TubeWidth / 3
+    pen.stroke('black')
+    pen.fill(color)
     pen.circle led.x, led.y, led.x, led.y - LedSize
+
+    pen.pointsize 23
+    pen.stroke_width 1
+    pen.text_antialias true
+    pen.text led.x, led.y + (LedSize * 1.8), led.index.to_s
   end
 
   def all_leds
@@ -82,11 +84,16 @@ class Frame < OpenStruct
   end
 
   def calculate_floor_connections!
-    all_leds.each do |led|
+    all_leds.each_with_index do |led, i|
+      led.index = i
       led.floor = floor_tube.leds.min_by do |fl|
         (fl.x - led.x).abs
       end
       led.floor.connections << led
+    end
+
+    floor_tube.leds.each_with_index do |led, i|
+      led.index = i
     end
 
     unass = floor_tube.leds.reject { |l| !l.connections.empty? }.count
@@ -97,6 +104,7 @@ end
 class Tube < OpenStruct
   class Led < Struct.new(:x, :y)
     attr_accessor :floor
+    attr_accessor :index
   end
 
   class VirtualLed < Led
