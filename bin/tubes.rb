@@ -7,19 +7,16 @@ require 'rubygems'
 require 'rmagick'
 require 'pry'
 
-class Frame
+class Frame < OpenStruct
   TubeWidth = 8
   LedSize = 14
-  def initialize(image_path)
-    @image_path = image_path
-  end
 
   def tubes
     @tubes ||= []
   end
 
   def write(target_path)
-    image = Magick::Image.read(@image_path)[0]
+    image = Magick::Image.read(image_path)[0]
     annotations.draw(image)
     FileUtils.mkdir_p File.dirname(target_path)
     image.write(target_path)
@@ -72,7 +69,7 @@ end
 
 if $0 == __FILE__
 
-  frame = Frame.new 'assets/kalkhoff.jpeg'
+  frame = Frame.new image_path: 'assets/kalkhoff.jpeg'
 
   # order of adding is the order of the LED strip
   frame.tubes << Tube.new(name: 'down tube'    , from: [ 924, 604], to: [1667,1515], led_count: 20)
