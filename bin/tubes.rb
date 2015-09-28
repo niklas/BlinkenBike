@@ -76,6 +76,7 @@ class Frame < OpenStruct
       name: 'floor',
       from: [ xs.min, floor ],
       to:   [ xs.max, floor ],
+      virtual: true,
       led_count: 50
     )
   end
@@ -96,7 +97,9 @@ end
 class Tube < OpenStruct
   class Led < Struct.new(:x, :y)
     attr_accessor :floor
+  end
 
+  class VirtualLed < Led
     def connections
       @connections ||= []
     end
@@ -111,8 +114,12 @@ class Tube < OpenStruct
     @leds = (1..led_count).to_a.map do |i|
       x = from_x + (i - 0.5) * (length / led_count)
       y = m * x + n
-      Led.new x, y
+      led_class.new x, y
     end
+  end
+
+  def led_class
+    virtual ? VirtualLed : Led
   end
 
   def from_x; from[0]; end
