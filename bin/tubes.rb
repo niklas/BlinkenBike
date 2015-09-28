@@ -16,6 +16,7 @@ class Frame < OpenStruct
   end
 
   def write(target_path)
+    calculate_floor_connections!
     image = Magick::Image.read(image_path)[0]
     annotations.draw(image)
     FileUtils.mkdir_p File.dirname(target_path)
@@ -27,6 +28,13 @@ class Frame < OpenStruct
 
   def annotations
     Magick::Draw.new.tap do |pen|
+      pen.stroke_width 4
+      pen.stroke('yellow')
+      pen.stroke_opacity 0.7
+      all_leds.each do |led|
+        pen.line led.x, led.y, led.floor.x, led.floor.y
+      end
+
       tubes.each do |tube|
         # the frame
         pen.stroke('#76BA0B')
@@ -57,18 +65,28 @@ class Frame < OpenStruct
   end
 
   def floor_tube
+    return @floor_tube if defined?(@floor_tube)
     xs = all_leds.map(&:x)
-    @floor_tube ||= Tube.new(
+    @floor_tube = Tube.new(
       name: 'floor',
       from: [ xs.min, floor ],
       to:   [ xs.max, floor ],
       led_count: 50
     )
   end
+
+  def calculate_floor_connections!
+    all_leds.each do |led|
+      led.floor = floor_tube.leds.min_by do |fl|
+        (fl.x - led.x).abs
+      end
+    end
+  end
 end
 
 class Tube < OpenStruct
   class Led < Struct.new(:x, :y)
+    attr_accessor :floor
   end
 
   def leds
