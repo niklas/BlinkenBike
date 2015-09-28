@@ -37,10 +37,33 @@ class Frame < OpenStruct
         pen.stroke_width TubeWidth / 3
         pen.stroke('white')
         tube.leds.each do |led|
-          pen.circle led.x, led.y, led.x, led.y - LedSize
+          annotate_led led, pen
         end
       end
+
+      pen.stroke('blue')
+      floor_tube.leds.each do |led|
+        annotate_led led, pen
+      end
     end
+  end
+
+  def annotate_led(led, pen)
+    pen.circle led.x, led.y, led.x, led.y - LedSize
+  end
+
+  def all_leds
+    tubes.map(&:leds).flatten
+  end
+
+  def floor_tube
+    xs = all_leds.map(&:x)
+    @floor_tube ||= Tube.new(
+      name: 'floor',
+      from: [ xs.min, floor ],
+      to:   [ xs.max, floor ],
+      led_count: 50
+    )
   end
 end
 
@@ -69,7 +92,7 @@ end
 
 if $0 == __FILE__
 
-  frame = Frame.new image_path: 'assets/kalkhoff.jpeg'
+  frame = Frame.new image_path: 'assets/kalkhoff.jpeg', floor: 1981
 
   # order of adding is the order of the LED strip
   frame.tubes << Tube.new(name: 'down tube'    , from: [ 924, 604], to: [1667,1515], led_count: 20)
