@@ -30,7 +30,7 @@ class Frame < OpenStruct
     Magick::Draw.new.tap do |pen|
       pen.stroke_width 4
       pen.stroke('yellow')
-      pen.stroke_opacity 0.7
+      pen.stroke_opacity 0.3
       all_leds.each do |led|
         pen.line led.x, led.y, led.floor.x, led.floor.y
       end
