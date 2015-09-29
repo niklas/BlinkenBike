@@ -25,12 +25,12 @@
 
 
 int dataPin = 2;
-int clockPin = 1;
+int clockPin = 3;
 
 
 // Declare the number of pixels in strand; 32 = 32 pixels in a row.  The
 // LED strips have 32 LEDs per meter, but you can extend or cut the strip.
-const int numPixels = 32;
+const int numPixels = 110;
 // 'const' makes subsequent array declarations possible, otherwise there
 // would be a pile of malloc() calls later.
 
