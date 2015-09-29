@@ -262,7 +262,7 @@ void renderEffect02(byte idx) {
 
   byte *ptr = &imgData[idx][0];
   int  foo;
-  long color, i;
+  long color;
   for(long i=0; i<numPixels; i++) {
     foo = fixSin(fxVars[idx][4] + fxVars[idx][2] * i / numPixels);
     // Peaks of sine wave are white, troughs are black, mid-range
