@@ -21,7 +21,9 @@
 #include <avr/pgmspace.h>
 #include "SPI.h"
 #include "LPD8806.h"
-#include "TimerOne.h"
+#include <MsTimer2.h>
+
+#define FPS 60
 
 
 int dataPin = 2;
@@ -105,8 +107,8 @@ void setup() {
   // Each effect rendering function varies in processing complexity, so
   // the timer allows smooth transitions between effects (otherwise the
   // effects and transitions would jump around in speed...not attractive).
-  Timer1.initialize();
-  Timer1.attachInterrupt(callback, 1000000 / 60); // 60 frames/second
+  MsTimer2::set(1000 / FPS, callback);
+  MsTimer2::start();
 }
 
 void loop() {
