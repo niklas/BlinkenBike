@@ -25,6 +25,10 @@
 
 #define FPS 60
 
+// FIXME Was 50. strangely, if we set this higher than 13, setup() crashes on
+// assignment, Serial does not output anything
+#define FX_VARS_NUM 9
+
 
 int dataPin = 2;
 int clockPin = 3;
@@ -58,7 +62,7 @@ byte imgData[2][numPixels * 3], // Data for 2 strips worth of imagery
      alphaMask[numPixels],      // Alpha channel for compositing images
      backImgIdx = 0,            // Index of 'back' image (always 0 or 1)
      fxIdx[3];                  // Effect # for back & front images + alpha
-int  fxVars[3][50],             // Effect instance variables (explained later)
+int  fxVars[3][FX_VARS_NUM],    // Effect instance variables (explained later)
      tCounter   = -1,           // Countdown to next transition
      transitionTime;            // Duration (in frames) of current transition
 
@@ -93,6 +97,8 @@ void (*renderEffect[])(byte) = {
 // ---------------------------------------------------------------------------
 
 void setup() {
+  Serial.begin(9600);
+  Serial.println("setup start");
   // Start up the LED strip.  Note that strip.show() is NOT called here --
   // the callback function will be invoked immediately when attached, and
   // the first thing the calback does is update the strip.
@@ -109,6 +115,7 @@ void setup() {
   // effects and transitions would jump around in speed...not attractive).
   MsTimer2::set(1000 / FPS, callback);
   MsTimer2::start();
+  Serial.println("setup finished");
 }
 
 void loop() {
