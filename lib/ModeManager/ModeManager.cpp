@@ -2,7 +2,7 @@
 #include "ModeManager.h"
 
 ModeManager::ModeManager(void) {
-  mode         = ModeWandererRed;
+  mode         = ModeWandererYellow;
   selectedMode = mode;
 }
 
@@ -30,7 +30,7 @@ uint32_t ModeManager::getColor(int m, LPD8806 leds, int bright) {
     case ModeWandererWhite:    return( leds.Color( bright , bright , bright ));
     case ModeWandererPink:     return( leds.Color( bright , 0      , bright ));
     case ModeWandererCyan:     return( leds.Color( 0      , bright , bright ));
-    case ModeWandererYellow:   return( leds.Color( bright , bright , 0      ));
+    case ModeWandererYellow:   return( leds.Color( bright , bright , 0      )); // actually, purple
     case ModeWandererOrange:   return( leds.Color( bright , 0      , bright >> 2));
     default:                   return( leds.Color( 0      , 0      , 0      ));
   }
