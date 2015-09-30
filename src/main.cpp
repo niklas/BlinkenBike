@@ -38,6 +38,13 @@ int clockPin = 3;
 
 const int numPixels = 110;
 
+void (*renderEffect[])(ANIMATION_SIGNATURE) = {
+  renderEffect00,
+  renderEffect01,
+  renderEffect02,
+  renderEffect03
+};
+
 byte imgData[numPixels * 3],    // Data for 1 strip worth of imagery
      fxIdx;                     // Effect # for back & front images + alpha
 int  fxVars[FX_VARS_NUM],       // Effect instance variables (explained later)
@@ -86,7 +93,7 @@ void callback() {
   int  i;
 
   // Always render back image based on current effect index:
-  (*renderEffect[fxIdx])();
+  (*renderEffect[fxIdx])(imgData, numPixels, fxVars);
 
   // Apply gamma
   for(i=0; i<numPixels*3; i++) {
