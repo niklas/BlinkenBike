@@ -63,8 +63,6 @@ void (*renderEffect[])() = {
 // ---------------------------------------------------------------------------
 
 void setup() {
-  Serial.begin(9600);
-  Serial.println("s");
   // Start up the LED strip.  Note that strip.show() is NOT called here --
   // the callback function will be invoked immediately when attached, and
   // the first thing the calback does is update the strip.
@@ -81,7 +79,6 @@ void setup() {
   // effects and transitions would jump around in speed...not attractive).
   Timer1.initialize();
   Timer1.attachInterrupt(callback, 1000000 / FPS); // 60 frames/second
-  Serial.println("f");
 }
 
 void loop() {
