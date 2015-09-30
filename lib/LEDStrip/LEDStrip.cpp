@@ -68,52 +68,43 @@ void LEDStrip::startBitbang() {
 
 // Change strip length (see notes with empty constructor, above):
 void LEDStrip::updateLength(uint16_t n) {
-  uint8_t  latchBytes;
-  uint16_t dataBytes, totalBytes;
-
-  numLEDs = numBytes = 0;
-  if(pixels) free(pixels); // Free existing data (if any)
-
-  dataBytes  = n * 3;
-  latchBytes = (n + 31) / 32;
-  totalBytes = dataBytes + latchBytes;
-  if((pixels = (uint8_t *)malloc(totalBytes))) { // Alloc new data
-    numLEDs  = n;
-    numBytes = totalBytes;
-    memset( pixels           , 0x80, dataBytes);  // Init to RGB 'off' state
-    memset(&pixels[dataBytes], 0   , latchBytes); // Clear latch bytes
-  }
-  // 'begun' state does not change -- pins retain prior modes
+  numLEDs  = n;
 }
 
 uint16_t LEDStrip::numPixels(void) {
   return numLEDs;
 }
 
-void LEDStrip::show(void) {
-  uint8_t  *ptr = pixels;
-  uint16_t i    = numBytes;
+void LEDStrip::show(byte * ptr) {
+  uint16_t i = numLEDs * 3;
 
-  // This doesn't need to distinguish among individual pixel color
-  // bytes vs. latch data, etc.  Everything is laid out in one big
-  // flat buffer and issued the same regardless of purpose.
-  uint8_t p, bit;
-
+  // first, send all the data
   while(i--) {
-    p = *ptr++;
-    for(bit=0x80; bit; bit >>= 1) {
+    sendByte(*ptr++ | 0x80);
+  }
+
+  // then, some latch 0's
+  i = (numLEDs + 31) / 32;
+  while(i--) {
+    sendByte(0);
+  }
+}
+
+void LEDStrip::sendByte(uint8_t p) {
+  uint8_t bit;
+
+  for(bit=0x80; bit; bit >>= 1) {
 #ifdef __AVR__
-      if(p & bit) *dataport |=  datapinmask;
-      else        *dataport &= ~datapinmask;
-      *clkport |=  clkpinmask;
-      *clkport &= ~clkpinmask;
+    if(p & bit) *dataport |=  datapinmask;
+    else        *dataport &= ~datapinmask;
+    *clkport |=  clkpinmask;
+    *clkport &= ~clkpinmask;
 #else
-      if(p & bit) digitalWrite(datapin, HIGH);
-      else        digitalWrite(datapin, LOW);
-      digitalWrite(clkpin, HIGH);
-      digitalWrite(clkpin, LOW);
+    if(p & bit) digitalWrite(datapin, HIGH);
+    else        digitalWrite(datapin, LOW);
+    digitalWrite(clkpin, HIGH);
+    digitalWrite(clkpin, LOW);
 #endif
-    }
   }
 }
 

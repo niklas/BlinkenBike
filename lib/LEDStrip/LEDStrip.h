@@ -9,7 +9,7 @@ class LEDStrip {
     begin(void),
     setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b),
     setPixelColor(uint16_t n, uint32_t c),
-    show(void),
+    show(byte * pix),
     updatePins(uint8_t dpin, uint8_t cpin), // Change pins, configurable
     updateLength(uint16_t n);               // Change strip length
   uint16_t
@@ -26,6 +26,8 @@ class LEDStrip {
   uint8_t
     *pixels,    // Holds LED color values (3 bytes each) + latch bytes
     clkpin    , datapin;     // Clock & data pin numbers
+  void
+    sendByte(uint8_t p);
 #ifdef __AVR__
   uint8_t
     clkpinmask, datapinmask; // Clock & data PORT bitmasks

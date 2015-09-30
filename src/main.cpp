@@ -34,7 +34,7 @@ int dataPin = 2;
 int clockPin = 3;
 
 
-const int numPixels = 101;
+const int numPixels = 110;
 
 byte imgData[numPixels * 3],    // Data for 1 strip worth of imagery
      fxIdx;                     // Effect # for back & front images + alpha
@@ -100,21 +100,16 @@ void callback() {
   // beat with respect to the Timer1 interrupt.  The various effects
   // rendering and compositing code is not constant-time, and that
   // unevenness would be apparent if show() were called at the end.
-  strip.show();
+  strip.show(&imgData[0]);
 
-  byte *backPtr    = &imgData[0],
-       r, g, b;
   int  i;
 
   // Always render back image based on current effect index:
   (*renderEffect[fxIdx])();
 
-  for(i=0; i<numPixels; i++) {
-    // See note above re: r, g, b vars.
-    r = gamma(*backPtr++);
-    g = gamma(*backPtr++);
-    b = gamma(*backPtr++);
-    strip.setPixelColor(i, r, g, b);
+  // Apply gamma
+  for(i=0; i<numPixels*3; i++) {
+    imgData[i] = gamma(imgData[i]);
   }
 
   // Count up to next transition (or end of current one):
