@@ -20,7 +20,7 @@
 
 #include <avr/pgmspace.h>
 #include "SPI.h"
-#include "LPD8806.h"
+#include "LEDStrip.h"
 #include "TimerOne.h"
 
 #define FPS 60
@@ -34,34 +34,14 @@ int dataPin = 2;
 int clockPin = 3;
 
 
-// Declare the number of pixels in strand; 32 = 32 pixels in a row.  The
-// LED strips have 32 LEDs per meter, but you can extend or cut the strip.
-const int numPixels = 100;
-// 'const' makes subsequent array declarations possible, otherwise there
-// would be a pile of malloc() calls later.
+const int numPixels = 101;
 
-// Instantiate LED strip; arguments are the total number of pixels in strip,
-// the data pin number and clock pin number:
-LPD8806 strip = LPD8806(numPixels, dataPin, clockPin);
-
-// You can also use hardware SPI for ultra-fast writes by omitting the data
-// and clock pin arguments.  This is faster, but the data and clock are then
-// fixed to very specific pin numbers: on Arduino 168/328, data = pin 11,
-// clock = pin 13.  On Mega, data = pin 51, clock = pin 52.
-//LPD8806 strip = LPD8806(numPixels);
-
-// Principle of operation: at any given time, the LEDs depict an image or
-// animation effect (referred to as the "back" image throughout this code).
-// Periodically, a transition to a new image or animation effect (referred
-// to as the "front" image) occurs.  During this transition, a third buffer
-// (the "alpha channel") determines how the front and back images are
-// combined; it represents the opacity of the front image.  When the
-// transition completes, the "front" then becomes the "back," a new front
-// is chosen, and the process repeats.
 byte imgData[numPixels * 3],    // Data for 1 strip worth of imagery
      fxIdx;                     // Effect # for back & front images + alpha
 int  fxVars[FX_VARS_NUM],       // Effect instance variables (explained later)
      tCounter   = -1;           // Countdown to next transition
+
+LEDStrip strip = LEDStrip(numPixels, dataPin, clockPin);
 
 // function prototypes, leave these be :)
 void renderEffect00();
