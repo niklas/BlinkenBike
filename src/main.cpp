@@ -36,7 +36,7 @@ int clockPin = 3;
 
 // Declare the number of pixels in strand; 32 = 32 pixels in a row.  The
 // LED strips have 32 LEDs per meter, but you can extend or cut the strip.
-const int numPixels = 97;
+const int numPixels = 100;
 // 'const' makes subsequent array declarations possible, otherwise there
 // would be a pile of malloc() calls later.
 
@@ -68,10 +68,6 @@ void renderEffect00();
 void renderEffect01();
 void renderEffect02();
 void renderEffect03();
-void renderAlpha00(void);
-void renderAlpha01(void);
-void renderAlpha02(void);
-void renderAlpha03(void);
 void callback();
 byte gamma(byte x);
 long hsv2rgb(long h, byte s, byte v);
@@ -91,7 +87,7 @@ void (*renderEffect[])() = {
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("setup start");
+  Serial.println("s");
   // Start up the LED strip.  Note that strip.show() is NOT called here --
   // the callback function will be invoked immediately when attached, and
   // the first thing the calback does is update the strip.
@@ -108,7 +104,7 @@ void setup() {
   // effects and transitions would jump around in speed...not attractive).
   Timer1.initialize();
   Timer1.attachInterrupt(callback, 1000000 / FPS); // 60 frames/second
-  Serial.println("setup finished");
+  Serial.println("f");
 }
 
 void loop() {
