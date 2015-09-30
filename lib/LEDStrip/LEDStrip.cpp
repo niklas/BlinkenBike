@@ -15,7 +15,6 @@ MIT license
 
 // Constructor for use with arbitrary clock/data pins:
 LEDStrip::LEDStrip(uint16_t n, uint8_t dpin, uint8_t cpin) {
-  pixels = NULL;
   begun  = false;
   updateLength(n);
   updatePins(dpin, cpin);
@@ -126,36 +125,3 @@ uint32_t LEDStrip::Color(byte r, byte g, byte b) {
          ((uint32_t)(r | 0x80) <<  8) |
                      b | 0x80 ;
 }
-
-// Set pixel color from separate 7-bit R, G, B components:
-void LEDStrip::setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b) {
-  if(n < numLEDs) { // Arrays are 0-indexed, thus NOT '<='
-    uint8_t *p = &pixels[n * 3];
-    *p++ = g | 0x80; // Strip color order is GRB,
-    *p++ = r | 0x80; // not the more common RGB,
-    *p++ = b | 0x80; // so the order here is intentional; don't "fix"
-  }
-}
-
-// Set pixel color from 'packed' 32-bit GRB (not RGB) value:
-void LEDStrip::setPixelColor(uint16_t n, uint32_t c) {
-  if(n < numLEDs) { // Arrays are 0-indexed, thus NOT '<='
-    uint8_t *p = &pixels[n * 3];
-    *p++ = (c >> 16) | 0x80;
-    *p++ = (c >>  8) | 0x80;
-    *p++ =  c        | 0x80;
-  }
-}
-
-// Query color from previously-set pixel (returns packed 32-bit GRB value)
-uint32_t LEDStrip::getPixelColor(uint16_t n) {
-  if(n < numLEDs) {
-    uint16_t ofs = n * 3;
-    return ((uint32_t)(pixels[ofs    ] & 0x7f) << 16) |
-           ((uint32_t)(pixels[ofs + 1] & 0x7f) <<  8) |
-            (uint32_t)(pixels[ofs + 2] & 0x7f);
-  }
-
-  return 0; // Pixel # is out of bounds
-}
-
