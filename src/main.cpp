@@ -141,12 +141,14 @@ void callback() {
 void renderEffect00() {
   // Only needs to be rendered once, when effect is initialized:
   if(fxVars[0] == 0) {
-    byte *ptr = &imgData[0],
-      r = random(256), g = random(256), b = random(256);
-    for(int i=0; i<numPixels; i++) {
-      *ptr++ = r; *ptr++ = g; *ptr++ = b;
-    }
+    fxVars[1] = random(256); // R
+    fxVars[2] = random(256); // G
+    fxVars[3] = random(256); // B
     fxVars[0] = 1; // Effect initialized
+  }
+  byte *ptr = &imgData[0];
+  for(int i=0; i<numPixels; i++) {
+    *ptr++ = fxVars[1]; *ptr++ = fxVars[2]; *ptr++ = fxVars[3];
   }
 }
 
