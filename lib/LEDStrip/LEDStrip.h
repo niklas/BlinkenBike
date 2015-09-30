@@ -5,15 +5,12 @@ class LEDStrip {
  public:
 
   LEDStrip(uint16_t n, uint8_t dpin, uint8_t cpin); // Configurable pins
-  LEDStrip(uint16_t n); // Use SPI hardware; specific pins only
-  LEDStrip(void); // Empty constructor; init pins & strip length later
   void
     begin(void),
     setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b),
     setPixelColor(uint16_t n, uint32_t c),
     show(void),
     updatePins(uint8_t dpin, uint8_t cpin), // Change pins, configurable
-    updatePins(void),                       // Change pins, hardware SPI
     updateLength(uint16_t n);               // Change strip length
   uint16_t
     numPixels(void);
@@ -36,10 +33,8 @@ class LEDStrip {
     *clkport  , *dataport;   // Clock & data PORT registers
 #endif
   void
-    startBitbang(void),
-    startSPI(void);
+    startBitbang(void);
   boolean
-    hardwareSPI, // If 'true', using hardware SPI
     begun;       // If 'true', begin() method was previously invoked
 };
 

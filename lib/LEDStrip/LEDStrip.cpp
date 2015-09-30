@@ -13,14 +13,6 @@ MIT license
 
 /*****************************************************************************/
 
-// Constructor for use with hardware SPI (specific clock/data pins):
-LEDStrip::LEDStrip(uint16_t n) {
-  pixels = NULL;
-  begun  = false;
-  updateLength(n);
-  updatePins();
-}
-
 // Constructor for use with arbitrary clock/data pins:
 LEDStrip::LEDStrip(uint16_t n, uint8_t dpin, uint8_t cpin) {
   pixels = NULL;
@@ -29,46 +21,18 @@ LEDStrip::LEDStrip(uint16_t n, uint8_t dpin, uint8_t cpin) {
   updatePins(dpin, cpin);
 }
 
-// via Michael Vogt/neophob: empty constructor is used when strip length
-// isn't known at compile-time; situations where program config might be
-// read from internal flash memory or an SD card, or arrive via serial
-// command.  If using this constructor, MUST follow up with updateLength()
-// and updatePins() to establish the strip length and output pins!
-LEDStrip::LEDStrip(void) {
-  numLEDs = numBytes = 0;
-  pixels  = NULL;
-  begun   = false;
-  updatePins(); // Must assume hardware SPI until pins are set
-}
 
 // Activate hard/soft SPI as appropriate:
 void LEDStrip::begin(void) {
-  if(hardwareSPI == true) startSPI();
-  else                    startBitbang();
+  startBitbang();
   begun = true;
-}
-
-// Change pin assignments post-constructor, switching to hardware SPI:
-void LEDStrip::updatePins(void) {
-  pinMode(datapin, INPUT); // Restore data and clock pins to inputs
-  pinMode(clkpin , INPUT);
-  datapin     = clkpin = 0;
-  hardwareSPI = true;
-  // If begin() was previously invoked, init the SPI hardware now:
-  if(begun == true) startSPI();
-  // Otherwise, SPI is NOT initted until begin() is explicitly called.
 }
 
 // Change pin assignments post-constructor, using arbitrary pins:
 void LEDStrip::updatePins(uint8_t dpin, uint8_t cpin) {
   if(begun == true) { // If begin() was previously invoked...
-    // If previously using hardware SPI, turn that off:
-    if(hardwareSPI) {
-      SPI.end();
-    } else {
-      pinMode(datapin, INPUT); // Restore prior data and clock pins to inputs
-      pinMode(clkpin , INPUT);
-    }
+    pinMode(datapin, INPUT); // Restore prior data and clock pins to inputs
+    pinMode(clkpin , INPUT);
   }
   datapin     = dpin;
   clkpin      = cpin;
@@ -81,26 +45,6 @@ void LEDStrip::updatePins(uint8_t dpin, uint8_t cpin) {
 
   // If previously begun, enable 'soft' SPI outputs now
   if(begun == true) startBitbang();
-
-  hardwareSPI = false;
-}
-
-// Enable SPI hardware and set up protocol details:
-void LEDStrip::startSPI(void) {
-  SPI.begin();
-  SPI.setBitOrder(MSBFIRST);
-  SPI.setDataMode(SPI_MODE0);
-  // SPI bus is run at 2MHz.  Although the LPD8806 should, in theory,
-  // work up to 20MHz, the unshielded wiring from the Arduino is more
-  // susceptible to interference.  Experiment and see what you get.
- #if defined(__AVR__) || defined(CORE_TEENSY)
-  SPI.setClockDivider(SPI_CLOCK_DIV8);
- #else
-  SPI.setClockDivider((F_CPU + 1000000L) / 2000000L);
- #endif
-
-  // Issue initial latch/reset to strip:
-  for(uint16_t i=((numLEDs+31)/32); i>0; i--) spi_out(0);
 }
 
 // Enable software SPI pins and issue initial latch:
@@ -153,26 +97,22 @@ void LEDStrip::show(void) {
   // This doesn't need to distinguish among individual pixel color
   // bytes vs. latch data, etc.  Everything is laid out in one big
   // flat buffer and issued the same regardless of purpose.
-  if(hardwareSPI) {
-    while(i--) spi_out(*ptr++);
-  } else {
-    uint8_t p, bit;
+  uint8_t p, bit;
 
-    while(i--) {
-      p = *ptr++;
-      for(bit=0x80; bit; bit >>= 1) {
+  while(i--) {
+    p = *ptr++;
+    for(bit=0x80; bit; bit >>= 1) {
 #ifdef __AVR__
-	  if(p & bit) *dataport |=  datapinmask;
-	  else        *dataport &= ~datapinmask;
-	  *clkport |=  clkpinmask;
-	  *clkport &= ~clkpinmask;
+      if(p & bit) *dataport |=  datapinmask;
+      else        *dataport &= ~datapinmask;
+      *clkport |=  clkpinmask;
+      *clkport &= ~clkpinmask;
 #else
-	  if(p & bit) digitalWrite(datapin, HIGH);
-	  else        digitalWrite(datapin, LOW);
-	  digitalWrite(clkpin, HIGH);
-	  digitalWrite(clkpin, LOW);
+      if(p & bit) digitalWrite(datapin, HIGH);
+      else        digitalWrite(datapin, LOW);
+      digitalWrite(clkpin, HIGH);
+      digitalWrite(clkpin, LOW);
 #endif
-      }
     }
   }
 }
