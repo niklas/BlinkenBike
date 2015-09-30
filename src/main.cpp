@@ -27,8 +27,7 @@
 
 #define FPS 60
 
-// FIXME Was 50. strangely, if we set this higher than 13, setup() crashes on
-// assignment, Serial does not output anything
+// number of fxVars, ocnfiguration ints for render effects
 #define FX_VARS_NUM 9
 
 
