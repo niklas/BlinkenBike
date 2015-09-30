@@ -107,7 +107,7 @@ PROGMEM const unsigned char flagTable[]  = {
   C_WHITE, C_RED  , C_WHITE, C_RED  , C_WHITE, C_RED };
 
 // Wavy flag effect
-void renderEffect03(ANIMATION_SIGNATURE) {
+void renderEffect_flag(ANIMATION_SIGNATURE) {
   long i, sum, s, x;
   int  idx1, idx2, a, b;
   if(meta[0] == 0) { // Initialize effect?

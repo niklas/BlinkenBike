@@ -77,10 +77,22 @@ uint16_t LEDStrip::numPixels(void) {
 
 void LEDStrip::show(byte * ptr) {
   uint16_t i = numLEDs * 3;
+  byte rg;
 
   // first, send all the data
+  // we must swap Red and Green because our LEDstrips are different
   while(i--) {
-    sendByte(*ptr++ | 0x80);
+    switch (i % 3) {
+      case 1:
+        rg = *ptr++;
+        break;
+      case 0:
+        sendByte(*ptr++ | 0x80);
+        sendByte(rg | 0x80);
+        break;
+      default:
+        sendByte(*ptr++ | 0x80);
+    }
   }
 
   // then, some latch 0's

@@ -6,6 +6,6 @@
 void renderEffect00(ANIMATION_SIGNATURE);
 void renderEffect01(ANIMATION_SIGNATURE);
 void renderEffect02(ANIMATION_SIGNATURE);
-void renderEffect03(ANIMATION_SIGNATURE);
+void renderEffect_flag(ANIMATION_SIGNATURE);
 
 #endif

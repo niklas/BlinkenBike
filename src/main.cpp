@@ -42,7 +42,7 @@ void (*renderEffect[])(ANIMATION_SIGNATURE) = {
   renderEffect00,
   renderEffect01,
   renderEffect02,
-  renderEffect03
+  renderEffect_flag
 };
 
 byte imgData[numPixels * 3],    // Data for 1 strip worth of imagery
