@@ -41,3 +41,5 @@ pixel:
 step:
   meta[4] += meta[2];
   if(meta[4] >= 720) meta[4] -= 720;
+
+// vi:syntax=cpp

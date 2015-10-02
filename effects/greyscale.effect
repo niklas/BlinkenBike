@@ -10,4 +10,4 @@ step:
   if (meta[1] == 0  ) meta[2] =  1;
   meta[1] += meta[2];
 
-# vi:syntax=cpp
+// vi:syntax=cpp

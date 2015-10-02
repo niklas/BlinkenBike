@@ -21,3 +21,5 @@ pixel:
   *pixel++ = color >> 16; *pixel++ = color >> 8; *pixel++ = color;
 step:
   meta[3] += meta[2];
+
+// vi:syntax=cpp

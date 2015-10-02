@@ -6,4 +6,4 @@ init:
 pixel:
   *pixel++ = meta[1]; *pixel++ = meta[2]; *pixel++ = meta[3];
 
-# vi:syntax=cpp
+// vi:syntax=cpp

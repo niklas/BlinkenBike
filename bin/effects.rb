@@ -73,7 +73,10 @@ class Effect < Struct.new(:name, :source)
           section = $1
           sections[section] = ''
         when /^\s*#/,%r~^\s*//~
-          # ignore comments
+          # ignore comments before first section
+          if section
+            sections[section] << line
+          end
         when /^\s*$/
         else
           raise "must start with a 'section:': #{fn}" unless section
