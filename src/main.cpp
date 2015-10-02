@@ -94,7 +94,9 @@ void callback() {
 
 
   // Initialize the current effect
-  (*effectInit[fxIdx])(fxVars, numPixels);
+  if (fxVars[0] == 0) {
+    (*effectInit[fxIdx])(fxVars, numPixels);
+  }
 
   for(imgPtr = &imgData[0], pix = 0; pix < numPixels; pix++) {
     // apply effect to every pixel
@@ -113,7 +115,7 @@ void callback() {
   tCounter++;
   if(tCounter == 0) { // Transition start
     // Randomly pick next image effect and alpha effect indices:
-    fxIdx = random((sizeof(renderEffect) / sizeof(renderEffect[0])));
+    fxIdx = random((EFFECT_NUM));
     fxVars[0] = 0;     // Effect not yet initialized
     tCounter          = -120 - random(240); // Hold image 2 to 6 seconds
   }

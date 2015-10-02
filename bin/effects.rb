@@ -59,7 +59,8 @@ class Effect < Struct.new(:name, :source)
 
   def c_func(sec, code)
     header = c_header(sec)
-    %Q~#{header} {\n#{code}}\n~
+    extra = sec == 'init' ? '  meta[0] = 1;' : ''
+    %Q~#{header} {\n#{code}#{extra}\n}\n~
   end
 
   def sections
