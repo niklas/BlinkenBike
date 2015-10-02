@@ -1,3 +1,5 @@
 .pioenvs/
 .sconsign.dblite
 doc/kalkhoff.jpeg
+src/effects.cpp
+src/effects.h

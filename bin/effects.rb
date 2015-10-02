@@ -1,18 +1,30 @@
 #!/usr/bin/env ruby
 
 class Effect < Struct.new(:name, :source)
+  MethodSections = %w(init pixel step)
 
   def implementation
     sections.map do |sec, code|
       case sec
       when 'setup'
         code.gsub(/^\s{2}/, '') # just outdent
-      when 'init', 'pixel', 'step'
+      when *MethodSections
         c_func(sec, code)
       else
         raise "unknown section: #{sec}"
       end
-    end.join
+    end.join("\n")
+  end
+
+  def header
+    sections.map do |sec, _code|
+      case sec
+      when 'setup'
+        # nuffin
+      when *MethodSections
+        c_header(sec) + ';'
+      end
+    end.join("\n")
   end
 
   private
@@ -72,15 +84,34 @@ class Effect < Struct.new(:name, :source)
       end
     end
   end
-
 end
 
+class Effects < Array
+  def implementation
+    map(&:implementation).join("\n\n")
+  end
 
-effects = Dir['effects/*.effect'].map do |fn|
-  source = File.read(fn)
-  name   = File.basename(fn, '.*')
-
-  Effect.new name, source
+  def header
+    map(&:header).join("\n\n")
+  end
 end
 
-puts effects.map(&:implementation).join
+if $0 == __FILE__
+  effects = Dir['effects/*.effect'].map do |fn|
+    source = File.read(fn)
+    name   = File.basename(fn, '.*')
+
+    Effect.new name, source
+  end
+  effects = Effects.new(effects)
+
+  File.open 'src/effects.h', 'w' do |h|
+    h.puts effects.header
+  end
+
+  File.open 'src/effects.cpp', 'w' do |cpp|
+    cpp.puts effects.implementation
+  end
+else
+  raise "run as #{$0}"
+end

@@ -24,7 +24,7 @@
 #include "TimerOne.h"
 #include "trigometry.h"
 #include "colors.h"
-#include "animations.h"
+#include "effects.h"
 
 #define FPS 60
 
