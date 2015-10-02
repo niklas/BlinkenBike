@@ -25,6 +25,7 @@
 #include "trigometry.h"
 #include "colors.h"
 #include "effects.h"
+#include "transitions.h"
 
 #define FPS 60
 
@@ -102,8 +103,13 @@ void callback() {
   if (fxVars[backImgIdx][0] == 0) {
     (*effectInit[fxIdx[backImgIdx]])(fxVars[backImgIdx], numPixels);
   }
-  if (fxVars[frntImgIdx][0] == 0) {
-    (*effectInit[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], numPixels);
+  if (tCounter > 0) {
+    if (fxVars[frntImgIdx][0] == 0) {
+      (*effectInit[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], numPixels);
+    }
+    if (alphaVars[0] == 0) {
+      (*alphaInit[alphaIdx])(alphaVars, numPixels);
+    }
   }
 
   for(pix = 0; pix < numPixels; pix++) {

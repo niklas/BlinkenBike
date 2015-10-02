@@ -4,3 +4,4 @@
 # wrapper
 from subprocess import call
 call(["bin/effects.rb"])
+call(["bin/alphas.rb"])
