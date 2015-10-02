@@ -27,14 +27,12 @@ class Effect < Struct.new(:name, :source)
     end.join("\n")
   end
 
-  private
-
   def init_name
     "effect_init_#{name}"
   end
 
   def init_sign
-    "meta"
+    "EFFECT_INIT_SIGNATURE"
   end
 
   def pixel_name
@@ -42,7 +40,7 @@ class Effect < Struct.new(:name, :source)
   end
 
   def pixel_sign
-    "meta, pixel"
+    "EFFECT_PIXEL_SIGNATURE"
   end
 
   def step_name
@@ -50,7 +48,7 @@ class Effect < Struct.new(:name, :source)
   end
 
   def step_sign
-    "meta"
+    "EFFECT_STEP_SIGNATURE"
   end
 
   def c_header(sec)
@@ -92,7 +90,48 @@ class Effects < Array
   end
 
   def header
+    [
+      function_signs,
+      function_headers,
+      inits,
+      pixels,
+      steps,
+      count_const,
+    ].join("\n\n\n")
+  end
+
+  def function_headers
     map(&:header).join("\n\n")
+  end
+
+  def inits
+    x = map(&:init_name).join(",\n")
+
+    %Q~void (*effectInit[])(EFFECT_INIT_SIGNATURE) = {\n#{x}\n};~
+  end
+
+  def pixels
+    x = map(&:pixel_name).join(",\n")
+
+    %Q~void (*effectPixel[])(EFFECT_PIXEL_SIGNATURE) = {\n#{x}\n};~
+  end
+
+  def steps
+    x = map(&:step_name).join(",\n")
+
+    %Q~void (*effectStep[])(EFFECT_STEP_SIGNATURE) = {\n#{x}\n};~
+  end
+
+  def function_signs
+    [].tap do |s|
+      s << %Q~#define EFFECT_INIT_SIGNATURE int * meta~
+      s << %Q~#define EFFECT_PIXEL_SIGNATURE int * meta, byte * pixel~
+      s << %Q~#define EFFECT_STEP_SIGNATURE int * meta~
+    end.join("\n")
+  end
+
+  def count_const
+    %Q~#define EFFECT_NUM #{size}~
   end
 end
 
@@ -106,10 +145,16 @@ if $0 == __FILE__
   effects = Effects.new(effects)
 
   File.open 'src/effects.h', 'w' do |h|
+    h.puts %Q~#ifndef __EFFECTS_H__~
+    h.puts %Q~#define __EFFECTS_H__~
+    h.puts
     h.puts effects.header
+    h.puts
+    h.puts %Q~#endif~
   end
 
   File.open 'src/effects.cpp', 'w' do |cpp|
+    cpp.puts %Q~#include "effects.h"~
     cpp.puts effects.implementation
   end
 else
