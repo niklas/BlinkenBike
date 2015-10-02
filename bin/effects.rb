@@ -96,17 +96,20 @@ end
 
 class Effects < Array
   def implementation
-    map(&:implementation).join("\n\n")
+    [
+      map(&:implementation).join("\n\n"),
+      func_array('init'),
+      func_array('pixel'),
+      func_array('step'),
+    ].join("\n\n\n")
   end
 
   def header
     [
       function_signs,
       function_headers,
-      inits,
-      pixels,
-      steps,
       count_const,
+      function_array_names,
     ].join("\n\n\n")
   end
 
@@ -114,22 +117,22 @@ class Effects < Array
     map(&:header).join("\n\n")
   end
 
-  def inits
-    x = map(&:init_name).join(",\n")
-
-    %Q~void (*effectInit[])(EFFECT_INIT_SIGNATURE) = {\n#{x}\n};~
+  def func_array_name(section, count='')
+    name    = 'effect' + section.capitalize
+    sign    = "EFFECT_#{section.upcase}_SIGNATURE"
+    %Q~extern void (*#{name}[#{count}])(#{sign})~
   end
 
-  def pixels
-    x = map(&:pixel_name).join(",\n")
-
-    %Q~void (*effectPixel[])(EFFECT_PIXEL_SIGNATURE) = {\n#{x}\n};~
+  def function_array_names
+    Effect::MethodSections.map do |section|
+      func_array_name(section, 'EFFECT_NUM') + ';'
+    end.join("\n")
   end
 
-  def steps
-    x = map(&:step_name).join(",\n")
+  def func_array(section)
+    content = map(&:"#{section}_name").join(",\n")
 
-    %Q~void (*effectStep[])(EFFECT_STEP_SIGNATURE) = {\n#{x}\n};~
+    %Q~#{func_array_name(section)} = {\n#{content}\n};~
   end
 
   def function_signs
