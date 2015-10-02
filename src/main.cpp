@@ -40,9 +40,14 @@ const int numPixels = 110;
 
 byte imgData[numPixels * 3],    // Data for 1 strip worth of imagery
      layerA[3],                 // RGB for first layer
-     fxIdx;                     // Effect # for back & front images + alpha
-int  fxVars[FX_VARS_NUM],       // Effect instance variables (explained later)
-     tCounter   = -1;           // Countdown to next transition
+     layerB[3],                 // RGB for second layer
+     backImgIdx,                // Index of 'back' image (always 0 or 1)
+     fxIdx[2],                  // Effect # for back & front images
+     alphaIdx;                  // which Alpha transition to run
+int  fxVars[2][FX_VARS_NUM],    // Effect instance variables (explained later)
+     alphaVars[FX_VARS_NUM],    // Alpha transition instance variables
+     tCounter   = -1,           // Countdown to next transition
+     transitionTime;            // Duration (in frames) of current transition
 
 LEDStrip strip = LEDStrip(numPixels, dataPin, clockPin);
 
@@ -59,7 +64,8 @@ void setup() {
   // Initialize random number generator from a floating analog input.
   randomSeed(analogRead(0));
   memset(imgData, 0, sizeof(imgData)); // Clear image data
-  fxIdx = 0; // start with the first effect
+  backImgIdx        = 0;
+  fxIdx[backImgIdx] = 0; // start with the first effect
 
   // Timer1 is used so the strip will update at a known fixed frame rate.
   // Each effect rendering function varies in processing complexity, so
@@ -89,35 +95,60 @@ void callback() {
   strip.show(&imgData[0]);
 
   int pix;
-  byte i;
+  int frntImgIdx = 1 - backImgIdx;
   byte * imgPtr;
 
 
-  // Initialize the current effect
-  if (fxVars[0] == 0) {
-    (*effectInit[fxIdx])(fxVars, numPixels);
+  // Initialize the current effects if needed
+  if (fxVars[backImgIdx][0] == 0) {
+    (*effectInit[fxIdx[backImgIdx]])(fxVars[backImgIdx], numPixels);
+  }
+  if (fxVars[frntImgIdx][0] == 0) {
+    (*effectInit[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], numPixels);
   }
 
   for(imgPtr = &imgData[0], pix = 0; pix < numPixels; pix++) {
     // apply effect to every pixel
-    (*effectPixel[fxIdx])(fxVars, layerA, pix, numPixels);
+    (*effectPixel[fxIdx[backImgIdx]])(fxVars[backImgIdx], layerA, pix, numPixels);
 
-    // Apply gamma
-    *imgPtr++ = gamma(layerA[0]);
-    *imgPtr++ = gamma(layerA[1]);
-    *imgPtr++ = gamma(layerA[2]);
+    if (tCounter > 0) { // during transition
+      int alpha, inv;
+      (*effectPixel[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], layerB, pix, numPixels);
+
+      // calculate alpha btwn 1-256 so we can do a shift devide
+      alpha = 1 + (*alphaPixel[alphaIdx])(alphaVars, tCounter, transitionTime, pix, numPixels);
+      inv   = 257 - alpha;
+
+      *imgPtr++ = gamma( (layerA[0] * alpha + layerB[0] * inv) >> 8);
+      *imgPtr++ = gamma( (layerA[1] * alpha + layerB[1] * inv) >> 8);
+      *imgPtr++ = gamma( (layerA[2] * alpha + layerB[2] * inv) >> 8);
+    } else { // no transition going on
+      *imgPtr++ = gamma( layerA[0] );
+      *imgPtr++ = gamma( layerA[1] );
+      *imgPtr++ = gamma( layerA[2] );
+    }
   }
 
   // next step in effect
-  (*effectStep[fxIdx])(fxVars, numPixels);
+  (*effectStep[fxIdx[backImgIdx]])(fxVars[backImgIdx], numPixels);
+
+  if (tCounter > 0) {
+    (*effectStep[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], numPixels);
+  }
 
   // Count up to next transition (or end of current one):
   tCounter++;
   if(tCounter == 0) { // Transition start
     // Randomly pick next image effect and alpha effect indices:
-    fxIdx = random((EFFECT_NUM));
-    fxVars[0] = 0;     // Effect not yet initialized
-    tCounter          = -120 - random(240); // Hold image 2 to 6 seconds
+    fxIdx[frntImgIdx]      = random(EFFECT_NUM);
+    alphaIdx               = random(ALPHA_NUM);
+    transitionTime         = random(FPS/2, 3 * FPS);
+    fxVars[frntImgIdx][0]  = 0;     // Effect not yet initialized
+    alphaVars[0]           = 0; // Transition not yet initialized
+  } else if (tCounter >= transitionTime) { // End transition
+    fxIdx[backImgIdx]      = fxIdx[frntImgIdx]; // Move front effect index to back
+    backImgIdx             = 1 - backImgIdx;     // Invert back index
+    tCounter               = - random(2 * FPS, 6 * FPS); // Hold image 2 to 6 seconds
   }
 }
 
