@@ -2,9 +2,9 @@ init:
   meta[1] = random(255); // color
   meta[2] = 1;           // direction
 pixel:
-  *img++ = meta[1];
-  *img++ = meta[1];
-  *img++ = meta[1];
+  *pixel++ = meta[1];
+  *pixel++ = meta[1];
+  *pixel++ = meta[1];
 step:
   if (meta[1] => 255) meta[2] = -1;
   if (meta[1] == 0  ) meta[2] =  1;

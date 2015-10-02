@@ -18,6 +18,6 @@ pixel:
   long color;
   color = hsv2rgb(meta[3] + meta[1] * i / numPixels,
     255, 255);
-  *img++ = color >> 16; *img++ = color >> 8; *img++ = color;
+  *pixel++ = color >> 16; *pixel++ = color >> 8; *pixel++ = color;
 step:
   meta[3] += meta[2];

@@ -4,6 +4,6 @@ init:
   meta[2] = random(256); // G
   meta[3] = random(256); // B
 pixel:
-  *img++ = meta[1]; *img++ = meta[2]; *img++ = meta[3];
+  *pixel++ = meta[1]; *pixel++ = meta[2]; *pixel++ = meta[3];
 
 # vi:syntax=cpp
