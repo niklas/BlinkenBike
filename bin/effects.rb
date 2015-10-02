@@ -130,9 +130,9 @@ class Effects < Array
 
   def function_signs
     [].tap do |s|
-      s << %Q~#define EFFECT_INIT_SIGNATURE int * meta~
-      s << %Q~#define EFFECT_PIXEL_SIGNATURE int * meta, byte * pixel, int i~
-      s << %Q~#define EFFECT_STEP_SIGNATURE int * meta~
+      s << %Q~#define EFFECT_INIT_SIGNATURE int * meta, byte numPixels~
+      s << %Q~#define EFFECT_PIXEL_SIGNATURE int * meta, byte * pixel, int i, byte numPixels~
+      s << %Q~#define EFFECT_STEP_SIGNATURE int * meta, byte numPixels~
     end.join("\n")
   end
 

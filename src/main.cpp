@@ -94,11 +94,11 @@ void callback() {
 
 
   // Initialize the current effect
-  (*effectInit[fxIdx])(fxVars);
+  (*effectInit[fxIdx])(fxVars, numPixels);
 
   for(imgPtr = &imgData[0], pix = 0; pix < numPixels; pix++) {
     // apply effect to every pixel
-    (*effectPixel[fxIdx])(fxVars, layerA, pix);
+    (*effectPixel[fxIdx])(fxVars, layerA, pix, numPixels);
 
     // Apply gamma
     *imgPtr++ = gamma(layerA[0]);
@@ -107,7 +107,7 @@ void callback() {
   }
 
   // next step in effect
-  (*effectStep[fxIdx])(fxVars);
+  (*effectStep[fxIdx])(fxVars, numPixels);
 
   // Count up to next transition (or end of current one):
   tCounter++;
