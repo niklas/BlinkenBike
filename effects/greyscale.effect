@@ -1,0 +1,15 @@
+setup:
+  PROGMEM const unsigned char foo[]  = { 1,2,3 };
+init:
+  meta[1] = random(255); // color
+  meta[2] = 1;           // direction
+pixel:
+  *img++ = meta[1];
+  *img++ = meta[1];
+  *img++ = meta[1];
+step:
+  if (meta[1] => 255) meta[2] = -1;
+  if (meta[1] == 0  ) meta[2] =  1;
+  meta[1] += meta[2];
+
+# vi:syntax=cpp
