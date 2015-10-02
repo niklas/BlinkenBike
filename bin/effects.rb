@@ -61,8 +61,8 @@ class Effect < Struct.new(:name, :source)
         when /^(setup|init|pixel|step):\s*$/
           section = $1
           sections[section] = ''
-        when /^#/
-          # ignore
+        when /^\s*#/,%r~^\s*//~
+          # ignore comments
         when /^\s*$/
         else
           raise "must start with a 'section:': #{fn}" unless section

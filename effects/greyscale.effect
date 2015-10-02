@@ -1,5 +1,3 @@
-setup:
-  PROGMEM const unsigned char foo[]  = { 1,2,3 };
 init:
   meta[1] = random(255); // color
   meta[2] = 1;           // direction

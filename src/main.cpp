@@ -80,6 +80,10 @@ void loop() {
   // but we still need loop() here to keep the compiler happy.
 }
 
+void choose_effect(byte num) {
+  // no need for meta[0] = 1
+}
+
 // Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
 void callback() {
   // Very first thing here is to issue the strip data generated from the
