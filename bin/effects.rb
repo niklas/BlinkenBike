@@ -63,7 +63,8 @@ class Effect < Struct.new(:name, :source)
   end
 
   def sections
-    {}.tap do |sections|
+    return @sections if defined?(@sections)
+    @sections = {}.tap do |sections|
       section = nil
 
       source.each_line do |line|
@@ -79,6 +80,11 @@ class Effect < Struct.new(:name, :source)
 
           sections[section] << line
         end
+      end
+
+      # make sure all sections are present, maybe even empty
+      Effect::MethodSections.each do |sec|
+        sections[sec] ||= ''
       end
     end
   end
