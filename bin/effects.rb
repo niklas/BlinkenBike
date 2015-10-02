@@ -154,6 +154,9 @@ if $0 == __FILE__
   end
 
   File.open 'src/effects.cpp', 'w' do |cpp|
+    cpp.puts %Q~#include <Arduino.h>~
+    cpp.puts %Q~#include "colors.h"~
+    cpp.puts %Q~#include "trigometry.h"~
     cpp.puts %Q~#include "effects.h"~
     cpp.puts effects.implementation
   end
