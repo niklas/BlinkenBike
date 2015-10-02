@@ -39,8 +39,7 @@ int clockPin = 3;
 const int numPixels = 110;
 
 byte imgData[numPixels * 3],    // Data for 1 strip worth of imagery
-     layerA[3],                 // RGB for first layer
-     layerB[3],                 // RGB for second layer
+     layer[3],                  // RGB for one pixel
      backImgIdx,                // Index of 'back' image (always 0 or 1)
      fxIdx[2],                  // Effect # for back & front images
      alphaIdx;                  // which Alpha transition to run
@@ -107,26 +106,29 @@ void callback() {
     (*effectInit[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], numPixels);
   }
 
-  for(imgPtr = &imgData[0], pix = 0; pix < numPixels; pix++) {
+  for(pix = 0; pix < numPixels; pix++) {
+    imgPtr = &imgData[3*pix];
     // apply effect to every pixel
-    (*effectPixel[fxIdx[backImgIdx]])(fxVars[backImgIdx], layerA, pix, numPixels);
+    (*effectPixel[fxIdx[backImgIdx]])(fxVars[backImgIdx], imgPtr, pix, numPixels);
 
-    if (tCounter > 0) { // during transition
+    // during transition to other effect
+    if (tCounter > 0) {
       int alpha, inv;
-      (*effectPixel[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], layerB, pix, numPixels);
+      (*effectPixel[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], layer, pix, numPixels);
 
       // calculate alpha btwn 1-256 so we can do a shift devide
       alpha = 1 + (*alphaPixel[alphaIdx])(alphaVars, tCounter, transitionTime, pix, numPixels);
       inv   = 257 - alpha;
 
-      *imgPtr++ = gamma( (layerA[0] * alpha + layerB[0] * inv) >> 8);
-      *imgPtr++ = gamma( (layerA[1] * alpha + layerB[1] * inv) >> 8);
-      *imgPtr++ = gamma( (layerA[2] * alpha + layerB[2] * inv) >> 8);
-    } else { // no transition going on
-      *imgPtr++ = gamma( layerA[0] );
-      *imgPtr++ = gamma( layerA[1] );
-      *imgPtr++ = gamma( layerA[2] );
+      imgPtr[0] = ( imgPtr[0] * alpha + layer[0] * inv ) >> 8;
+      imgPtr[1] = ( imgPtr[1] * alpha + layer[1] * inv ) >> 8;
+      imgPtr[2] = ( imgPtr[2] * alpha + layer[2] * inv ) >> 8;
     }
+
+    // apply gamma
+    imgPtr[0] = gamma( imgPtr[0] );
+    imgPtr[1] = gamma( imgPtr[1] );
+    imgPtr[2] = gamma( imgPtr[2] );
   }
 
   // next step in effect
