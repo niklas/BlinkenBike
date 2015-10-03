@@ -54,8 +54,8 @@ class Animation < Struct.new(:name, :source)
   def func_name(section)
     [
       self.class.name.downcase,
+      name.downcase,
       section.downcase,
-      name.downcase
     ].join('_')
   end
 
