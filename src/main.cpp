@@ -46,7 +46,7 @@ byte imgData[numPixels * 3],    // Data for 1 strip worth of imagery
      transIdx;                  // which Alpha transition to run
 int  fxVars[2][FX_VARS_NUM],    // Effect instance variables (explained later)
      transVars[FX_VARS_NUM],    // Alpha transition instance variables
-     tCounter   = -1,           // Countdown to next transition
+     tCounter,                  // Countdown to next transition
      transitionTime;            // Duration (in frames) of current transition
 
 LEDStrip strip = LEDStrip(numPixels, dataPin, clockPin);
@@ -66,6 +66,7 @@ void setup() {
   memset(imgData, 0, sizeof(imgData)); // Clear image data
   backImgIdx        = 0;
   fxIdx[backImgIdx] = 0; // start with the first effect
+  tCounter = -1;
 
   // Timer1 is used so the strip will update at a known fixed frame rate.
   // Each effect rendering function varies in processing complexity, so
