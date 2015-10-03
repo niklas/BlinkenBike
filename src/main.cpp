@@ -128,9 +128,9 @@ void callback() {
       trans++;
       inv   = 257 - trans;
 
-      imgPtr[0] = ( imgPtr[0] * trans + layer[0] * inv ) >> 8;
-      imgPtr[1] = ( imgPtr[1] * trans + layer[1] * inv ) >> 8;
-      imgPtr[2] = ( imgPtr[2] * trans + layer[2] * inv ) >> 8;
+      imgPtr[0] = ( imgPtr[0] * inv + layer[0] * trans ) >> 8;
+      imgPtr[1] = ( imgPtr[1] * inv + layer[1] * trans ) >> 8;
+      imgPtr[2] = ( imgPtr[2] * inv + layer[2] * trans ) >> 8;
     }
 
     // apply gamma
