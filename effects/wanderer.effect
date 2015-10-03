@@ -1,0 +1,39 @@
+// multiple little runners, like in the beta
+init:
+  meta[1] = random(256); // R
+  meta[2] = random(256); // G
+  meta[3] = random(256); // B
+  meta[4] = 0; // Current position
+  // increment
+  meta[5] = 1 + random(4) / numPixels;
+  // Reverse direction half the time.
+  if(random(2) == 0) meta[5] = -meta[5];
+
+  meta[6] = random(numPixels);
+  meta[7] = random(numPixels);
+  meta[8] = random(numPixels);
+  meta[9] = random(numPixels);
+  meta[10] = random(numPixels);
+pixel:
+  byte diff = numPixels;
+
+  for (byte b=6; b <= 10; b++) {
+    diff = min(
+               diff,
+               abs( i - (meta[b] + meta[4]) % numPixels )
+              );
+  }
+  if (5 > diff) {
+    *pixel++ = (meta[1] * diff) >> 2;
+    *pixel++ = (meta[2] * diff) >> 2;
+    *pixel++ = (meta[3] * diff) >> 2;
+  } else {
+    *pixel++ = 0;
+    *pixel++ = 0;
+    *pixel++ = 0;
+  }
+
+
+step:
+  meta[4] += meta[5];
+  if (meta[4] < 0) meta[4] += numPixels;

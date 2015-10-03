@@ -30,7 +30,7 @@
 #define FPS 60
 
 // number of fxVars, ocnfiguration ints for render effects
-#define FX_VARS_NUM 9
+#define FX_VARS_NUM 23
 
 
 int dataPin = 2;
