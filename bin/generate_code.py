@@ -3,5 +3,4 @@
 # platformio.ini can only run python scripts, so this can be considered a
 # wrapper
 from subprocess import call
-call(["bin/effects.rb"])
-call(["bin/alphas.rb"])
+call(["bin/generate_code.rb"])

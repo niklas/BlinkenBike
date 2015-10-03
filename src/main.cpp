@@ -43,9 +43,9 @@ byte imgData[numPixels * 3],    // Data for 1 strip worth of imagery
      layer[3],                  // RGB for one pixel
      backImgIdx,                // Index of 'back' image (always 0 or 1)
      fxIdx[2],                  // Effect # for back & front images
-     alphaIdx;                  // which Alpha transition to run
+     transIdx;                  // which Alpha transition to run
 int  fxVars[2][FX_VARS_NUM],    // Effect instance variables (explained later)
-     alphaVars[FX_VARS_NUM],    // Alpha transition instance variables
+     transVars[FX_VARS_NUM],    // Alpha transition instance variables
      tCounter   = -1,           // Countdown to next transition
      transitionTime;            // Duration (in frames) of current transition
 
@@ -107,8 +107,8 @@ void callback() {
     if (fxVars[frntImgIdx][0] == 0) {
       (*effectInit[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], numPixels);
     }
-    if (alphaVars[0] == 0) {
-      (*alphaInit[alphaIdx])(alphaVars, numPixels);
+    if (transVars[0] == 0) {
+      (*transitionInit[transIdx])(transVars, numPixels);
     }
   }
 
@@ -119,16 +119,16 @@ void callback() {
 
     // during transition to other effect
     if (tCounter > 0) {
-      int alpha, inv;
+      int trans, inv;
       (*effectPixel[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], layer, pix, numPixels);
 
-      // calculate alpha btwn 1-256 so we can do a shift devide
-      alpha = 1 + (*alphaPixel[alphaIdx])(alphaVars, tCounter, transitionTime, pix, numPixels);
-      inv   = 257 - alpha;
+      // calculate trans btwn 1-256 so we can do a shift devide
+      trans = 1 + (*transitionPixel[transIdx])(transVars, tCounter, transitionTime, pix, numPixels);
+      inv   = 257 - trans;
 
-      imgPtr[0] = ( imgPtr[0] * alpha + layer[0] * inv ) >> 8;
-      imgPtr[1] = ( imgPtr[1] * alpha + layer[1] * inv ) >> 8;
-      imgPtr[2] = ( imgPtr[2] * alpha + layer[2] * inv ) >> 8;
+      imgPtr[0] = ( imgPtr[0] * trans + layer[0] * inv ) >> 8;
+      imgPtr[1] = ( imgPtr[1] * trans + layer[1] * inv ) >> 8;
+      imgPtr[2] = ( imgPtr[2] * trans + layer[2] * inv ) >> 8;
     }
 
     // apply gamma
@@ -147,12 +147,12 @@ void callback() {
   // Count up to next transition (or end of current one):
   tCounter++;
   if(tCounter == 0) { // Transition start
-    // Randomly pick next image effect and alpha effect indices:
+    // Randomly pick next image effect and trans effect indices:
     fxIdx[frntImgIdx]      = random(EFFECT_NUM);
-    alphaIdx               = random(ALPHA_NUM);
+    transIdx               = random(TRANSITION_NUM);
     transitionTime         = random(FPS/2, 3 * FPS);
     fxVars[frntImgIdx][0]  = 0;     // Effect not yet initialized
-    alphaVars[0]           = 0; // Transition not yet initialized
+    transVars[0]           = 0; // Transition not yet initialized
   } else if (tCounter >= transitionTime) { // End transition
     fxIdx[backImgIdx]      = fxIdx[frntImgIdx]; // Move front effect index to back
     backImgIdx             = 1 - backImgIdx;     // Invert back index
@@ -164,7 +164,7 @@ void callback() {
 // ---------------------------------------------------------------------------
 // Alpha channel effect rendering functions.  Like the image rendering
 // effects, these are typically parametrically-generated...but unlike the
-// images, there is only one alpha renderer "in flight" at any given time.
+// images, there is only one trans renderer "in flight" at any given time.
 // So it would be okay to use local static variables for storing state
 // information...but, given that there could end up being many more render
 // functions here, and not wanting to use up all the RAM for static vars
