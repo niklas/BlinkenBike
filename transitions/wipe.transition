@@ -9,9 +9,9 @@ pixel:
     (255L - (numPixels * meta[2] / meta[1])) *
       tCounter / transitionTime;
 
-  y = x * meta[2] / meta[1] + b; // y=mx+b, fixed-point style
-  if(y < 0)         return(0);
-  else if(y >= 255) return(255);
-  else              return((byte)y);
+  int y = i * meta[2] / meta[1] + b; // y=mx+b, fixed-point style
+  if(y < 0)         *pixel = 0;
+  else if(y >= 255) *pixel = 255;
+  else              *pixel = (byte)y;
 
 // vi:syntax=cpp

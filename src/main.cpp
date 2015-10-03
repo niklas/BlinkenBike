@@ -123,7 +123,8 @@ void callback() {
       (*effectPixel[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], layer, pix, numPixels);
 
       // calculate trans btwn 1-256 so we can do a shift devide
-      trans = 1 + (*transitionPixel[transIdx])(transVars, tCounter, transitionTime, pix, numPixels);
+      (*transitionPixel[transIdx])(transVars, &trans, tCounter, transitionTime, pix, numPixels);
+      trans++;
       inv   = 257 - trans;
 
       imgPtr[0] = ( imgPtr[0] * trans + layer[0] * inv ) >> 8;
