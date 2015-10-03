@@ -19,6 +19,7 @@ class Animations < Array
       %Q~#include <Arduino.h>~,
       %Q~#include "colors.h"~,
       %Q~#include "trigometry.h"~,
+      %Q~#include "settings.h"~,
       %Q~#include "#{self.class.name.downcase}.h"~,
       map(&:implementation).join("\n\n"),
       *first.method_sections.map(&method(:func_array))

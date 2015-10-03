@@ -24,20 +24,9 @@
 #include "TimerOne.h"
 #include "trigometry.h"
 #include "colors.h"
+#include "settings.h"
 #include "effects.h"
 #include "transitions.h"
-
-#define FPS 60
-
-// number of fxVars, ocnfiguration ints for render effects
-#define FX_VARS_NUM 23
-
-
-int dataPin = 2;
-int clockPin = 3;
-
-
-const int numPixels = 110;
 
 byte imgData[numPixels * 3],    // Data for 1 strip worth of imagery
      layer[3],                  // RGB for one pixel
@@ -45,9 +34,7 @@ byte imgData[numPixels * 3],    // Data for 1 strip worth of imagery
      fxIdx[2],                  // Effect # for back & front images
      transIdx;                  // which Alpha transition to run
 int  fxVars[2][FX_VARS_NUM],    // Effect instance variables (explained later)
-     transVars[FX_VARS_NUM],    // Alpha transition instance variables
-     tCounter,                  // Countdown to next transition
-     transitionTime;            // Duration (in frames) of current transition
+     transVars[FX_VARS_NUM];    // Alpha transition instance variables
 
 LEDStrip strip = LEDStrip(numPixels, dataPin, clockPin);
 
@@ -81,10 +68,6 @@ void loop() {
   // but we still need loop() here to keep the compiler happy.
 }
 
-void choose_effect(byte num) {
-  // no need for meta[0] = 1
-}
-
 // Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
 void callback() {
   // Very first thing here is to issue the strip data generated from the
@@ -102,29 +85,29 @@ void callback() {
 
   // Initialize the current effects if needed
   if (fxVars[backImgIdx][0] == 0) {
-    (*effectInit[fxIdx[backImgIdx]])(fxVars[backImgIdx], numPixels);
+    (*effectInit[fxIdx[backImgIdx]])(fxVars[backImgIdx]);
   }
   if (tCounter > 0) {
     if (fxVars[frntImgIdx][0] == 0) {
-      (*effectInit[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], numPixels);
+      (*effectInit[fxIdx[frntImgIdx]])(fxVars[frntImgIdx]);
     }
     if (transVars[0] == 0) {
-      (*transitionInit[transIdx])(transVars, numPixels);
+      (*transitionInit[transIdx])(transVars);
     }
   }
 
   for(pix = 0; pix < numPixels; pix++) {
     imgPtr = &imgData[3*pix];
     // apply effect to every pixel
-    (*effectPixel[fxIdx[backImgIdx]])(fxVars[backImgIdx], imgPtr, pix, numPixels);
+    (*effectPixel[fxIdx[backImgIdx]])(fxVars[backImgIdx], imgPtr, pix);
 
     // during transition to other effect
     if (tCounter > 0) {
       int trans, inv;
-      (*effectPixel[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], layer, pix, numPixels);
+      (*effectPixel[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], layer, pix);
 
       // calculate trans btwn 1-256 so we can do a shift devide
-      (*transitionPixel[transIdx])(transVars, &trans, tCounter, transitionTime, pix, numPixels);
+      (*transitionPixel[transIdx])(transVars, &trans, pix);
       trans++;
       inv   = 257 - trans;
 
@@ -140,10 +123,10 @@ void callback() {
   }
 
   // next step in effect
-  (*effectStep[fxIdx[backImgIdx]])(fxVars[backImgIdx], numPixels);
+  (*effectStep[fxIdx[backImgIdx]])(fxVars[backImgIdx]);
 
   if (tCounter > 0) {
-    (*effectStep[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], numPixels);
+    (*effectStep[fxIdx[frntImgIdx]])(fxVars[frntImgIdx]);
   }
 
   // Count up to next transition (or end of current one):
