@@ -1,15 +1,15 @@
 #ifndef __SETTINGS_H__
 #define __SETTINGS_H__
 
-#define FPS 26
+#define FPS 33
 #define MICROS_PER_FRAME 1000 / FPS
 
 
 // number of fxVars, ocnfiguration ints for render effects
 #define FX_VARS_NUM 23
 
-#undef FPS_BY_TIMER
-#define BENCHMARK_FPS 1
+#define FPS_BY_TIMER
+#undef BENCHMARK_FPS
 #define BENCHMARK_EVERY 10
 
 

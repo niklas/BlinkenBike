@@ -109,6 +109,15 @@ void callback() {
   // unevenness would be apparent if show() were called at the end.
   strip.show(&imgData[0]);
 
+  frameCount++;
+#ifdef BENCHMARK_FPS
+  if (frameCount % BENCHMARK_EVERY == 0) {
+    end_benchmark(frameCount);
+    frameCount = 1;
+    start_benchmark();
+  }
+#endif
+
   int pix;
   int frntImgIdx = 1 - backImgIdx;
   byte * imgPtr;
