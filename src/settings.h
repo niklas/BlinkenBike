@@ -1,10 +1,14 @@
 #ifndef __SETTINGS_H__
 #define __SETTINGS_H__
 
-#define FPS 60
+#define FPS 2
+
+#define BENCHMARK_EVERY FPS
 
 // number of fxVars, ocnfiguration ints for render effects
 #define FX_VARS_NUM 23
+
+#define BENCHMARK_FPS 1
 
 
 #define dataPin 2

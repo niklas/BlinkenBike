@@ -27,6 +27,9 @@
 #include "settings.h"
 #include "effects.h"
 #include "transitions.h"
+#ifdef BENCHMARK_FPS
+#include "benchmark.h"
+#endif
 
 byte imgData[numPixels * 3],    // Data for 1 strip worth of imagery
      layer[3],                  // RGB for one pixel
@@ -35,6 +38,8 @@ byte imgData[numPixels * 3],    // Data for 1 strip worth of imagery
      transIdx;                  // which Alpha transition to run
 int  fxVars[2][FX_VARS_NUM],    // Effect instance variables (explained later)
      transVars[FX_VARS_NUM];    // Alpha transition instance variables
+
+unsigned long frameCount = 0;
 
 LEDStrip strip = LEDStrip(numPixels, dataPin, clockPin);
 
@@ -47,6 +52,9 @@ void setup() {
   // the callback function will be invoked immediately when attached, and
   // the first thing the calback does is update the strip.
   strip.begin();
+#ifdef BENCHMARK_FPS
+  Serial.begin(9600);
+#endif
 
   // Initialize random number generator from a floating analog input.
   randomSeed(analogRead(0));
@@ -59,13 +67,24 @@ void setup() {
   // Each effect rendering function varies in processing complexity, so
   // the timer allows smooth transitions between effects (otherwise the
   // effects and transitions would jump around in speed...not attractive).
-  Timer1.initialize();
-  Timer1.attachInterrupt(callback, 1000000 / FPS); // 60 frames/second
+  //Timer1.initialize();
+  //Timer1.attachInterrupt(callback, 1000000 / FPS); // 60 frames/second
 }
 
 void loop() {
   // Do nothing.  All the work happens in the callback() function below,
   // but we still need loop() here to keep the compiler happy.
+
+  frameCount++;
+#ifdef BENCHMARK_FPS
+  if (frameCount % BENCHMARK_EVERY == 0) start_benchmark();
+#endif
+
+  callback();
+
+#ifdef BENCHMARK_FPS
+  if (frameCount % BENCHMARK_EVERY == BENCHMARK_EVERY - 1) end_benchmark(BENCHMARK_EVERY);
+#endif
 }
 
 // Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
