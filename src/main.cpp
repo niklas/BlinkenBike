@@ -63,14 +63,17 @@ void setup() {
   fxIdx[backImgIdx] = 0; // start with the first effect
   tCounter = -1;
 
+#ifdef FPS_BY_TIMER
   // Timer1 is used so the strip will update at a known fixed frame rate.
   // Each effect rendering function varies in processing complexity, so
   // the timer allows smooth transitions between effects (otherwise the
   // effects and transitions would jump around in speed...not attractive).
-  //Timer1.initialize();
-  //Timer1.attachInterrupt(callback, 1000000 / FPS); // 60 frames/second
+  Timer1.initialize();
+  Timer1.attachInterrupt(callback, 1000000 / FPS); // XX frames/second
+#endif
 }
 
+#ifndef FPS_BY_TIMER
 unsigned long startedAt = millis();
 unsigned int wait;
 
@@ -92,6 +95,9 @@ void loop() {
   callback();
 
 }
+#else
+void loop() { } // using Timer in setup()
+#endif
 
 // Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
 void callback() {
