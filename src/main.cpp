@@ -71,20 +71,26 @@ void setup() {
   //Timer1.attachInterrupt(callback, 1000000 / FPS); // 60 frames/second
 }
 
+unsigned long startedAt = millis();
+unsigned int wait;
+
 void loop() {
-  // Do nothing.  All the work happens in the callback() function below,
-  // but we still need loop() here to keep the compiler happy.
+  // try keep a constant framerate
+  wait = MICROS_PER_FRAME - ( millis() - startedAt );
+  if ( (wait > 0) && (wait < 100)) delay(wait);
+  startedAt = millis();
 
   frameCount++;
+
 #ifdef BENCHMARK_FPS
-  if (frameCount % BENCHMARK_EVERY == 0) start_benchmark();
+  if (frameCount % BENCHMARK_EVERY == 0) {
+    end_benchmark(BENCHMARK_EVERY);
+    start_benchmark();
+  }
 #endif
 
   callback();
 
-#ifdef BENCHMARK_FPS
-  if (frameCount % BENCHMARK_EVERY == BENCHMARK_EVERY - 1) end_benchmark(BENCHMARK_EVERY);
-#endif
 }
 
 // Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.

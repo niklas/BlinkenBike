@@ -1,7 +1,8 @@
 #ifndef __SETTINGS_H__
 #define __SETTINGS_H__
 
-#define FPS 2
+#define FPS 33
+#define MICROS_PER_FRAME 1000 / FPS
 
 
 // number of fxVars, ocnfiguration ints for render effects
