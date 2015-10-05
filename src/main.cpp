@@ -31,7 +31,7 @@
 #include "benchmark.h"
 #endif
 
-byte imgData[numPixels * 3],    // Data for 1 strip worth of imagery
+byte imgData[STRIP_PIXEL_COUNT * 3], // Data for 1 strip worth of imagery
      layer[3],                  // RGB for one pixel
      backImgIdx,                // Index of 'back' image (always 0 or 1)
      fxIdx[2],                  // Effect # for back & front images
@@ -41,7 +41,7 @@ int  fxVars[2][FX_VARS_NUM],    // Effect instance variables (explained later)
 
 unsigned long frameCount = 0;
 
-LEDStrip strip = LEDStrip(numPixels, dataPin, clockPin);
+LEDStrip strip = LEDStrip(STRIP_PIXEL_COUNT, dataPin, clockPin);
 
 void callback();
 
@@ -121,21 +121,22 @@ void callback() {
   int pix;
   int frntImgIdx = 1 - backImgIdx;
   byte * imgPtr;
+  int numPixels = STRIP_PIXEL_COUNT;
 
 
   //////////////////////////////////////////////////////////////
   // Primary effect (background)
   //////////////////////////////////////////////////////////////
   if (fxVars[backImgIdx][0] == 0) {
-    (*effectInit[fxIdx[backImgIdx]])(fxVars[backImgIdx]);
+    (*effectInit[fxIdx[backImgIdx]])(fxVars[backImgIdx], numPixels);
   }
 
   for(pix = 0; pix < numPixels; pix++) {
     imgPtr = &imgData[3*pix];
-    (*effectPixel[fxIdx[backImgIdx]])(fxVars[backImgIdx], imgPtr, pix);
+    (*effectPixel[fxIdx[backImgIdx]])(fxVars[backImgIdx], imgPtr, pix, numPixels);
   }
 
-  (*effectStep[fxIdx[backImgIdx]])(fxVars[backImgIdx]);
+  (*effectStep[fxIdx[backImgIdx]])(fxVars[backImgIdx], numPixels);
 
 
 
@@ -146,18 +147,18 @@ void callback() {
   int trans, inv;
   if (tCounter > 0) {
     if (fxVars[frntImgIdx][0] == 0) {
-      (*effectInit[fxIdx[frntImgIdx]])(fxVars[frntImgIdx]);
+      (*effectInit[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], numPixels);
     }
     if (transVars[0] == 0) {
-      (*transitionInit[transIdx])(transVars);
+      (*transitionInit[transIdx])(transVars, numPixels);
     }
 
     for(pix = 0; pix < numPixels; pix++) {
       imgPtr = &imgData[3*pix];
-      (*effectPixel[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], layer, pix);
+      (*effectPixel[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], layer, pix, numPixels);
 
       // calculate trans btwn 1-256 so we can do a shift devide
-      (*transitionPixel[transIdx])(transVars, &trans, pix);
+      (*transitionPixel[transIdx])(transVars, &trans, pix, numPixels);
       trans++;
       inv   = 257 - trans;
 
@@ -166,7 +167,7 @@ void callback() {
       imgPtr[2] = ( imgPtr[2] * inv + layer[2] * trans ) >> 8;
     }
 
-    (*effectStep[fxIdx[frntImgIdx]])(fxVars[frntImgIdx]);
+    (*effectStep[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], numPixels);
   }
 
 

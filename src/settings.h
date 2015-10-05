@@ -16,7 +16,7 @@
 #define dataPin 2
 #define clockPin 3
 
-#define numPixels 110
+#define STRIP_PIXEL_COUNT 110
 extern int  tCounter, transitionTime;
 
 #endif
