@@ -5,3 +5,4 @@ src/effects.cpp
 src/effects.h
 src/transitions.cpp
 src/transitions.h
+src/layout.h

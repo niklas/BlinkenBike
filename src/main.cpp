@@ -27,6 +27,7 @@
 #include "settings.h"
 #include "effects.h"
 #include "transitions.h"
+#include "layout.h"
 #ifdef BENCHMARK_FPS
 #include "benchmark.h"
 #endif
@@ -122,23 +123,24 @@ void callback() {
   int frntImgIdx = 1 - backImgIdx;
   byte * imgPtr;
   int numPixels = STRIP_PIXEL_COUNT;
+  int numFrontPixels = FLOOR_PIXEL_COUNT;
 
 
   //////////////////////////////////////////////////////////////
   // Primary effect (background)
   //////////////////////////////////////////////////////////////
   if (fxVars[backImgIdx][0] == 0) {
-    (*effectInit[fxIdx[backImgIdx]])(fxVars[backImgIdx], numPixels);
+    (*effectInit[fxIdx[backImgIdx]])(fxVars[backImgIdx], numFrontPixels);
   }
 
-  for(pix = 0; pix < numPixels; pix++) {
+  for(pix = 0; pix < numFrontPixels; pix++) {
     imgPtr = &imgData[3*pix];
-    (*effectPixel[fxIdx[backImgIdx]])(fxVars[backImgIdx], imgPtr, pix, numPixels);
+    (*effectPixel[fxIdx[backImgIdx]])(fxVars[backImgIdx], imgPtr, pix, numFrontPixels);
   }
 
-  (*effectStep[fxIdx[backImgIdx]])(fxVars[backImgIdx], numPixels);
+  (*effectStep[fxIdx[backImgIdx]])(fxVars[backImgIdx], numFrontPixels);
 
-
+  mapFloorToLinear(imgData);
 
 
   //////////////////////////////////////////////////////////////

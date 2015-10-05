@@ -14,6 +14,9 @@ if $0 == __FILE__
     frame.tubes << Tube.new(raw)
   end
 
-  frame.write 'doc/kalkhoff.jpeg'
+  frame.write_image 'doc/kalkhoff.jpeg'
 
+  File.open 'src/layout.h', 'w' do |h|
+    h.puts frame.header
+  end
 end

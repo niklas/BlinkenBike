@@ -17,6 +17,6 @@ file 'src/transitions.h' => transitions do
   sh "bin/generate_transitions"
 end
 
-file 'src/layout.h' => ['bicycle.yaml', 'bin/generate_layout'] do
+file 'src/layout.h' => ['bicycle.yaml', 'bin/generate_layout', 'gen/lib/tubes.rb'] do
   sh 'bin/generate_layout'
 end

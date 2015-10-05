@@ -14,13 +14,26 @@ class Frame < OpenStruct
     @tubes ||= []
   end
 
-  def write(target_path)
+  def write_image(target_path)
     calculate_floor_connections!
     image = Magick::Image.read(image_path)[0]
     annotations.draw(image)
     FileUtils.mkdir_p File.dirname(target_path)
     image.write(target_path)
     $stderr.puts "written #{target_path}"
+  end
+
+  def header
+    calculate_floor_connections!
+    [
+      %Q~#include <Arduino.h>~,
+      %Q~#define FLOOR_PIXEL_COUNT #{floor_tube.led_count}~,
+      %Q~void mapFloorToLinear(byte * pixels);~,
+    ].join("\n")
+  end
+
+  def implementation
+    calculate_floor_connections!
   end
 
   private
