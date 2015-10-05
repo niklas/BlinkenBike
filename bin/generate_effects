@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.join(__FILE__, '../../gen/lib')
+
+require 'effects'
+
+if $0 == __FILE__
+  effects = Effects.glob('effects/*.effect')
+  File.open 'src/effects.h', 'w' do |h|
+    h.puts effects.header
+  end
+  File.open 'src/effects.cpp', 'w' do |cpp|
+    cpp.puts effects.implementation
+  end
+else
+  raise "run as #{$0}"
+end

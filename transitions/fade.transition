@@ -1,0 +1,4 @@
+pixel:
+  *pixel = 255L * tCounter / transitionTime;
+
+// vi:syntax=cpp

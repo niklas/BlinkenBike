@@ -1,119 +1,202 @@
-#include "Arduino.h"
-#include "LPD8806.h"
+// THIS PROGRAM *WILL* *NOT* *WORK* ON REALLY LONG LED STRIPS.  IT USES
+// AN INORDINATE AMOUNT OF RAM IN ORDER TO ACHIEVE ITS BUTTERY-SMOOTH
+// ANIMATION.  See the 'strandtest' sketch for a simpler and less RAM-
+// intensive example that can process more LEDs (100+).
+
+// ALSO: NOT COMPATIBLE WITH TRINKET OR GEMMA for way too many reasons.
+
+// Example to control LPD8806-based RGB LED Modules in a strip; originally
+// intended for the Adafruit Digital Programmable LED Belt Kit.
+// REQUIRES TIMER1 LIBRARY: http://www.arduino.cc/playground/Code/Timer1
+// ALSO REQUIRES LPD8806 LIBRARY, which should be included with this code.
+
+// I'm generally not fond of canned animation patterns.  Wanting something
+// more nuanced than the usual 8-bit beep-beep-boop-boop pixelly animation,
+// this program smoothly cycles through a set of procedural animated effects
+// and transitions -- it's like a Video Toaster for your waist!  Some of the
+// coding techniques may be a bit obtuse (e.g. function arrays), so novice
+// programmers may have an easier time starting out with the 'strandtest'
+// program also included with the LPD8806 library.
+
+#include <avr/pgmspace.h>
 #include "SPI.h"
-#include <MsTimer2.h>
+#include "LEDStrip.h"
+#include "TimerOne.h"
+#include "trigometry.h"
+#include "colors.h"
+#include "settings.h"
+#include "effects.h"
+#include "transitions.h"
+#ifdef BENCHMARK_FPS
+#include "benchmark.h"
+#endif
 
-#define FPS 60
+byte imgData[STRIP_PIXEL_COUNT * 3], // Data for 1 strip worth of imagery
+     layer[3],                  // RGB for one pixel
+     backImgIdx,                // Index of 'back' image (always 0 or 1)
+     fxIdx[2],                  // Effect # for back & front images
+     transIdx;                  // which Alpha transition to run
+int  fxVars[2][FX_VARS_NUM],    // Effect instance variables (explained later)
+     transVars[FX_VARS_NUM];    // Alpha transition instance variables
+
+unsigned long frameCount = 0;
+
+LEDStrip strip = LEDStrip(STRIP_PIXEL_COUNT, dataPin, clockPin);
+
+void callback();
+
+// ---------------------------------------------------------------------------
+
+void setup() {
+  // Start up the LED strip.  Note that strip.show() is NOT called here --
+  // the callback function will be invoked immediately when attached, and
+  // the first thing the calback does is update the strip.
+  strip.begin();
+#ifdef BENCHMARK_FPS
+  Serial.begin(9600);
+#endif
+
+  // Initialize random number generator from a floating analog input.
+  randomSeed(analogRead(0));
+  memset(imgData, 0, sizeof(imgData)); // Clear image data
+  backImgIdx        = 0;
+  fxIdx[backImgIdx] = 0; // start with the first effect
+  tCounter = -1;
+
+#ifdef FPS_BY_TIMER
+  // Timer1 is used so the strip will update at a known fixed frame rate.
+  // Each effect rendering function varies in processing complexity, so
+  // the timer allows smooth transitions between effects (otherwise the
+  // effects and transitions would jump around in speed...not attractive).
+  Timer1.initialize();
+  Timer1.attachInterrupt(callback, 1000000 / FPS); // XX frames/second
+#endif
+}
+
+#ifndef FPS_BY_TIMER
+unsigned long startedAt = millis();
+unsigned int wait;
+
+void loop() {
+  // try keep a constant framerate
+  wait = MICROS_PER_FRAME - ( millis() - startedAt );
+  if ( (wait > 0) && (wait < 100)) delay(wait);
+  startedAt = millis();
+
+  frameCount++;
+
+#ifdef BENCHMARK_FPS
+  if (frameCount % BENCHMARK_EVERY == 0) {
+    end_benchmark(BENCHMARK_EVERY);
+    start_benchmark();
+  }
+#endif
+
+  callback();
+
+}
+#else
+void loop() { } // using Timer in setup()
+#endif
+
+// Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
+void callback() {
+  // Very first thing here is to issue the strip data generated from the
+  // *previous* callback.  It's done this way on purpose because show() is
+  // roughly constant-time, so the refresh will always occur on a uniform
+  // beat with respect to the Timer1 interrupt.  The various effects
+  // rendering and compositing code is not constant-time, and that
+  // unevenness would be apparent if show() were called at the end.
+  strip.show(&imgData[0]);
+
+  frameCount++;
+#ifdef BENCHMARK_FPS
+  if (frameCount % BENCHMARK_EVERY == 0) {
+    end_benchmark(frameCount);
+    frameCount = 1;
+    start_benchmark();
+  }
+#endif
+
+  int pix;
+  int frntImgIdx = 1 - backImgIdx;
+  byte * imgPtr;
+  int numPixels = STRIP_PIXEL_COUNT;
 
 
-#include "ModeManager.h"
-#include "buttons.h"
+  //////////////////////////////////////////////////////////////
+  // Primary effect (background)
+  //////////////////////////////////////////////////////////////
+  if (fxVars[backImgIdx][0] == 0) {
+    (*effectInit[fxIdx[backImgIdx]])(fxVars[backImgIdx], numPixels);
+  }
 
-#define ON_BOARD_LED 13
-#define MAX_BRIGHTNESS 127
+  for(pix = 0; pix < numPixels; pix++) {
+    imgPtr = &imgData[3*pix];
+    (*effectPixel[fxIdx[backImgIdx]])(fxVars[backImgIdx], imgPtr, pix, numPixels);
+  }
 
-#define PIN_PREVIEW_DATA 6
-#define PIN_PREVIEW_CLOCK 7
+  (*effectStep[fxIdx[backImgIdx]])(fxVars[backImgIdx], numPixels);
 
-// Number of RGB LEDs in strand
-int nLEDs = 110;
 
-// Chose 2 pins for output; can be any valid output pins:
-int dataPin  = 2;
-int clockPin = 3;
-int potPin = 0;
 
-int brightness = 8;
 
-// First parameter is the number of LEDs in the strand.  The LED strips
-// are 32 LEDs per meter but you can extend or cut the strip.  Next two
-// parameters are SPI data and clock pins:
-LPD8806 strip = LPD8806(nLEDs, dataPin, clockPin);
-LPD8806 preview = LPD8806(2, PIN_PREVIEW_DATA, PIN_PREVIEW_CLOCK);
-ModeManager mode = ModeManager();
+  //////////////////////////////////////////////////////////////
+  // Secondary effect (foreground) during transition in progress
+  //////////////////////////////////////////////////////////////
+  int trans, inv;
+  if (tCounter > 0) {
+    if (fxVars[frntImgIdx][0] == 0) {
+      (*effectInit[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], numPixels);
+    }
+    if (transVars[0] == 0) {
+      (*transitionInit[transIdx])(transVars, numPixels);
+    }
 
-// Callbacks must be declared early
-void each_tick();
-void buttonPressed(int button) {
-  switch(button) {
-    case BUTTON_1: mode.selectNext()     ; break ;
-    case BUTTON_2: mode.apply()          ; break ;
-    case BUTTON_3: mode.selectPrevious() ; break ;
+    for(pix = 0; pix < numPixels; pix++) {
+      imgPtr = &imgData[3*pix];
+      (*effectPixel[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], layer, pix, numPixels);
+
+      // calculate trans btwn 1-256 so we can do a shift devide
+      (*transitionPixel[transIdx])(transVars, &trans, pix, numPixels);
+      trans++;
+      inv   = 257 - trans;
+
+      imgPtr[0] = ( imgPtr[0] * inv + layer[0] * trans ) >> 8;
+      imgPtr[1] = ( imgPtr[1] * inv + layer[1] * trans ) >> 8;
+      imgPtr[2] = ( imgPtr[2] * inv + layer[2] * trans ) >> 8;
+    }
+
+    (*effectStep[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], numPixels);
+  }
+
+
+
+  //////////////////////////////////////////////////////////////
+  // apply gamma
+  //////////////////////////////////////////////////////////////
+  for(pix = 0; pix < numPixels; pix++) {
+    imgPtr = &imgData[3*pix];
+    imgPtr[0] = gamma( imgPtr[0] );
+    imgPtr[1] = gamma( imgPtr[1] );
+    imgPtr[2] = gamma( imgPtr[2] );
+  }
+
+
+  //////////////////////////////////////////////////////////////
+  // Count up to next transition (or end of current one):
+  //////////////////////////////////////////////////////////////
+  tCounter++;
+  if(tCounter == 0) { // Transition start
+    // Randomly pick next image effect and trans effect indices:
+    fxIdx[frntImgIdx]      = random(EFFECT_NUM);
+    transIdx               = random(TRANSITION_NUM);
+    transitionTime         = random(FPS/2, 3 * FPS);
+    fxVars[frntImgIdx][0]  = 0;     // Effect not yet initialized
+    transVars[0]           = 0; // Transition not yet initialized
+  } else if (tCounter >= transitionTime) { // End transition
+    fxIdx[backImgIdx]      = fxIdx[frntImgIdx]; // Move front effect index to back
+    backImgIdx             = 1 - backImgIdx;     // Invert back index
+    tCounter               = - random(2 * FPS, 6 * FPS); // Hold image 2 to 6 seconds
   }
 }
-
-void setup()
-{
-  pinMode(ON_BOARD_LED, OUTPUT);     // set pin as output
-  pinMode(potPin, INPUT);
-  Serial.begin(9600);
-  Serial.println("Welcome to BlinkenBike © niklas@lanpartei.de");
-
-
-  onPressedButton(buttonPressed);
-
-  preview.begin();
-
-
-  strip.begin();
-  strip.show();
-
-  MsTimer2::set(1000 / FPS, each_tick);
-  MsTimer2::start();
-}
-
-void potToBrightness(int pin) {
-  int val = analogRead(pin);
-
-  val = constrain(val, 1, 1023);
-  brightness = map(val, 0, 1023, 0, MAX_BRIGHTNESS);
-}
-
-uint32_t tick = 0;
-int pos;
-
-void each_tick() {
-  uint32_t color, previewColor, black;
-  strip.show();
-  preview.show();
-  tick++;
-  potToBrightness(potPin);
-  dispatchButtons();
-
-  // clear old position
-  black = strip.Color(0,0,0);
-  strip.setPixelColor(pos, black);
-  strip.setPixelColor((pos + nLEDs/2) % nLEDs, black);
-  strip.setPixelColor((pos + nLEDs/3) % nLEDs, black);
-  strip.setPixelColor((pos + 3 * nLEDs/4) % nLEDs, black);
-  strip.setPixelColor((pos + 5 * nLEDs/6) % nLEDs, black);
-
-  // one point chasing down
-  pos = tick % nLEDs;
-
-  color = mode.getColor(mode.getMode(), strip, brightness);
-
-  strip.setPixelColor(pos, color);
-  strip.setPixelColor((pos + 1) % nLEDs, color);
-  strip.setPixelColor((pos + 2) % nLEDs, color);
-  strip.setPixelColor((pos + 3) % nLEDs, color);
-  strip.setPixelColor((pos + 4) % nLEDs, color);
-  strip.setPixelColor((pos + nLEDs/2) % nLEDs, color);
-  strip.setPixelColor((pos + nLEDs/2 + 1) % nLEDs, color);
-  strip.setPixelColor((pos + nLEDs/2 + 2) % nLEDs, color);
-  strip.setPixelColor((pos + nLEDs/3) % nLEDs, color);
-  strip.setPixelColor((pos + nLEDs/3 + 1) % nLEDs, color);
-  strip.setPixelColor((pos + 3 * nLEDs/4) % nLEDs, color);
-  strip.setPixelColor((pos + 3 * nLEDs/4 + 1) % nLEDs, color);
-  strip.setPixelColor((pos + 3 * nLEDs/4 + 2) % nLEDs, color);
-  strip.setPixelColor((pos + 3 * nLEDs/4 + 3) % nLEDs, color);
-  strip.setPixelColor((pos + 5 * nLEDs/6) % nLEDs, color);
-  strip.setPixelColor((pos + 5 * nLEDs/6 + 1) % nLEDs, color);
-
-  previewColor = mode.getColor(mode.getSelectedMode(), preview, brightness);
-
-  preview.setPixelColor(0, black);
-  preview.setPixelColor(1, previewColor);
-}
-
-void loop() { } // see each_tick()

@@ -1,0 +1,45 @@
+// Wavy flag effect
+setup:
+  // Data for American-flag-like colors (20 pixels representing
+  // blue field, stars and stripes).  This gets "stretched" as needed
+  // to the full LED strip length in the flag effect code, below.
+  // Can change this data to the colors of your own national flag,
+  // favorite sports team colors, etc.  OK to change number of elements.
+  #define C_RED   160,   0,   0
+  #define C_WHITE 255, 255, 255
+  #define C_BLUE    0,   0, 100
+  PROGMEM const unsigned char flagTable[]  = {
+    C_BLUE , C_WHITE, C_BLUE , C_WHITE, C_BLUE , C_WHITE, C_BLUE,
+    C_RED  , C_WHITE, C_RED  , C_WHITE, C_RED  , C_WHITE, C_RED ,
+    C_WHITE, C_RED  , C_WHITE, C_RED  , C_WHITE, C_RED };
+init:
+  int i;
+  meta[1] = 720 + random(720); // Wavyness
+  meta[2] = 4 + random(10);    // Wave speed
+  meta[3] = 200 + random(200); // Wave 'puckeryness'
+  meta[4] = 0;                 // Current  position
+  for(meta[5]=0, i=0; i<numPixels-1; i++) {
+    meta[5] += meta[3] + fixCos(meta[4] + meta[1] *
+      i / numPixels);
+  } // sum
+pixel:
+  int idx1, idx2, a, b;
+  long s, x;
+  x = 256L * ((sizeof(flagTable) / 3) - 1) * s / meta[5];
+  idx1 =  (x >> 8)      * 3;
+  idx2 = ((x >> 8) + 1) * 3;
+  b    = (x & 255) + 1;
+  a    = 257 - b;
+  *pixel++ = ((pgm_read_byte(&flagTable[idx1    ]) * a) +
+            (pgm_read_byte(&flagTable[idx2    ]) * b)) >> 8;
+  *pixel++ = ((pgm_read_byte(&flagTable[idx1 + 1]) * a) +
+            (pgm_read_byte(&flagTable[idx2 + 1]) * b)) >> 8;
+  *pixel++ = ((pgm_read_byte(&flagTable[idx1 + 2]) * a) +
+            (pgm_read_byte(&flagTable[idx2 + 2]) * b)) >> 8;
+  s += meta[3] + fixCos(meta[4] + meta[1] *
+    i / numPixels);
+step:
+  meta[4] += meta[2];
+  if(meta[4] >= 720) meta[4] -= 720;
+
+// vi:syntax=cpp

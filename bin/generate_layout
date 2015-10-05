@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.join(__FILE__, '../../gen/lib')
+
+require 'tubes'
+
+if $0 == __FILE__
+
+  config = YAML.parse( File.read('bicycle.yaml') ).to_ruby
+  frame = Frame.new image_path: 'assets/kalkhoff.jpeg', floor: config[:floor]
+
+  # order of adding is the order of the LED strip
+  config[:tubes].each do |raw|
+    frame.tubes << Tube.new(raw)
+  end
+
+  frame.write 'doc/kalkhoff.jpeg'
+
+end
