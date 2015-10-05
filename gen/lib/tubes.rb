@@ -1,11 +1,10 @@
-#!/usr/bin/env ruby
-
 require 'ostruct'
 require 'fileutils'
 
 require 'rubygems'
 require 'rmagick'
 require 'pry'
+require 'yaml'
 
 class Frame < OpenStruct
   TubeWidth = 8
@@ -136,19 +135,4 @@ class Tube < OpenStruct
   def to_y; to[1]; end
 end
 
-if $0 == __FILE__
 
-  frame = Frame.new image_path: 'assets/kalkhoff.jpeg', floor: 1981
-
-  # order of adding is the order of the LED strip
-  frame.tubes << Tube.new(name: 'down tube'    , from: [ 924, 604], to: [1667,1515], led_count: 20)
-  frame.tubes << Tube.new(name: 'chain left'   , from: [1790,1546], to: [2600,1474], led_count: 14)
-  frame.tubes << Tube.new(name: 'seat left'    , from: [2606,1377], to: [2066, 717], led_count: 16)
-  frame.tubes << Tube.new(name: 'seat tube'    , from: [2006, 692], to: [1776,1384], led_count: 14)
-  frame.tubes << Tube.new(name: 'chain right'  , from: [1790,1546], to: [2600,1474], led_count: 14)
-  frame.tubes << Tube.new(name: 'seat right'   , from: [2606,1377], to: [2066, 717], led_count: 16)
-  frame.tubes << Tube.new(name: 'top tube'     , from: [1996, 594], to: [1011, 360], led_count: 16)
-
-  frame.write 'doc/kalkhoff.jpeg'
-
-end
