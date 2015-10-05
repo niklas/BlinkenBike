@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+
+$:.unshift File.join(__FILE__, '../../gen/lib')
+
+require 'transitions'
+
+if $0 == __FILE__
+  transitions = Transitions.glob('transitions/*.transition')
+  File.open 'src/transitions.h', 'w' do |h|
+    h.puts transitions.header
+  end
+  File.open 'src/transitions.cpp', 'w' do |cpp|
+    cpp.puts transitions.implementation
+  end
+else
+  raise "run as #{$0}"
+end
