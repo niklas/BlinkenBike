@@ -3,6 +3,7 @@ task :default => :all
 task :all => [
   'src/effects.h',
   'src/transitions.h',
+  'src/layout.h',
 ]
 generator = 'bin/generate_code.rb'
 
@@ -14,4 +15,8 @@ end
 transitions = Rake::FileList.new('transitions/*.transition', 'bin/generate_transitions')
 file 'src/transitions.h' => transitions do
   sh "bin/generate_transitions"
+end
+
+file 'src/layout.h' => 'bicycle.yaml' do
+  sh 'bin/generate_layout'
 end
