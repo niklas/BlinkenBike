@@ -40,6 +40,9 @@ byte imgData[STRIP_PIXEL_COUNT * 3], // Data for 1 strip worth of imagery
 int  fxVars[2][FX_VARS_NUM],    // Effect instance variables (explained later)
      transVars[FX_VARS_NUM];    // Alpha transition instance variables
 
+byte floorImg[FLOOR_PIXEL_COUNT * 3];
+
+
 unsigned long frameCount = 0;
 
 LEDStrip strip = LEDStrip(STRIP_PIXEL_COUNT, dataPin, clockPin);
@@ -60,6 +63,7 @@ void setup() {
   // Initialize random number generator from a floating analog input.
   randomSeed(analogRead(0));
   memset(imgData, 0, sizeof(imgData)); // Clear image data
+  memset(floorImg, 0, sizeof(floorImg)); // Clear image data
   backImgIdx        = 0;
   fxIdx[backImgIdx] = 0; // start with the first effect
   tCounter = -1;
@@ -134,15 +138,15 @@ void callback() {
   }
 
   for(pix = 0; pix < numFrontPixels; pix++) {
-    imgPtr = &imgData[3*pix];
+    imgPtr = &floorImg[3*pix];
     (*effectPixel[fxIdx[backImgIdx]])(fxVars[backImgIdx], imgPtr, pix, numFrontPixels);
   }
 
   (*effectStep[fxIdx[backImgIdx]])(fxVars[backImgIdx], numFrontPixels);
 
-  mapFloorToLinear(imgData);
+  mapFloorToLinear(floorImg, imgData);
 
-
+#ifdef DO_TRANSITION
   //////////////////////////////////////////////////////////////
   // Secondary effect (foreground) during transition in progress
   //////////////////////////////////////////////////////////////
@@ -171,6 +175,7 @@ void callback() {
 
     (*effectStep[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], numPixels);
   }
+#endif
 
 
 

@@ -26,30 +26,30 @@
     - 2066
     - 717
     :led_count: 16
-  - :name: seat tube
-    :from:
-    - 2006
-    - 692
-    :to:
-    - 1776
-    - 1384
-    :led_count: 14
-  - :name: chain right
-    :from:
-    - 1790
-    - 1546
-    :to:
-    - 2600
-    - 1474
-    :led_count: 14
   - :name: seat right
     :from:
-    - 2606
-    - 1377
-    :to:
     - 2066
     - 717
+    :to:
+    - 2606
+    - 1377
     :led_count: 16
+  - :name: chain right
+    :from:
+    - 2600
+    - 1474
+    :to:
+    - 1790
+    - 1546
+    :led_count: 14
+  - :name: seat tube
+    :from:
+    - 1776
+    - 1384
+    :to:
+    - 2006
+    - 692
+    :led_count: 14
   - :name: top tube
     :from:
     - 1996

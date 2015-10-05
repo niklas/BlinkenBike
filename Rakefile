@@ -17,6 +17,8 @@ file 'src/transitions.h' => transitions do
   sh "bin/generate_transitions"
 end
 
-file 'src/layout.h' => ['bicycle.yaml', 'bin/generate_layout', 'gen/lib/tubes.rb', 'src/layout.cpp.erb'] do
-  sh 'bin/generate_layout'
+['src/layout.h', 'src/layout.cpp'].each do |layout|
+  file layout => ['bicycle.yaml', 'bin/generate_layout', 'gen/lib/tubes.rb', 'src/layout.cpp.erb'] do
+    sh 'bin/generate_layout'
+  end
 end

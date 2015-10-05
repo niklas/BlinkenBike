@@ -29,7 +29,7 @@ class Frame < OpenStruct
     [
       %Q~#include <Arduino.h>~,
       %Q~#define FLOOR_PIXEL_COUNT #{floor_tube.led_count}~,
-      %Q~void mapFloorToLinear(byte * pixels);~,
+      %Q~void mapFloorToLinear(byte * floor, byte * linear);~,
     ].join("\n")
   end
 
