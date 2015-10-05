@@ -5,6 +5,7 @@ require 'rubygems'
 require 'rmagick'
 require 'pry'
 require 'yaml'
+require 'erb'
 
 class Frame < OpenStruct
   TubeWidth = 8
@@ -34,6 +35,8 @@ class Frame < OpenStruct
 
   def implementation
     calculate_floor_connections!
+
+    ERB.new(File.read('src/layout.cpp.erb')).result(binding)
   end
 
   private

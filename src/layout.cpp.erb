@@ -1,0 +1,24 @@
+#include "layout.h"
+#include "settings.h"
+
+PROGMEM const unsigned char FLOOR_MAP[FLOOR_PIXEL_COUNT]  = {
+<%= all_leds.map(&:floor).map(&:index).join(',') %>
+};
+
+void mapFloorToLinear(byte * pixels) {
+  byte s_led;
+  int s,t;
+  // Start from the end
+  for(int t_led = STRIP_PIXEL_COUNT - 1; t_led>=0; t_led--) {
+    s_led = FLOOR_MAP[t_led-1];
+
+    s = 3 * s_led;
+    t = 3 * t_led;
+
+    pixels[t + 2] = pixels[s + 2];
+    pixels[t + 1] = pixels[s + 1];
+    pixels[t + 0] = pixels[s + 0];
+  }
+}
+
+// vi:syntax=cpp

@@ -19,4 +19,8 @@ if $0 == __FILE__
   File.open 'src/layout.h', 'w' do |h|
     h.puts frame.header
   end
+
+  File.open 'src/layout.cpp', 'w' do |h|
+    h.puts frame.implementation
+  end
 end
