@@ -1,0 +1,9 @@
+// Simplest rendering effect: fill entire image with solid color
+init:
+  meta[1] = random(256); // R
+  meta[2] = random(256); // G
+  meta[3] = random(256); // B
+pixel:
+  *pixel++ = meta[1]; *pixel++ = meta[2]; *pixel++ = meta[3];
+
+// vi:syntax=cpp

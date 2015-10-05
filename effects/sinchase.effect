@@ -1,0 +1,28 @@
+// Sine wave chase effect
+init:
+  meta[1] = random(1536); // Random hue
+  // Number of repetitions (complete loops around color wheel);
+  // any more than 4 per meter just looks too chaotic.
+  // Store as distance around complete belt in half-degree units:
+  meta[2] = (1 + random(4 * ((numPixels + 31) / 32))) * 720;
+  // Frame-to-frame increment (speed) -- may be positive or negative,
+  // but magnitude shouldn't be so small as to be boring.  It's generally
+  // still less than a full pixel per frame, making motion very smooth.
+  meta[3] = 4 + random(meta[1]) / numPixels;
+  // Reverse direction half the time.
+  if(random(2) == 0) meta[3] = -meta[3];
+  meta[4] = 0; // Current position
+pixel:
+  int foo;
+  long color;
+  foo = fixSin(meta[4] + meta[2] * i / numPixels);
+  // Peaks of sine wave are white, troughs are black, mid-range
+  // values are pure hue (100% saturated).
+  color = (foo >= 0) ?
+     hsv2rgb(meta[1], 254 - (foo * 2), 255) :
+     hsv2rgb(meta[1], 255, 254 + foo * 2);
+  *pixel++ = color >> 16; *pixel++ = color >> 8; *pixel++ = color;
+step:
+  meta[4] += meta[3];
+
+// vi:syntax=cpp

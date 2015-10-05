@@ -24,7 +24,7 @@
 #include "TimerOne.h"
 #include "trigometry.h"
 #include "colors.h"
-#include "animations.h"
+#include "effects.h"
 
 #define FPS 60
 
@@ -38,14 +38,8 @@ int clockPin = 3;
 
 const int numPixels = 110;
 
-void (*renderEffect[])(ANIMATION_SIGNATURE) = {
-  renderEffect00,
-  renderEffect01,
-  renderEffect02,
-  renderEffect_flag
-};
-
 byte imgData[numPixels * 3],    // Data for 1 strip worth of imagery
+     layerA[3],                 // RGB for first layer
      fxIdx;                     // Effect # for back & front images + alpha
 int  fxVars[FX_VARS_NUM],       // Effect instance variables (explained later)
      tCounter   = -1;           // Countdown to next transition
@@ -65,7 +59,7 @@ void setup() {
   // Initialize random number generator from a floating analog input.
   randomSeed(analogRead(0));
   memset(imgData, 0, sizeof(imgData)); // Clear image data
-  fxVars[0] = 1;           // Mark back image as initialized
+  fxIdx = 0; // start with the first effect
 
   // Timer1 is used so the strip will update at a known fixed frame rate.
   // Each effect rendering function varies in processing complexity, so
@@ -80,6 +74,10 @@ void loop() {
   // but we still need loop() here to keep the compiler happy.
 }
 
+void choose_effect(byte num) {
+  // no need for meta[0] = 1
+}
+
 // Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
 void callback() {
   // Very first thing here is to issue the strip data generated from the
@@ -90,21 +88,34 @@ void callback() {
   // unevenness would be apparent if show() were called at the end.
   strip.show(&imgData[0]);
 
-  int  i;
+  int pix;
+  byte i;
+  byte * imgPtr;
 
-  // Always render back image based on current effect index:
-  (*renderEffect[fxIdx])(imgData, numPixels, fxVars);
 
-  // Apply gamma
-  for(i=0; i<numPixels*3; i++) {
-    imgData[i] = gamma(imgData[i]);
+  // Initialize the current effect
+  if (fxVars[0] == 0) {
+    (*effectInit[fxIdx])(fxVars, numPixels);
   }
+
+  for(imgPtr = &imgData[0], pix = 0; pix < numPixels; pix++) {
+    // apply effect to every pixel
+    (*effectPixel[fxIdx])(fxVars, layerA, pix, numPixels);
+
+    // Apply gamma
+    *imgPtr++ = gamma(layerA[0]);
+    *imgPtr++ = gamma(layerA[1]);
+    *imgPtr++ = gamma(layerA[2]);
+  }
+
+  // next step in effect
+  (*effectStep[fxIdx])(fxVars, numPixels);
 
   // Count up to next transition (or end of current one):
   tCounter++;
   if(tCounter == 0) { // Transition start
     // Randomly pick next image effect and alpha effect indices:
-    fxIdx = random((sizeof(renderEffect) / sizeof(renderEffect[0])));
+    fxIdx = random((EFFECT_NUM));
     fxVars[0] = 0;     // Effect not yet initialized
     tCounter          = -120 - random(240); // Hold image 2 to 6 seconds
   }
