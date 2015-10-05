@@ -83,6 +83,7 @@ class Frame < OpenStruct
   end
 
   def calculate_floor_connections!
+    return if @_calculated_floor_connections
     all_leds.each_with_index do |led, i|
       led.index = i
       led.floor = floor_tube.leds.min_by do |fl|
@@ -97,6 +98,7 @@ class Frame < OpenStruct
 
     unass = floor_tube.leds.reject { |l| !l.connections.empty? }.count
     $stderr.puts "unassigned floor leds: #{unass}" if unass > 0
+    @_calculated_floor_connections = true
   end
 end
 
