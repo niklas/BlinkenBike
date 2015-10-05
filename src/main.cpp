@@ -24,25 +24,17 @@
 #include "TimerOne.h"
 #include "trigometry.h"
 #include "colors.h"
+#include "settings.h"
 #include "effects.h"
-
-#define FPS 60
-
-// number of fxVars, ocnfiguration ints for render effects
-#define FX_VARS_NUM 9
-
-
-int dataPin = 2;
-int clockPin = 3;
-
-
-const int numPixels = 110;
+#include "transitions.h"
 
 byte imgData[numPixels * 3],    // Data for 1 strip worth of imagery
-     layerA[3],                 // RGB for first layer
-     fxIdx;                     // Effect # for back & front images + alpha
-int  fxVars[FX_VARS_NUM],       // Effect instance variables (explained later)
-     tCounter   = -1;           // Countdown to next transition
+     layer[3],                  // RGB for one pixel
+     backImgIdx,                // Index of 'back' image (always 0 or 1)
+     fxIdx[2],                  // Effect # for back & front images
+     transIdx;                  // which Alpha transition to run
+int  fxVars[2][FX_VARS_NUM],    // Effect instance variables (explained later)
+     transVars[FX_VARS_NUM];    // Alpha transition instance variables
 
 LEDStrip strip = LEDStrip(numPixels, dataPin, clockPin);
 
@@ -59,7 +51,9 @@ void setup() {
   // Initialize random number generator from a floating analog input.
   randomSeed(analogRead(0));
   memset(imgData, 0, sizeof(imgData)); // Clear image data
-  fxIdx = 0; // start with the first effect
+  backImgIdx        = 0;
+  fxIdx[backImgIdx] = 0; // start with the first effect
+  tCounter = -1;
 
   // Timer1 is used so the strip will update at a known fixed frame rate.
   // Each effect rendering function varies in processing complexity, so
@@ -74,10 +68,6 @@ void loop() {
   // but we still need loop() here to keep the compiler happy.
 }
 
-void choose_effect(byte num) {
-  // no need for meta[0] = 1
-}
-
 // Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
 void callback() {
   // Very first thing here is to issue the strip data generated from the
@@ -89,35 +79,69 @@ void callback() {
   strip.show(&imgData[0]);
 
   int pix;
-  byte i;
+  int frntImgIdx = 1 - backImgIdx;
   byte * imgPtr;
 
 
-  // Initialize the current effect
-  if (fxVars[0] == 0) {
-    (*effectInit[fxIdx])(fxVars, numPixels);
+  // Initialize the current effects if needed
+  if (fxVars[backImgIdx][0] == 0) {
+    (*effectInit[fxIdx[backImgIdx]])(fxVars[backImgIdx]);
+  }
+  if (tCounter > 0) {
+    if (fxVars[frntImgIdx][0] == 0) {
+      (*effectInit[fxIdx[frntImgIdx]])(fxVars[frntImgIdx]);
+    }
+    if (transVars[0] == 0) {
+      (*transitionInit[transIdx])(transVars);
+    }
   }
 
-  for(imgPtr = &imgData[0], pix = 0; pix < numPixels; pix++) {
+  for(pix = 0; pix < numPixels; pix++) {
+    imgPtr = &imgData[3*pix];
     // apply effect to every pixel
-    (*effectPixel[fxIdx])(fxVars, layerA, pix, numPixels);
+    (*effectPixel[fxIdx[backImgIdx]])(fxVars[backImgIdx], imgPtr, pix);
 
-    // Apply gamma
-    *imgPtr++ = gamma(layerA[0]);
-    *imgPtr++ = gamma(layerA[1]);
-    *imgPtr++ = gamma(layerA[2]);
+    // during transition to other effect
+    if (tCounter > 0) {
+      int trans, inv;
+      (*effectPixel[fxIdx[frntImgIdx]])(fxVars[frntImgIdx], layer, pix);
+
+      // calculate trans btwn 1-256 so we can do a shift devide
+      (*transitionPixel[transIdx])(transVars, &trans, pix);
+      trans++;
+      inv   = 257 - trans;
+
+      imgPtr[0] = ( imgPtr[0] * inv + layer[0] * trans ) >> 8;
+      imgPtr[1] = ( imgPtr[1] * inv + layer[1] * trans ) >> 8;
+      imgPtr[2] = ( imgPtr[2] * inv + layer[2] * trans ) >> 8;
+    }
+
+    // apply gamma
+    imgPtr[0] = gamma( imgPtr[0] );
+    imgPtr[1] = gamma( imgPtr[1] );
+    imgPtr[2] = gamma( imgPtr[2] );
   }
 
   // next step in effect
-  (*effectStep[fxIdx])(fxVars, numPixels);
+  (*effectStep[fxIdx[backImgIdx]])(fxVars[backImgIdx]);
+
+  if (tCounter > 0) {
+    (*effectStep[fxIdx[frntImgIdx]])(fxVars[frntImgIdx]);
+  }
 
   // Count up to next transition (or end of current one):
   tCounter++;
   if(tCounter == 0) { // Transition start
-    // Randomly pick next image effect and alpha effect indices:
-    fxIdx = random((EFFECT_NUM));
-    fxVars[0] = 0;     // Effect not yet initialized
-    tCounter          = -120 - random(240); // Hold image 2 to 6 seconds
+    // Randomly pick next image effect and trans effect indices:
+    fxIdx[frntImgIdx]      = random(EFFECT_NUM);
+    transIdx               = random(TRANSITION_NUM);
+    transitionTime         = random(FPS/2, 3 * FPS);
+    fxVars[frntImgIdx][0]  = 0;     // Effect not yet initialized
+    transVars[0]           = 0; // Transition not yet initialized
+  } else if (tCounter >= transitionTime) { // End transition
+    fxIdx[backImgIdx]      = fxIdx[frntImgIdx]; // Move front effect index to back
+    backImgIdx             = 1 - backImgIdx;     // Invert back index
+    tCounter               = - random(2 * FPS, 6 * FPS); // Hold image 2 to 6 seconds
   }
 }
 
@@ -125,7 +149,7 @@ void callback() {
 // ---------------------------------------------------------------------------
 // Alpha channel effect rendering functions.  Like the image rendering
 // effects, these are typically parametrically-generated...but unlike the
-// images, there is only one alpha renderer "in flight" at any given time.
+// images, there is only one trans renderer "in flight" at any given time.
 // So it would be okay to use local static variables for storing state
 // information...but, given that there could end up being many more render
 // functions here, and not wanting to use up all the RAM for static vars
