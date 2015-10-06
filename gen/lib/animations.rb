@@ -1,12 +1,19 @@
 class Animations < Array
+  Testing = ENV['BIKE_ENV'] == 'test'
+
   def self.glob(glb)
     klass = item_class
     items = Dir[glb].map do |fn|
       source = File.read(fn)
       name   = File.basename(fn, '.*')
+      unless Testing
+        if name =~ /^test_/
+          next
+        end
+      end
 
       klass.new name, source
-    end
+    end.compact
     new items
   end
 
