@@ -1,24 +1,33 @@
 task :default => :all
 
 task :all => [
-  'src/effects.h',
-  'src/transitions.h',
-  'src/layout.h',
+  'lib/Effects/Effects.h',
+  'lib/Transitions/Transitions.h',
+  'lib/Layout/Layout.h',
+  'lib/Effects/Effects.cpp',
+  'lib/Transitions/Transitions.cpp',
+  'lib/Layout/Layout.cpp',
 ]
 generator = 'bin/generate_code.rb'
 
-effects = Rake::FileList.new('effects/*.effect', 'bin/generate_effects')
-file 'src/effects.h' => effects do
-  sh "bin/generate_effects"
+effects = Rake::FileList.new('effects/*.effect', 'bin/generate_effects', 'gen/lib/*.rb')
+['lib/Effects/Effects.h', 'lib/Effects/Effects.cpp'].each do |f|
+  file f => effects do
+    mkdir_p 'lib/Effects'
+    sh "bin/generate_effects"
+  end
 end
 
-transitions = Rake::FileList.new('transitions/*.transition', 'bin/generate_transitions')
-file 'src/transitions.h' => transitions do
-  sh "bin/generate_transitions"
+transitions = Rake::FileList.new('transitions/*.transition', 'bin/generate_transitions', 'gen/lib/*.rb')
+['lib/Transitions/Transitions.h', 'lib/Transitions/Transitions.cpp'].each do |f|
+  file f => transitions do
+    mkdir_p 'lib/Transitions'
+    sh "bin/generate_transitions"
+  end
 end
 
-['src/layout.h', 'src/layout.cpp'].each do |layout|
-  file layout => ['bicycle.yaml', 'bin/generate_layout', 'gen/lib/tubes.rb', 'src/layout.cpp.erb'] do
+['lib/Layout/Layout.h', 'lib/Layout/Layout.cpp'].each do |layout|
+  file layout => ['bicycle.yaml', 'bin/generate_layout', 'gen/lib/tubes.rb', 'lib/Layout/Layout.cpp.erb'] do
     sh 'bin/generate_layout'
   end
 end

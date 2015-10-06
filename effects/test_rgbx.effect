@@ -1,0 +1,13 @@
+// Test pattern: repetitive Red, Green, Blue, Blank
+init:
+  meta[1] = random(90,180); // brightness
+pixel:
+  switch(i % 5) {
+     case 0: *pixel++ = meta[1]; *pixel++ = 42; *pixel++ = 42; break;
+     case 1: *pixel++ = 42; *pixel++ = meta[1]; *pixel++ = 42; break;
+     case 2: *pixel++ = 42; *pixel++ = 42; *pixel++ = meta[1]; break;
+     case 3:
+     case 4: *pixel++ = 0; *pixel++ = 0; *pixel++ = 0;       break;
+  }
+// vi:syntax=cpp
+

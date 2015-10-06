@@ -29,14 +29,14 @@ class Frame < OpenStruct
     [
       %Q~#include <Arduino.h>~,
       %Q~#define FLOOR_PIXEL_COUNT #{floor_tube.led_count}~,
-      %Q~void mapFloorToLinear(byte * floor, byte * linear);~,
+      %Q~byte floorMap(byte);~,
     ].join("\n")
   end
 
   def implementation
     calculate_floor_connections!
 
-    ERB.new(File.read('src/layout.cpp.erb')).result(binding)
+    ERB.new(File.read(implementation_template)).result(binding)
   end
 
   private

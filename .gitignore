@@ -1,9 +1,9 @@
 .pioenvs/
 .sconsign.dblite
 doc/kalkhoff.jpeg
-src/effects.cpp
-src/effects.h
-src/transitions.cpp
-src/transitions.h
-src/layout.h
-src/layout.cpp
+lib/Effects/Effects.cpp
+lib/Effects/Effects.h
+lib/Transitions/Transitions.cpp
+lib/Transitions/Transitions.h
+lib/Layout/Layout.h
+lib/Layout/Layout.cpp

@@ -6,10 +6,10 @@ require 'effects'
 
 if $0 == __FILE__
   effects = Effects.glob('effects/*.effect')
-  File.open 'src/effects.h', 'w' do |h|
+  File.open 'lib/Effects/Effects.h', 'w' do |h|
     h.puts effects.header
   end
-  File.open 'src/effects.cpp', 'w' do |cpp|
+  File.open 'lib/Effects/Effects.cpp', 'w' do |cpp|
     cpp.puts effects.implementation
   end
 else
