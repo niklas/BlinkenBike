@@ -1,5 +1,5 @@
 #include <avr/pgmspace.h>
-#include "trigometry.h"
+#include "Trigometry.h"
 // The fixed-point sine and cosine functions use marginally more
 // conventional units, equal to 1/2 degree (720 units around full circle),
 // chosen because this gives a reasonable resolution for the given output

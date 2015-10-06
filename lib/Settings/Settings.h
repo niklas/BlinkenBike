@@ -10,6 +10,7 @@
 
 #define FPS_BY_TIMER
 #undef BENCHMARK_FPS
+#define DO_TRANSITION
 #define BENCHMARK_EVERY 10
 
 

@@ -17,10 +17,11 @@ class Animations < Array
   def implementation
     [
       %Q~#include <Arduino.h>~,
-      %Q~#include "colors.h"~,
-      %Q~#include "trigometry.h"~,
-      %Q~#include "settings.h"~,
-      %Q~#include "#{self.class.name.downcase}.h"~,
+      %Q~#include "Colors.h"~,
+      %Q~#include "Trigometry.h"~,
+      %Q~#include "Settings.h"~,
+      %Q~#include "Layout.h"~,
+      %Q~#include "#{self.class.name}.h"~,
       map(&:implementation).join("\n\n"),
       *first.method_sections.map(&method(:func_array))
     ].join("\n")

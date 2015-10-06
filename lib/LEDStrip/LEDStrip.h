@@ -1,5 +1,8 @@
 #include <Arduino.h>
 
+#ifndef __LEDSTRIP_H__
+#define __LEDSTRIP_H__
+
 class LEDStrip {
 
  public:
@@ -35,3 +38,4 @@ class LEDStrip {
     begun;       // If 'true', begin() method was previously invoked
 };
 
+#endif

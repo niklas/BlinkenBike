@@ -1,4 +1,4 @@
-#include "colors.h"
+#include "Colors.h"
 // Gamma correction compensates for our eyes' nonlinear perception of
 // intensity.  It's the LAST step before a pixel value is stored, and
 // allows intermediate rendering/processing to occur in linear space.

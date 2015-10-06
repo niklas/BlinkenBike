@@ -37,3 +37,5 @@ pixel:
 step:
   meta[4] += meta[5];
   if (meta[4] < 0) meta[4] += numPixels;
+
+// vi:syntax=cpp
