@@ -94,7 +94,7 @@ class Frame < OpenStruct
       from: [ xs.min, floor ],
       to:   [ xs.max, floor ],
       virtual: true,
-      led_count: 50
+      led_count: 30
     )
   end
 
@@ -114,6 +114,16 @@ class Frame < OpenStruct
 
     unass = floor_tube.leds.reject { |l| !l.connections.empty? }.count
     $stderr.puts "unassigned floor leds: #{unass}" if unass > 0
+    slutty = 4
+    sluts = floor_tube.leds.reject { |l| l.connections.count <= slutty }.count
+    if sluts > 0
+      $stderr.puts "slutty floor leds: #{sluts} (more than #{slutty} connections)"
+      floor_tube.leds.group_by { |l| l.connections.count }.sort_by { |k,v| k }.each do |connection_count, leds|
+        if connection_count >= slutty
+          $stderr.puts %Q~   % 3i: %s~ % [connection_count, '#' * leds.length]
+        end
+      end
+    end
     @_calculated_floor_connections = true
   end
 end
