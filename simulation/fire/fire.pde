@@ -35,31 +35,34 @@ void draw() {
   frameCounter++;
 }
 
+color yellow = color(255, 230, 0);
+color red    = color(255, 0, 0);
+color black  = color(0, 0, 0);
+
 class LED {
   int index;
-  int r,g,b;
+  color col;
 
   LED(int newIndex) {
     index = newIndex;
-    r = int(random(10, 255));
-    g = int(random(10, 255));
-    b = int(random(10, 255));
+    col = black;
   }
 
   void tick(int t) {
-    if (index == t % numLEDs) {
-      r = 255;
+    int length = numLEDs / 2;
+    if (index < length) {
+      color c = lerpColor( yellow, red, random(1));
+      float brightness = map(index, 0, length, 0, 1);
+      col = lerpColor( c, black, brightness);
     } else {
-      r = 0;
+      col = black;
     }
-    g = 0;
-    b = 0;
   }
 
   void display() {
     stroke(23,23,23);
     strokeWeight(2);
-    fill(r,g,b);
+    fill(col);
     ellipse(0,0, LED_SIZE,LED_SIZE);
   }
 }
