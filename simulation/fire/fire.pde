@@ -47,11 +47,18 @@ class LED {
   }
 
   void tick(int t) {
-    r = t % 255;
-    g = index;
+    if (index == t % numLEDs) {
+      r = 255;
+    } else {
+      r = 0;
+    }
+    g = 0;
+    b = 0;
   }
 
   void display() {
+    stroke(23,23,23);
+    strokeWeight(2);
     fill(r,g,b);
     ellipse(0,0, LED_SIZE,LED_SIZE);
   }
