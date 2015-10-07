@@ -3,7 +3,8 @@ class Animations < Array
 
   def self.glob(glb)
     klass = item_class
-    items = Dir[glb].map do |fn|
+    items = new
+    Dir[glb].map do |fn|
       source = File.read(fn)
       name   = File.basename(fn, '.*')
       unless Testing
@@ -12,13 +13,26 @@ class Animations < Array
         end
       end
 
-      klass.new name, source
-    end.compact
-    new items
+      items << klass.new(name, source)
+    end
+    items
   end
 
   def self.item_class
     Object.const_get( name.sub(/s$/,'') )
+  end
+
+  def <<(item)
+    super(item) if selected?(item.name)
+  end
+
+  def selected?(name)
+    selection.empty? || selection.include?(name)
+  end
+
+  def selection
+    return @selection if defined?(@selection)
+    @selection = (ENV[self.class.name.upcase] || '').split(',')
   end
 
   def implementation

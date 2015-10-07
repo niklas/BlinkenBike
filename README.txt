@@ -14,3 +14,8 @@ You can put Effects in effects/ and Alpha Transitions into transitions/. They
 will be precompiled into according implementions automatically.
 
 There might be animations beginning with 'test_'. These will only be included when BIKE_ENV=test.
+
+You can select a subset of animations by supplying environment vars EFFECTS and TRANSITIONS
+
+
+    EFFECTS=sinchase,solid TRANSITIONS=fade platformio run --target upload
