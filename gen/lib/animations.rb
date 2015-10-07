@@ -38,6 +38,7 @@ class Animations < Array
   def implementation
     [
       %Q~#include <Arduino.h>~,
+      %Q~#include "FastLED.h"~,
       %Q~#include "Colors.h"~,
       %Q~#include "Trigometry.h"~,
       %Q~#include "Settings.h"~,

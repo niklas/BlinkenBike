@@ -19,3 +19,7 @@ You can select a subset of animations by supplying environment vars EFFECTS and 
 
 
     EFFECTS=sinchase,solid TRANSITIONS=fade platformio run --target upload
+
+== Libraries
+
+* 126 FastLED (must install by git and checkout branch FastLED3.1
