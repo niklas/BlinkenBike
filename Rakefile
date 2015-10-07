@@ -31,3 +31,7 @@ end
     sh 'bin/generate_layout'
   end
 end
+
+task :simulate do
+  sh 'processing-java --sketch=simulation/fire --run'
+end

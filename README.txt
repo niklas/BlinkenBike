@@ -2,6 +2,8 @@
 
 Platformio, Ruby and some gems. Gemfile TODO
 
+For simulation, install processing.
+
 == Usage
 
 Write code in src and lib, then run `platformio run --target upload`.
