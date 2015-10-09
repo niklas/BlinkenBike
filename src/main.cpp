@@ -76,11 +76,13 @@ unsigned long startedAt = millis();
 unsigned int wait;
 
 void loop() {
-  // try keep a constant framerate
-  wait = MICROS_PER_FRAME - ( millis() - startedAt );
-  if ( (wait > 0) && (wait < 100)) FastLED.delay(wait);
-  startedAt = millis();
-
+  // Very first thing here is to issue the strip data generated from the
+  // *previous* callback.  It's done this way on purpose because show() is
+  // roughly constant-time, so the refresh will always occur on a uniform
+  // beat with respect to the Timer1 interrupt.  The various effects
+  // rendering and compositing code is not constant-time, and that
+  // unevenness would be apparent if show() were called at the end.
+  FastLED.show();
   frameCount++;
 
 #ifdef BENCHMARK_FPS
@@ -92,24 +94,23 @@ void loop() {
 
   frame();
 
-  EVERY_N_SECONDS( 1 ) {
+  EVERY_N_MILLISECONDS(400) {
     pot = analogRead(PIN_POT_SIDE);
-    shouldAutoTransition = pot < 23;
-    transitionTimeBase = map(pot , 0, 1023, 10 * FPS, 2);
+    shouldAutoTransition = pot < 23 ? false : true;
+    transitionTimeBase = map(pot , 0, 1023, 10 * FPS, 2 * FPS);
     Serial.println(transitionTimeBase);
     Serial.println(shouldAutoTransition);
   }
+
+  // try keep a constant framerate
+  wait = MICROS_PER_FRAME - ( millis() - startedAt );
+  if ( (wait > 0) && (wait < 100)) FastLED.delay(wait);
+  startedAt = millis();
+
 }
 
 // Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
 void frame() {
-  // Very first thing here is to issue the strip data generated from the
-  // *previous* callback.  It's done this way on purpose because show() is
-  // roughly constant-time, so the refresh will always occur on a uniform
-  // beat with respect to the Timer1 interrupt.  The various effects
-  // rendering and compositing code is not constant-time, and that
-  // unevenness would be apparent if show() were called at the end.
-  FastLED.show();
 
   int frntImgIdx = 1 - backImgIdx;
 
