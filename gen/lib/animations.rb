@@ -52,7 +52,6 @@ class Animations < Array
       %Q~#include <Arduino.h>~,
       %Q~#include "FastLED.h"~,
       %Q~#include "Colors.h"~,
-      %Q~#include "Trigometry.h"~,
       %Q~#include "Settings.h"~,
       %Q~#include "Layout.h"~,
       function_signs,

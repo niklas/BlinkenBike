@@ -23,7 +23,6 @@
 FASTLED_USING_NAMESPACE
 #include <avr/pgmspace.h>
 #include "TimerOne.h"
-#include "Trigometry.h"
 #include "Colors.h"
 #include "Settings.h"
 #include "Effects.h"
