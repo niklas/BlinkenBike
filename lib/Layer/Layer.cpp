@@ -93,7 +93,7 @@ void Layer::renderCompositeFloor() {
 
 void Layer::mapFloorToLinear() {
   int f,l;
-  for(int l = 0; l < STRIP_PIXEL_COUNT; l++) {
+  for(l = 0; l < STRIP_PIXEL_COUNT; l++) {
     f = floorMap(l);
 
     if (f < FLOOR_PIXEL_COUNT-1) {
@@ -107,9 +107,8 @@ void Layer::mapFloorToLinear() {
 void Layer::composeFloorToLinear() {
   int f,l;
   int trans;
-  for(int l = 0; l < STRIP_PIXEL_COUNT; l++) {
+  for(l = 0; l < STRIP_PIXEL_COUNT; l++) {
     f = floorMap(l);
-    l = 3 * l;
 
     // calculate trans btwn 1-256 so we can do a shift devide
     transitionPixel[transititionIdx](tmeta, &trans, l, STRIP_PIXEL_COUNT);
