@@ -17,7 +17,7 @@
 #define PIN_STRIP_DATA 2
 #define PIN_STRIP_CLK 3
 #define LED_TYPE LPD8806
-#define COLOR_ORDER GRB
+#define COLOR_ORDER BRG
 
 #define STRIP_PIXEL_COUNT 110
 extern int  tCounter, transitionTime;
