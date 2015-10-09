@@ -35,6 +35,7 @@ void Layer::render() {
   switch(orientation) {
     case ORIENTATION_LINEAR: renderLinear(); break;
     case ORIENTATION_FLOOR: renderFloor(); break;
+    default: break;
   }
 
   effectStep[effectIdx](meta, pixelCount());
@@ -51,6 +52,7 @@ void Layer::renderComposite() {
   switch(orientation) {
     case ORIENTATION_LINEAR: renderCompositeLinear(); break;
     case ORIENTATION_FLOOR: renderCompositeFloor(); break;
+    default: break;
   }
 
   effectStep[effectIdx](meta, pixelCount());
