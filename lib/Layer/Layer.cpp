@@ -70,7 +70,6 @@ void Layer::renderFloor() {
 }
 
 void Layer::renderCompositeLinear() {
-  byte * pixel;
   int trans;
 
   for(int pix = 0; pix < STRIP_PIXEL_COUNT; pix++) {
