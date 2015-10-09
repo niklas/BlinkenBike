@@ -1,12 +1,13 @@
 setup:
-  #define STVZO67_LENGTH 8
+  #define STVZO67_LENGTH_FRONT 12
+  #define STVZO67_LENGTH_BACK 8
 pixel:
-  if (i < STVZO67_LENGTH) {
+  if (i < STVZO67_LENGTH_FRONT) {
     // Front
-    *pixel = CHSV( 0, 0, dim8_video( map(numPixels - i,1,STVZO67_LENGTH,0,250) ) );
-  } else if (i >= numPixels - STVZO67_LENGTH) {
+    *pixel = CHSV( 64, 32, dim8_video( map( i,1,STVZO67_LENGTH_FRONT,250,5) ) );
+  } else if (i >= numPixels - STVZO67_LENGTH_BACK) {
     // Back
-    *pixel = CHSV( 0, 250, dim8_video( map(numPixels - i,1,STVZO67_LENGTH,250,0) ) );
+    *pixel = CHSV( 0, 250, dim8_video( map( i,numPixels - STVZO67_LENGTH_BACK, numPixels - 1, 5, 250) ) );
   } else {
     *pixel = CRGB::Black;
   }
