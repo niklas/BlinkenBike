@@ -68,7 +68,7 @@ void setup() {
   backImgIdx        = 0;
   tCounter = -1;
   shouldAutoTransition = true;
-  transitionTimeBase = 5 * FPS;
+  effectDurationBase = 5 * FPS;
 }
 
 int pot;
@@ -96,9 +96,9 @@ void loop() {
 
   EVERY_N_MILLISECONDS(400) {
     pot = analogRead(PIN_POT_SIDE);
-    shouldAutoTransition = pot < 23 ? false : true;
-    transitionTimeBase = map(pot , 0, 1023, 10 * FPS, 2 * FPS);
-    Serial.println(transitionTimeBase);
+    shouldAutoTransition = pot < 5 ? false : true;
+    effectDurationBase = map(pot , 5, 1023, 5 * FPS, 2);
+    Serial.println(effectDurationBase);
     Serial.println(shouldAutoTransition);
   }
 
@@ -125,8 +125,10 @@ void frame() {
   //////////////////////////////////////////////////////////////
   // Secondary effect (foreground) during transition in progress
   //////////////////////////////////////////////////////////////
-  if (tCounter > 0) {
-    layer[frntImgIdx].renderComposite();
+  if (shouldAutoTransition) {
+    if (tCounter > 0) {
+      layer[frntImgIdx].renderComposite();
+    }
   }
 #endif
 
@@ -144,12 +146,19 @@ void frame() {
   // Count up to next transition (or end of current one):
   //////////////////////////////////////////////////////////////
   tCounter++;
-  if(tCounter == 0) { // Transition start
-
+  if (shouldAutoTransition && (tCounter == 0)) { // Transition start
+    Serial.println(F("transition start"));
     layer[frntImgIdx].transitionStart();
-    transitionTime         = random(FPS/2, 3 * FPS);
-  } else if (tCounter >= transitionTime) { // End transition
-    backImgIdx             = 1 - backImgIdx;     // Invert back index
-    tCounter               = - random(2 * FPS, 6 * FPS); // Hold image 2 to 6 seconds
+    transitionTime = random(FPS/2, 3 * FPS);
+  }
+
+  if (tCounter >= transitionTime) {
+    if (shouldAutoTransition) {
+      Serial.println("transition done");
+      backImgIdx             = 1 - backImgIdx;     // Invert back index
+      tCounter = - random(effectDurationBase, 6 * effectDurationBase);
+    } else {
+      tCounter = 1; // do not start a new transition
+    }
   }
 }

@@ -20,7 +20,7 @@
 #define COLOR_ORDER BRG
 
 #define STRIP_PIXEL_COUNT 110
-extern int  tCounter, transitionTime, transitionTimeBase;
+extern int  tCounter, transitionTime, effectDurationBase;
 extern bool shouldAutoTransition;
 
 #endif
