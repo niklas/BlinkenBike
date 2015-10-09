@@ -34,7 +34,7 @@ transitions = Rake::FileList.new('transitions/*.transition', 'bin/generate_trans
 end
 
 ['lib/Layout/Layout.h', 'lib/Layout/Layout.cpp'].each do |layout|
-  file layout => ['bicycle.yaml', 'bin/generate_layout', 'gen/lib/tubes.rb', 'lib/Layout/Layout.cpp.erb'] do
+  file layout => ['bicycle.yaml', 'bin/generate_layout', 'gen/lib/tubes.rb', 'lib/Layout/Layout.cpp.erb', 'lib/Layout/Layout.h.erb'] do
     sh 'bin/generate_layout'
   end
 end

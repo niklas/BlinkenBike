@@ -9,5 +9,11 @@ class Effects < Animations
       'step'  => 'int * meta, byte numPixels',
     }
   end
+
+  def self.attributes
+    {
+      'orientation' => 'Orientation'
+    }
+  end
 end
 

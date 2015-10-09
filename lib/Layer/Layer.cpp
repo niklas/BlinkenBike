@@ -12,7 +12,9 @@ Layer::Layer(CRGB * theTarget, CRGB * theScratch, int * theTMeta) {
 void Layer::transitionStart() {
   effectIdx       = random(EFFECT_NUM);
   transititionIdx = random(TRANSITION_NUM);
-  orientation     = static_cast<Orientation>(random(NUM_ORIENTATIONS));
+  orientation     = effectOrientation[effectIdx];
+  if (orientation == ORIENTATION_NIL)
+    orientation = static_cast<Orientation>(random(NUM_ORIENTATIONS));
   meta[0]         = 0; // Effect not yet initialized
   tmeta[0]        = 0; // Transition not yet initialized
 }
@@ -97,7 +99,7 @@ void Layer::mapFloorToLinear() {
 
     pixel = scratch[f];
     if (f < FLOOR_PIXEL_COUNT-1) {
-      pixel = blend(scratch[f+1], pixel, ORIENTATION_INTERPOLATION);
+      pixel = blend(pixel, scratch[f+1], ORIENTATION_INTERPOLATION);
     }
     target[l] = pixel;
   }
@@ -115,7 +117,7 @@ void Layer::composeFloorToLinear() {
 
     pixel = blend(target[l], scratch[f], trans);
     if (f < FLOOR_PIXEL_COUNT-1) {
-      pixel = blend(scratch[f+1], pixel, ORIENTATION_INTERPOLATION);
+      pixel = blend(pixel, scratch[f+1], ORIENTATION_INTERPOLATION);
     }
     target[l] = pixel;
   }

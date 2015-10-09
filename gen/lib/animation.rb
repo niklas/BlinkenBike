@@ -7,6 +7,19 @@ class Animation < Struct.new(:name, :source)
     self.class.method_sections
   end
 
+  def self.attribute_sections
+    %w()
+  end
+
+  def attribute_sections
+    self.class.attribute_sections
+  end
+
+  def initialize(*)
+    super
+    @attributes = {}
+  end
+
   def implementation
     sections.map do |sec, code|
       case sec
@@ -73,6 +86,8 @@ class Animation < Struct.new(:name, :source)
         when /^(#{(method_sections + ['setup']).join('|')}):\s*$/
           section = $1
           sections[section] = ''
+        when /^(#{attribute_sections.join('|')}):\s*(\w+)\s*$/
+          @attributes[$1] = $2
         when /^\s*#/,%r~^\s*//~
           # ignore comments before first section
           if section

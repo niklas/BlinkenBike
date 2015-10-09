@@ -26,11 +26,12 @@ class Frame < OpenStruct
 
   def header
     calculate_floor_connections!
-    [
-      %Q~#include <Arduino.h>~,
-      %Q~#define FLOOR_PIXEL_COUNT #{floor_tube.led_count}~,
-      %Q~byte floorMap(byte);~,
-    ].join("\n")
+
+    ERB.new(File.read(header_template)).result(binding)
+  end
+
+  def header_template
+    implementation_template.sub(/\.cpp\./, '.h.')
   end
 
   def implementation

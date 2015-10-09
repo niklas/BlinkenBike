@@ -38,6 +38,7 @@ class Animations < Array
   def implementation
     [
       %Q~#include "#{self.class.name}.h"~,
+      attribute_arrays,
       map(&:implementation).join("\n\n"),
       *first.method_sections.map(&method(:func_array))
     ].join("\n")
@@ -58,6 +59,7 @@ class Animations < Array
       function_headers,
       count_const_definition,
       function_array_names,
+      attribute_array_names,
       '',
       %Q~#endif~
     ].join("\n")
@@ -108,5 +110,24 @@ class Animations < Array
 
   def count_const
     first.class.name.upcase + '_NUM'
+  end
+
+  def attribute_arrays
+    first.attribute_sections.map do |section|
+      name    = first.array_name(section)
+      content = map(&:"#{section}_attribute").join(',')
+      typ     = self.class.attributes[section]
+      %Q~#{typ} #{name}[] = {#{content}};~
+    end.join("\n")
+  end
+
+  def attribute_array_names
+    first.attribute_sections.map(&method(:attribute_array_name)).join("\n")
+  end
+
+  def attribute_array_name(section)
+    name    = first.array_name(section)
+    typ     = self.class.attributes[section]
+    %Q~extern #{typ} #{name}[#{length}];~
   end
 end

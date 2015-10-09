@@ -1,3 +1,4 @@
+orientation: linear
 setup:
   CRGB test_heat_color;
 pixel:

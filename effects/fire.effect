@@ -21,6 +21,7 @@ setup:
   #define FIRE_EACH fIre = FIRE_OFFSET; fIre < FIRE_HEIGHT + FIRE_OFFSET; fIre++
   byte fIre;
   CRGB fire_color;
+orientation: floor
 init:
   // make everything cold
   for(FIRE_EACH) {
