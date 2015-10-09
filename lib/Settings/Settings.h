@@ -15,10 +15,12 @@
 
 #define PIN_STRIP_DATA 2
 #define PIN_STRIP_CLK 3
+#define PIN_POT_SIDE 0
 #define LED_TYPE LPD8806
 #define COLOR_ORDER BRG
 
 #define STRIP_PIXEL_COUNT 110
-extern int  tCounter, transitionTime;
+extern int  tCounter, transitionTime, transitionTimeBase;
+extern bool shouldAutoTransition;
 
 #endif

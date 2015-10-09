@@ -60,12 +60,18 @@ void setup() {
   Serial.begin(9600);
 #endif
 
+  Serial.begin(9600);
+  pinMode(PIN_POT_SIDE, INPUT);
+
   // Initialize random number generator from a floating analog input.
   randomSeed(analogRead(0));
   backImgIdx        = 0;
   tCounter = -1;
+  shouldAutoTransition = true;
+  transitionTimeBase = 5 * FPS;
 }
 
+int pot;
 unsigned long startedAt = millis();
 unsigned int wait;
 
@@ -86,6 +92,13 @@ void loop() {
 
   frame();
 
+  EVERY_N_SECONDS( 1 ) {
+    pot = analogRead(PIN_POT_SIDE);
+    shouldAutoTransition = pot < 23;
+    transitionTimeBase = map(pot , 0, 1023, 10 * FPS, 2);
+    Serial.println(transitionTimeBase);
+    Serial.println(shouldAutoTransition);
+  }
 }
 
 // Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
