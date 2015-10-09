@@ -111,15 +111,6 @@ void frame() {
   // unevenness would be apparent if show() were called at the end.
   FastLED.show();
 
-  frameCount++;
-#ifdef BENCHMARK_FPS
-  if (frameCount % BENCHMARK_EVERY == 0) {
-    end_benchmark(frameCount);
-    frameCount = 1;
-    start_benchmark();
-  }
-#endif
-
   int frntImgIdx = 1 - backImgIdx;
 
 
