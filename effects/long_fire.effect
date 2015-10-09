@@ -39,10 +39,9 @@ pixel:
   int fireHeight = min(LONG_FIRE_HEIGHT, numPixels);
   if (i < fireHeight) {
     firePtr = (byte *)&meta[LONG_FIRE_OFFSET];
-    fire_color = HeatColor(firePtr[i]);
-    *pixel++ = fire_color.r; *pixel++ = fire_color.g; *pixel++ = fire_color.b;
+    *pixel = HeatColor(firePtr[i]);
   } else {
-    *pixel++ = 0; *pixel++ = 0; *pixel++ = 0;
+    *pixel = CRGB::Black;
   }
 step:
   int fireHeight = min(LONG_FIRE_HEIGHT, numPixels);

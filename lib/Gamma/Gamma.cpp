@@ -1,4 +1,4 @@
-#include "Colors.h"
+#include "Gamma.h"
 // Gamma correction compensates for our eyes' nonlinear perception of
 // intensity.  It's the LAST step before a pixel value is stored, and
 // allows intermediate rendering/processing to occur in linear space.
@@ -10,6 +10,8 @@
 // Only the final end product is converted to 7 bits, the native format
 // for the LPD8806 LED driver.  Gamma correction and 7-bit decimation
 // thus occur in a single operation.
+//
+// It seems to represent gamma of value 2.5
 PROGMEM const unsigned char gammaTable[]  = {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  1,  1,
@@ -39,47 +41,11 @@ byte gamma(byte x) {
   return pgm_read_byte(&gammaTable[x]);
 }
 
-// Fixed-point colorspace conversion: HSV (hue-saturation-value) to RGB.
-// This is a bit like the 'Wheel' function from the original strandtest
-// code on steroids.  The angular units for the hue parameter may seem a
-// bit odd: there are 1536 increments around the full color wheel here --
-// not degrees, radians, gradians or any other conventional unit I'm
-// aware of.  These units make the conversion code simpler/faster, because
-// the wheel can be divided into six sections of 256 values each, very
-// easy to handle on an 8-bit microcontroller.  Math is math, and the
-// rendering code elsehwere in this file was written to be aware of these
-// units.  Saturation and value (brightness) range from 0 to 255.
-long hsv2rgb(long h, byte s, byte v) {
-  byte r, g, b, lo;
-  int  s1;
-  long v1;
-
-  // Hue
-  h %= 1536;           // -1535 to +1535
-  if(h < 0) h += 1536; //     0 to +1535
-  lo = h & 255;        // Low byte  = primary/secondary color mix
-  switch(h >> 8) {     // High byte = sextant of colorwheel
-    case 0 : r = 255     ; g =  lo     ; b =   0     ; break; // R to Y
-    case 1 : r = 255 - lo; g = 255     ; b =   0     ; break; // Y to G
-    case 2 : r =   0     ; g = 255     ; b =  lo     ; break; // G to C
-    case 3 : r =   0     ; g = 255 - lo; b = 255     ; break; // C to B
-    case 4 : r =  lo     ; g =   0     ; b = 255     ; break; // B to M
-    default: r = 255     ; g =   0     ; b = 255 - lo; break; // M to R
-  }
-
-  // Saturation: add 1 so range is 1 to 256, allowig a quick shift operation
-  // on the result rather than a costly divide, while the type upgrade to int
-  // avoids repeated type conversions in both directions.
-  s1 = s + 1;
-  r = 255 - (((255 - r) * s1) >> 8);
-  g = 255 - (((255 - g) * s1) >> 8);
-  b = 255 - (((255 - b) * s1) >> 8);
-
-  // Value (brightness) and 24-bit color concat merged: similar to above, add
-  // 1 to allow shifts, and upgrade to long makes other conversions implicit.
-  v1 = v + 1;
-  return (((r * v1) & 0xff00) << 8) |
-          ((g * v1) & 0xff00)       |
-         ( (b * v1)           >> 8);
+CRGB gamma(CRGB c) {
+  return CRGB(
+    gamma(c.r),
+    gamma(c.g),
+    gamma(c.b)
+  );
 }
 

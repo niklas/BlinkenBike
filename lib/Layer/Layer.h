@@ -6,6 +6,7 @@
 #include "Effects.h"
 #include "Transitions.h"
 #include "Layout.h"
+#include "FastLED.h"
 
 enum Orientation {
   ORIENTATION_LINEAR = 0,
@@ -13,10 +14,11 @@ enum Orientation {
 };
 
 #define NUM_ORIENTATIONS 2
+#define ORIENTATION_INTERPOLATION 80
 
 class Layer {
   public:
-    Layer(byte *, byte *, int * t);
+    Layer(CRGB *, CRGB *, int * t);
     void render();
     void renderComposite();
     void transitionStart();
@@ -28,8 +30,8 @@ class Layer {
     int meta[FX_VARS_NUM];
 
     int * tmeta;
-    byte * target;
-    byte * scratch;
+    CRGB * target;
+    CRGB * scratch;
 
     void renderLinear();
     void renderFloor();

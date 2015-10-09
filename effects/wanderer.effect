@@ -1,19 +1,19 @@
 // multiple little runners, like in the beta
 init:
-  meta[1] = random(256); // R
-  meta[2] = random(256); // G
-  meta[3] = random(256); // B
+  meta[1] = random8(); // R
+  meta[2] = random8(); // G
+  meta[3] = random8(); // B
   meta[4] = 0; // Current position
   // increment
-  meta[5] = 1 + random(4) / numPixels;
+  meta[5] = 1 + random8(4) / numPixels;
   // Reverse direction half the time.
-  if(random(2) == 0) meta[5] = -meta[5];
+  if(random8(2) == 0) meta[5] = -meta[5];
 
-  meta[6] = random(numPixels);
-  meta[7] = random(numPixels);
-  meta[8] = random(numPixels);
-  meta[9] = random(numPixels);
-  meta[10] = random(numPixels);
+  meta[6] = random8(numPixels);
+  meta[7] = random8(numPixels);
+  meta[8] = random8(numPixels);
+  meta[9] = random8(numPixels);
+  meta[10] = random8(numPixels);
 pixel:
   byte diff = numPixels;
 
@@ -24,13 +24,13 @@ pixel:
               );
   }
   if (5 > diff) {
-    *pixel++ = (meta[1] * diff) >> 2;
-    *pixel++ = (meta[2] * diff) >> 2;
-    *pixel++ = (meta[3] * diff) >> 2;
+    *pixel = CRGB(
+      (meta[1] * diff) >> 2,
+      (meta[2] * diff) >> 2,
+      (meta[3] * diff) >> 2
+    );
   } else {
-    *pixel++ = 0;
-    *pixel++ = 0;
-    *pixel++ = 0;
+    *pixel = CRGB::Black;
   }
 
 

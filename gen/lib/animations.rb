@@ -37,12 +37,6 @@ class Animations < Array
 
   def implementation
     [
-      %Q~#include <Arduino.h>~,
-      %Q~#include "FastLED.h"~,
-      %Q~#include "Colors.h"~,
-      %Q~#include "Trigometry.h"~,
-      %Q~#include "Settings.h"~,
-      %Q~#include "Layout.h"~,
       %Q~#include "#{self.class.name}.h"~,
       map(&:implementation).join("\n\n"),
       *first.method_sections.map(&method(:func_array))
@@ -55,7 +49,12 @@ class Animations < Array
       %Q~#ifndef #{guard}~,
       %Q~#define #{guard}~,
       '',
+      %Q~#include <Arduino.h>~,
+      %Q~#include "FastLED.h"~,
+      %Q~#include "Settings.h"~,
+      %Q~#include "Layout.h"~,
       function_signs,
+      type_defs,
       function_headers,
       count_const_definition,
       function_array_names,
@@ -64,14 +63,24 @@ class Animations < Array
     ].join("\n")
   end
 
+  def type_defs
+    first.method_sections.map do |section|
+      %~typedef void (*#{type_list_name(section)}[])(#{first.signature_const(section)});~
+    end.join("\n")
+  end
+
+  def type_list_name(section)
+    "Simple#{self.class.name}#{section.capitalize}List"
+  end
+
   def function_headers
     map(&:header).join("\n\n")
   end
 
   def func_array_name(section, count='')
+    type    = type_list_name(section)
     name    = first.array_name(section)
-    sign    = first.signature_const(section)
-    %Q~extern void (*#{name}[#{count}])(#{sign})~
+    %Q~extern #{type} #{name}~
   end
 
   def function_array_names

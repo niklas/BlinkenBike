@@ -18,7 +18,7 @@ FASTLED_USING_NAMESPACE
 #define DATA_PIN   2
 #define CLK_PIN   3
 #define LED_TYPE    LPD8806
-#define COLOR_ORDER GRB
+#define COLOR_ORDER BRG
 #define NUM_LEDS    110
 CRGB leds[NUM_LEDS];
 CRGB leds2[50];

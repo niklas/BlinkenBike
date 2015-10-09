@@ -8,14 +8,15 @@
 // number of fxVars, ocnfiguration ints for render effects
 #define FX_VARS_NUM 23
 
-#define FPS_BY_TIMER
 #undef BENCHMARK_FPS
 #define DO_TRANSITION
 #define BENCHMARK_EVERY 10
 
 
-#define dataPin 2
-#define clockPin 3
+#define PIN_STRIP_DATA 2
+#define PIN_STRIP_CLK 3
+#define LED_TYPE LPD8806
+#define COLOR_ORDER BRG
 
 #define STRIP_PIXEL_COUNT 110
 extern int  tCounter, transitionTime;
