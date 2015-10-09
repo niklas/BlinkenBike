@@ -96,10 +96,21 @@ void loop() {
 
   EVERY_N_MILLISECONDS(400) {
     pot = analogRead(PIN_POT_SIDE);
-    shouldAutoTransition = pot < 5 ? false : true;
-    effectDurationBase = map(pot , 5, 1023, 5 * FPS, 2);
-    Serial.println(effectDurationBase);
-    Serial.println(shouldAutoTransition);
+    shouldAutoTransition = pot < EFFECT_DURATION_POTI_STOP ? false : true;
+    effectDurationBase = FPS + pow(__potiBase, pot) * EFFECT_DURATION_MAX_SECONDS * FPS;
+
+    // quickly come back from long durations
+    if (tCounter < - EFFECT_DURATION_STRETCH * effectDurationBase)
+      tCounter = -1;
+    Serial.print(F("  pot:"));
+    Serial.print(pot);
+    Serial.print(F(" effectDurationBase:"));
+    Serial.print(effectDurationBase);
+    Serial.print(F(" shouldAutoTransition:"));
+    Serial.print(shouldAutoTransition);
+    Serial.print(F(" tCounter:"));
+    Serial.print(tCounter);
+    Serial.println();
   }
 
   // try keep a constant framerate
@@ -156,7 +167,7 @@ void frame() {
     if (shouldAutoTransition) {
       Serial.println("transition done");
       backImgIdx             = 1 - backImgIdx;     // Invert back index
-      tCounter = - random(effectDurationBase, 6 * effectDurationBase);
+      tCounter = - random(effectDurationBase, EFFECT_DURATION_STRETCH * effectDurationBase);
     } else {
       tCounter = 1; // do not start a new transition
     }

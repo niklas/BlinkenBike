@@ -19,8 +19,14 @@
 #define LED_TYPE LPD8806
 #define COLOR_ORDER BRG
 
+#define EFFECT_DURATION_POTI_STOP 5
+#define EFFECT_DURATION_STRETCH 2
+#define EFFECT_DURATION_MAX_SECONDS 60
+
 #define STRIP_PIXEL_COUNT 110
 extern int  tCounter, transitionTime, effectDurationBase;
 extern bool shouldAutoTransition;
+
+extern float __potiBase;
 
 #endif
