@@ -60,7 +60,6 @@ void setup() {
   Serial.begin(9600);
 #endif
 
-  Serial.begin(9600);
   pinMode(PIN_POT_SIDE, INPUT);
 
   // Initialize random number generator from a floating analog input.
@@ -102,15 +101,6 @@ void loop() {
     // quickly come back from long durations
     if (tCounter < - EFFECT_DURATION_STRETCH * effectDurationBase)
       tCounter = -1;
-    Serial.print(F("  pot:"));
-    Serial.print(pot);
-    Serial.print(F(" effectDurationBase:"));
-    Serial.print(effectDurationBase);
-    Serial.print(F(" shouldAutoTransition:"));
-    Serial.print(shouldAutoTransition);
-    Serial.print(F(" tCounter:"));
-    Serial.print(tCounter);
-    Serial.println();
   }
 
   // try keep a constant framerate
@@ -158,14 +148,12 @@ void frame() {
   //////////////////////////////////////////////////////////////
   tCounter++;
   if (shouldAutoTransition && (tCounter == 0)) { // Transition start
-    Serial.println(F("transition start"));
     layer[frntImgIdx].transitionStart();
     transitionTime = random(FPS/2, 3 * FPS);
   }
 
   if (tCounter >= transitionTime) {
     if (shouldAutoTransition) {
-      Serial.println("transition done");
       backImgIdx             = 1 - backImgIdx;     // Invert back index
       tCounter = - random(effectDurationBase, EFFECT_DURATION_STRETCH * effectDurationBase);
     } else {
