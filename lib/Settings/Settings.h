@@ -14,8 +14,10 @@
 #define BENCHMARK_EVERY 10
 
 
-#define dataPin 2
-#define clockPin 3
+#define DATA_PIN   2
+#define CLK_PIN   3
+#define LED_TYPE    LPD8806
+#define COLOR_ORDER GRB
 
 #define STRIP_PIXEL_COUNT 110
 extern int  tCounter, transitionTime;

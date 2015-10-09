@@ -33,15 +33,14 @@
 #endif
 
 CRGB strip[STRIP_PIXEL_COUNT],  // Data for 1 strip worth of imagery
-     backImgIdx;                // Index of 'back' image (always 0 or 1)
+     tmpPixels[FLOOR_PIXEL_COUNT];
+byte backImgIdx;                // Index of 'back' image (always 0 or 1)
 int  transVars[FX_VARS_NUM];    // Alpha transition instance variables
 
-CRGB tmpPixels[FLOOR_PIXEL_COUNT];
 
 unsigned long frameCount = 0;
 
 
-LEDStrip strip = LEDStrip(STRIP_PIXEL_COUNT, dataPin, clockPin);
 Layer layer[2] = {
   Layer(strip, tmpPixels, transVars),
   Layer(strip, tmpPixels, transVars)
@@ -54,10 +53,7 @@ void callback();
 // ---------------------------------------------------------------------------
 
 void setup() {
-  // Start up the LED strip.  Note that strip.show() is NOT called here --
-  // the callback function will be invoked immediately when attached, and
-  // the first thing the calback does is update the strip.
-  strip.begin();
+  FastLED.addLeds<LED_TYPE,DATA_PIN,CLK_PIN,COLOR_ORDER>(strip, STRIP_PIXEL_COUNT).setCorrection(TypicalLEDStrip);
 #ifdef BENCHMARK_FPS
   Serial.begin(9600);
 #endif
@@ -111,7 +107,7 @@ void callback() {
   // beat with respect to the Timer1 interrupt.  The various effects
   // rendering and compositing code is not constant-time, and that
   // unevenness would be apparent if show() were called at the end.
-  FastLED.show()
+  FastLED.show();
 
   frameCount++;
 #ifdef BENCHMARK_FPS
