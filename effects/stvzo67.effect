@@ -1,0 +1,13 @@
+setup:
+  #define STVZO67_LENGTH 8
+pixel:
+  if (i < STVZO67_LENGTH) {
+    // Front
+    *pixel = CHSV( 0, 0, dim8_video( map(numPixels - i,1,STVZO67_LENGTH,0,250) ) );
+  } else if (i >= numPixels - STVZO67_LENGTH) {
+    // Back
+    *pixel = CHSV( 0, 250, dim8_video( map(numPixels - i,1,STVZO67_LENGTH,250,0) ) );
+  } else {
+    *pixel = CRGB::Black;
+  }
+// vi:syntax=cpp
