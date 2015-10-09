@@ -19,8 +19,6 @@
 // program also included with the LPD8806 library.
 
 #include <avr/pgmspace.h>
-#include "SPI.h"
-#include "LEDStrip.h"
 #include "TimerOne.h"
 #include "Trigometry.h"
 #include "Colors.h"
@@ -34,19 +32,19 @@
 #include "benchmark.h"
 #endif
 
-byte imgData[STRIP_PIXEL_COUNT * 3], // Data for 1 strip worth of imagery
+CRGB strip[STRIP_PIXEL_COUNT],  // Data for 1 strip worth of imagery
      backImgIdx;                // Index of 'back' image (always 0 or 1)
 int  transVars[FX_VARS_NUM];    // Alpha transition instance variables
 
-byte tmpData[FLOOR_PIXEL_COUNT * 3];
+CRGB tmpPixels[FLOOR_PIXEL_COUNT];
 
 unsigned long frameCount = 0;
 
 
 LEDStrip strip = LEDStrip(STRIP_PIXEL_COUNT, dataPin, clockPin);
 Layer layer[2] = {
-  Layer(imgData, tmpData, transVars),
-  Layer(imgData, tmpData, transVars)
+  Layer(strip, tmpPixels, transVars),
+  Layer(strip, tmpPixels, transVars)
 };
 
 
@@ -66,8 +64,6 @@ void setup() {
 
   // Initialize random number generator from a floating analog input.
   randomSeed(analogRead(0));
-  memset(imgData, 0, sizeof(imgData)); // Clear image data
-  memset(tmpData, 0, sizeof(tmpData)); // Clear image data
   backImgIdx        = 0;
   tCounter = -1;
 
@@ -115,7 +111,7 @@ void callback() {
   // beat with respect to the Timer1 interrupt.  The various effects
   // rendering and compositing code is not constant-time, and that
   // unevenness would be apparent if show() were called at the end.
-  strip.show(&imgData[0]);
+  FastLED.show()
 
   frameCount++;
 #ifdef BENCHMARK_FPS
@@ -145,18 +141,6 @@ void callback() {
     layer[frntImgIdx].renderComposite();
   }
 #endif
-
-
-
-  //////////////////////////////////////////////////////////////
-  // apply gamma
-  //////////////////////////////////////////////////////////////
-  for(pix = 0; pix < STRIP_PIXEL_COUNT; pix++) {
-    imgPtr = &imgData[3*pix];
-    imgPtr[0] = gamma( imgPtr[0] );
-    imgPtr[1] = gamma( imgPtr[1] );
-    imgPtr[2] = gamma( imgPtr[2] );
-  }
 
 
   //////////////////////////////////////////////////////////////

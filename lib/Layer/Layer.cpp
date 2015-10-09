@@ -1,6 +1,6 @@
 #include "Layer.h"
 
-Layer::Layer(byte * theTarget, byte * theScratch, int * theTMeta) {
+Layer::Layer(CRGB * theTarget, CRGB * theScratch, int * theTMeta) {
   orientation = ORIENTATION_LINEAR;
   target = theTarget;
   scratch = theScratch;
@@ -57,13 +57,13 @@ void Layer::renderComposite() {
 
 void Layer::renderLinear() {
   for(int pix = 0; pix < STRIP_PIXEL_COUNT; pix++) {
-    effectPixel[effectIdx](meta, &target[3*pix], pix, STRIP_PIXEL_COUNT);
+    effectPixel[effectIdx](meta, &target[pix], pix, STRIP_PIXEL_COUNT);
   }
 }
 
 void Layer::renderFloor() {
   for(int pix = 0; pix < FLOOR_PIXEL_COUNT; pix++) {
-    effectPixel[effectIdx](meta, &scratch[3*pix], pix, FLOOR_PIXEL_COUNT);
+    effectPixel[effectIdx](meta, &scratch[pix], pix, FLOOR_PIXEL_COUNT);
   }
 
   mapFloorToLinear();
@@ -80,16 +80,13 @@ void Layer::renderCompositeLinear() {
     transitionPixel[transititionIdx](tmeta, &trans, pix, STRIP_PIXEL_COUNT);
     trans++;
 
-    pixel = &target[3*pix];
-    pixel[0] = lerp8by8(pixel[0], scratch[0], trans);
-    pixel[1] = lerp8by8(pixel[1], scratch[1], trans);
-    pixel[2] = lerp8by8(pixel[2], scratch[2], trans);
+    target[pix] = target[pix].lerp8(scratch[0], trans);
   }
 }
 
 void Layer::renderCompositeFloor() {
   for(int pix = 0; pix < FLOOR_PIXEL_COUNT; pix++) {
-    effectPixel[effectIdx](meta, &scratch[3*pix], pix, FLOOR_PIXEL_COUNT);
+    effectPixel[effectIdx](meta, &scratch[pix], pix, FLOOR_PIXEL_COUNT);
   }
 
   composeFloorToLinear();
@@ -97,20 +94,13 @@ void Layer::renderCompositeFloor() {
 
 void Layer::mapFloorToLinear() {
   int f,l;
-  int f_led;
-  for(int l_led = 0; l_led < STRIP_PIXEL_COUNT; l_led++) {
-    f_led = floorMap(l_led);
-    f = 3 * f_led;
-    l = 3 * l_led;
+  for(int l = 0; l < STRIP_PIXEL_COUNT; l++) {
+    f = floorMap(l);
 
-    if (f_led < FLOOR_PIXEL_COUNT-1) {
-      target[l + 2] = lerp8by8(scratch[f + 2 + 3], scratch[f + 2], ORIENTATION_INTERPOLATION);
-      target[l + 1] = lerp8by8(scratch[f + 1 + 3], scratch[f + 1], ORIENTATION_INTERPOLATION);
-      target[l + 0] = lerp8by8(scratch[f + 0 + 3], scratch[f + 0], ORIENTATION_INTERPOLATION);
+    if (f < FLOOR_PIXEL_COUNT-1) {
+      target[l] = scratch[f+1].lerp8(scratch[f], ORIENTATION_INTERPOLATION);
     } else {
-      target[l + 2] = scratch[f + 2];
-      target[l + 1] = scratch[f + 1];
-      target[l + 0] = scratch[f + 0];
+      target[l] = scratch[f];
     }
   }
 }
@@ -118,22 +108,16 @@ void Layer::mapFloorToLinear() {
 void Layer::composeFloorToLinear() {
   int f,l;
   int trans;
-  int f_led;
-  for(int l_led = 0; l_led < STRIP_PIXEL_COUNT; l_led++) {
-    f_led = floorMap(l_led);
-    f = 3 * f_led;
-    l = 3 * l_led;
+  for(int l = 0; l < STRIP_PIXEL_COUNT; l++) {
+    f = floorMap(l);
+    l = 3 * l;
 
     // calculate trans btwn 1-256 so we can do a shift devide
-    transitionPixel[transititionIdx](tmeta, &trans, l_led, STRIP_PIXEL_COUNT);
+    transitionPixel[transititionIdx](tmeta, &trans, l, STRIP_PIXEL_COUNT);
 
-    if (f_led < FLOOR_PIXEL_COUNT-1) {
-      scratch[f+2] = lerp8by8(scratch[f+2], scratch[f + 2 + 3], ORIENTATION_INTERPOLATION);
-      scratch[f+1] = lerp8by8(scratch[f+1], scratch[f + 1 + 3], ORIENTATION_INTERPOLATION);
-      scratch[f+0] = lerp8by8(scratch[f+0], scratch[f + 0 + 3], ORIENTATION_INTERPOLATION);
+    if (f < FLOOR_PIXEL_COUNT-1) {
+      scratch[f] = scratch[f].lerp8(scratch[f+1], ORIENTATION_INTERPOLATION);
     }
-    target[l+2] = lerp8by8(target[l+2], scratch[f+2], trans);
-    target[l+1] = lerp8by8(target[l+1], scratch[f+1], trans);
-    target[l+0] = lerp8by8(target[l+0], scratch[f+0], trans);
+    target[l] = target[l].lerp8(scratch[f], trans);
   }
 }
