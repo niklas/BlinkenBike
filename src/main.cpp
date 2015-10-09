@@ -22,7 +22,6 @@
 
 FASTLED_USING_NAMESPACE
 #include <avr/pgmspace.h>
-#include "TimerOne.h"
 #include "Gamma.h"
 #include "Settings.h"
 #include "Effects.h"
@@ -49,13 +48,14 @@ Layer layer[2] = {
 
 
 
-void callback();
+void frame();
 
 // ---------------------------------------------------------------------------
 
 void setup() {
   FastLED.addLeds<LED_TYPE,PIN_STRIP_DATA,PIN_STRIP_CLK,COLOR_ORDER>(strip, STRIP_PIXEL_COUNT).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(36);
+  FastLED.setMaxRefreshRate(FPS);
 #ifdef BENCHMARK_FPS
   Serial.begin(9600);
 #endif
@@ -64,25 +64,15 @@ void setup() {
   randomSeed(analogRead(0));
   backImgIdx        = 0;
   tCounter = -1;
-
-#ifdef FPS_BY_TIMER
-  // Timer1 is used so the strip will update at a known fixed frame rate.
-  // Each effect rendering function varies in processing complexity, so
-  // the timer allows smooth transitions between effects (otherwise the
-  // effects and transitions would jump around in speed...not attractive).
-  Timer1.initialize();
-  Timer1.attachInterrupt(callback, 1000000 / FPS); // XX frames/second
-#endif
 }
 
-#ifndef FPS_BY_TIMER
 unsigned long startedAt = millis();
 unsigned int wait;
 
 void loop() {
   // try keep a constant framerate
   wait = MICROS_PER_FRAME - ( millis() - startedAt );
-  if ( (wait > 0) && (wait < 100)) delay(wait);
+  if ( (wait > 0) && (wait < 100)) FastLED.delay(wait);
   startedAt = millis();
 
   frameCount++;
@@ -94,15 +84,12 @@ void loop() {
   }
 #endif
 
-  callback();
+  frame();
 
 }
-#else
-void loop() { } // using Timer in setup()
-#endif
 
 // Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
-void callback() {
+void frame() {
   // Very first thing here is to issue the strip data generated from the
   // *previous* callback.  It's done this way on purpose because show() is
   // roughly constant-time, so the refresh will always occur on a uniform
