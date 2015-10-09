@@ -91,29 +91,32 @@ void Layer::renderCompositeFloor() {
 
 void Layer::mapFloorToLinear() {
   int f,l;
+  CRGB pixel;
   for(l = 0; l < STRIP_PIXEL_COUNT; l++) {
     f = floorMap(l);
 
+    pixel = scratch[f];
     if (f < FLOOR_PIXEL_COUNT-1) {
-      target[l] = blend(scratch[f+1], scratch[f], ORIENTATION_INTERPOLATION);
-    } else {
-      target[l] = scratch[f];
+      pixel = blend(scratch[f+1], pixel, ORIENTATION_INTERPOLATION);
     }
+    target[l] = pixel;
   }
 }
 
 void Layer::composeFloorToLinear() {
   int f,l;
   int trans;
+  CRGB pixel;
   for(l = 0; l < STRIP_PIXEL_COUNT; l++) {
     f = floorMap(l);
 
     // calculate trans btwn 1-256 so we can do a shift devide
     transitionPixel[transititionIdx](tmeta, &trans, l, STRIP_PIXEL_COUNT);
 
+    pixel = blend(target[l], scratch[f], trans);
     if (f < FLOOR_PIXEL_COUNT-1) {
-      scratch[f] = blend(scratch[f], scratch[f+1], ORIENTATION_INTERPOLATION);
+      pixel = blend(scratch[f+1], pixel, ORIENTATION_INTERPOLATION);
     }
-    target[l] = blend(target[l], scratch[f], trans);
+    target[l] = pixel;
   }
 }

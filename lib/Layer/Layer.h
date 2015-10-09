@@ -14,7 +14,7 @@ enum Orientation {
 };
 
 #define NUM_ORIENTATIONS 2
-#define ORIENTATION_INTERPOLATION 80
+#define ORIENTATION_INTERPOLATION 20
 
 class Layer {
   public:
