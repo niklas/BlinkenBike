@@ -24,13 +24,13 @@ pixel:
               );
   }
   if (5 > diff) {
-    *pixel++ = (meta[1] * diff) >> 2;
-    *pixel++ = (meta[2] * diff) >> 2;
-    *pixel++ = (meta[3] * diff) >> 2;
+    *pixel = CRGB(
+      (meta[1] * diff) >> 2,
+      (meta[2] * diff) >> 2,
+      (meta[3] * diff) >> 2
+    );
   } else {
-    *pixel++ = 0;
-    *pixel++ = 0;
-    *pixel++ = 0;
+    *pixel = CRGB::Black;
   }
 
 
