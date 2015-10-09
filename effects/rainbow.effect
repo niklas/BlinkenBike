@@ -5,7 +5,7 @@ init:
   // Number of repetitions (complete loops around color wheel); any
   // more than 4 per meter just looks too chaotic and un-rainbow-like.
   // Store as hue 'distance' around complete belt:
-  meta[1] = (1 + random16(4 * ((numPixels + 31) / 32))) * 1536;
+  meta[1] = (1 + random16(8 * ((numPixels + 31) / 32))) * 64;
   // Frame-to-frame hue increment (speed) -- may be positive or negative,
   // but magnitude shouldn't be so small as to be boring.  It's generally
   // still less than a full pixel per frame, making motion very smooth.
