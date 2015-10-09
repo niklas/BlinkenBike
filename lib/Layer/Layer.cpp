@@ -76,9 +76,8 @@ void Layer::renderCompositeLinear() {
 
     // calculate trans btwn 1-256 so we can do a shift devide
     transitionPixel[transititionIdx](tmeta, &trans, pix, STRIP_PIXEL_COUNT);
-    trans++;
 
-    target[pix] = target[pix].lerp8(scratch[0], trans);
+    target[pix] = blend(target[pix], scratch[0], trans);
   }
 }
 
@@ -96,7 +95,7 @@ void Layer::mapFloorToLinear() {
     f = floorMap(l);
 
     if (f < FLOOR_PIXEL_COUNT-1) {
-      target[l] = scratch[f+1].lerp8(scratch[f], ORIENTATION_INTERPOLATION);
+      target[l] = blend(scratch[f+1], scratch[f], ORIENTATION_INTERPOLATION);
     } else {
       target[l] = scratch[f];
     }
@@ -113,8 +112,8 @@ void Layer::composeFloorToLinear() {
     transitionPixel[transititionIdx](tmeta, &trans, l, STRIP_PIXEL_COUNT);
 
     if (f < FLOOR_PIXEL_COUNT-1) {
-      scratch[f] = scratch[f].lerp8(scratch[f+1], ORIENTATION_INTERPOLATION);
+      scratch[f] = blend(scratch[f], scratch[f+1], ORIENTATION_INTERPOLATION);
     }
-    target[l] = target[l].lerp8(scratch[f], trans);
+    target[l] = blend(target[l], scratch[f], trans);
   }
 }

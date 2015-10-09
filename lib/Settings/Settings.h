@@ -1,7 +1,7 @@
 #ifndef __SETTINGS_H__
 #define __SETTINGS_H__
 
-#define FPS 33
+#define FPS 60
 #define MICROS_PER_FRAME 1000 / FPS
 
 

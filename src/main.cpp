@@ -54,7 +54,7 @@ void frame();
 
 void setup() {
   FastLED.addLeds<LED_TYPE,PIN_STRIP_DATA,PIN_STRIP_CLK,COLOR_ORDER>(strip, STRIP_PIXEL_COUNT).setCorrection(TypicalLEDStrip);
-  FastLED.setBrightness(36);
+  //FastLED.setBrightness(36);
   FastLED.setMaxRefreshRate(FPS);
 #ifdef BENCHMARK_FPS
   Serial.begin(9600);
