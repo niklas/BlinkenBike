@@ -6,6 +6,7 @@
 #include "Effects.h"
 #include "Transitions.h"
 #include "Layout.h"
+#include "FastLED.h"
 
 enum Orientation {
   ORIENTATION_LINEAR = 0,
@@ -13,6 +14,7 @@ enum Orientation {
 };
 
 #define NUM_ORIENTATIONS 2
+#define ORIENTATION_INTERPOLATION 80
 
 class Layer {
   public:

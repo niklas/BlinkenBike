@@ -71,7 +71,7 @@ void Layer::renderFloor() {
 
 void Layer::renderCompositeLinear() {
   byte * pixel;
-  int trans, inv;
+  int trans;
 
   for(int pix = 0; pix < STRIP_PIXEL_COUNT; pix++) {
     effectPixel[effectIdx](meta, &scratch[0], pix, STRIP_PIXEL_COUNT);
@@ -79,12 +79,11 @@ void Layer::renderCompositeLinear() {
     // calculate trans btwn 1-256 so we can do a shift devide
     transitionPixel[transititionIdx](tmeta, &trans, pix, STRIP_PIXEL_COUNT);
     trans++;
-    inv   = 257 - trans;
 
     pixel = &target[3*pix];
-    pixel[0] = ( pixel[0] * inv + scratch[0] * trans ) >> 8;
-    pixel[1] = ( pixel[1] * inv + scratch[1] * trans ) >> 8;
-    pixel[2] = ( pixel[2] * inv + scratch[2] * trans ) >> 8;
+    pixel[0] = lerp8by8(pixel[0], scratch[0], trans);
+    pixel[1] = lerp8by8(pixel[1], scratch[1], trans);
+    pixel[2] = lerp8by8(pixel[2], scratch[2], trans);
   }
 }
 
@@ -98,30 +97,43 @@ void Layer::renderCompositeFloor() {
 
 void Layer::mapFloorToLinear() {
   int f,l;
+  int f_led;
   for(int l_led = 0; l_led < STRIP_PIXEL_COUNT; l_led++) {
-    f = 3 * floorMap(l_led);
+    f_led = floorMap(l_led);
+    f = 3 * f_led;
     l = 3 * l_led;
 
-    target[l + 2] = scratch[f + 2];
-    target[l + 1] = scratch[f + 1];
-    target[l + 0] = scratch[f + 0];
+    if (f_led < FLOOR_PIXEL_COUNT-1) {
+      target[l + 2] = lerp8by8(scratch[f + 2 + 3], scratch[f + 2], ORIENTATION_INTERPOLATION);
+      target[l + 1] = lerp8by8(scratch[f + 1 + 3], scratch[f + 1], ORIENTATION_INTERPOLATION);
+      target[l + 0] = lerp8by8(scratch[f + 0 + 3], scratch[f + 0], ORIENTATION_INTERPOLATION);
+    } else {
+      target[l + 2] = scratch[f + 2];
+      target[l + 1] = scratch[f + 1];
+      target[l + 0] = scratch[f + 0];
+    }
   }
 }
 
 void Layer::composeFloorToLinear() {
   int f,l;
-  int trans, inv;
+  int trans;
+  int f_led;
   for(int l_led = 0; l_led < STRIP_PIXEL_COUNT; l_led++) {
-    f = 3 * floorMap(l_led);
+    f_led = floorMap(l_led);
+    f = 3 * f_led;
     l = 3 * l_led;
 
     // calculate trans btwn 1-256 so we can do a shift devide
     transitionPixel[transititionIdx](tmeta, &trans, l_led, STRIP_PIXEL_COUNT);
-    trans++;
-    inv   = 257 - trans;
 
-    target[l + 2] = ( target[l + 2] * inv + scratch[f + 2] * trans) >> 8;
-    target[l + 1] = ( target[l + 1] * inv + scratch[f + 1] * trans) >> 8;
-    target[l + 0] = ( target[l + 0] * inv + scratch[f + 0] * trans) >> 8;
+    if (f_led < FLOOR_PIXEL_COUNT-1) {
+      scratch[f+2] = lerp8by8(scratch[f+2], scratch[f + 2 + 3], ORIENTATION_INTERPOLATION);
+      scratch[f+1] = lerp8by8(scratch[f+1], scratch[f + 1 + 3], ORIENTATION_INTERPOLATION);
+      scratch[f+0] = lerp8by8(scratch[f+0], scratch[f + 0 + 3], ORIENTATION_INTERPOLATION);
+    }
+    target[l+2] = lerp8by8(target[l+2], scratch[f+2], trans);
+    target[l+1] = lerp8by8(target[l+1], scratch[f+1], trans);
+    target[l+0] = lerp8by8(target[l+0], scratch[f+0], trans);
   }
 }
