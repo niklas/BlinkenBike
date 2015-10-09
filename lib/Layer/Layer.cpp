@@ -13,7 +13,6 @@ void Layer::transitionStart() {
   effectIdx       = random(EFFECT_NUM);
   transititionIdx = random(TRANSITION_NUM);
   orientation     = static_cast<Orientation>(random(NUM_ORIENTATIONS));
-  orientation = ORIENTATION_FLOOR;
   meta[0]         = 0; // Effect not yet initialized
   tmeta[0]        = 0; // Transition not yet initialized
 }
