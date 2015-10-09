@@ -18,6 +18,9 @@
 // programmers may have an easier time starting out with the 'strandtest'
 // program also included with the LPD8806 library.
 
+#include "FastLED.h"
+
+FASTLED_USING_NAMESPACE
 #include <avr/pgmspace.h>
 #include "TimerOne.h"
 #include "Trigometry.h"
@@ -27,7 +30,6 @@
 #include "Transitions.h"
 #include "Layout.h"
 #include "Layer.h"
-#include "FastLED.h"
 #ifdef BENCHMARK_FPS
 #include "benchmark.h"
 #endif

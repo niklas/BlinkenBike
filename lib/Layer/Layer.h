@@ -18,7 +18,7 @@ enum Orientation {
 
 class Layer {
   public:
-    Layer(byte *, byte *, int * t);
+    Layer(CRGB *, CRGB *, int * t);
     void render();
     void renderComposite();
     void transitionStart();
@@ -30,8 +30,8 @@ class Layer {
     int meta[FX_VARS_NUM];
 
     int * tmeta;
-    byte * target;
-    byte * scratch;
+    CRGB * target;
+    CRGB * scratch;
 
     void renderLinear();
     void renderFloor();
