@@ -14,9 +14,9 @@
 #define BENCHMARK_EVERY 10
 
 
-#define DATA_PIN   2
-#define CLK_PIN   3
-#define LED_TYPE    LPD8806
+#define PIN_STRIP_DATA 2
+#define PIN_STRIP_CLK 3
+#define LED_TYPE LPD8806
 #define COLOR_ORDER GRB
 
 #define STRIP_PIXEL_COUNT 110

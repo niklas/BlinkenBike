@@ -55,7 +55,7 @@ void callback();
 // ---------------------------------------------------------------------------
 
 void setup() {
-  FastLED.addLeds<LED_TYPE,DATA_PIN,CLK_PIN,COLOR_ORDER>(strip, STRIP_PIXEL_COUNT).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE,PIN_STRIP_DATA,PIN_STRIP_CLK,COLOR_ORDER>(strip, STRIP_PIXEL_COUNT).setCorrection(TypicalLEDStrip);
 #ifdef BENCHMARK_FPS
   Serial.begin(9600);
 #endif
