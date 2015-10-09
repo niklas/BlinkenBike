@@ -37,12 +37,6 @@ class Animations < Array
 
   def implementation
     [
-      %Q~#include <Arduino.h>~,
-      %Q~#include "FastLED.h"~,
-      %Q~#include "Colors.h"~,
-      %Q~#include "Trigometry.h"~,
-      %Q~#include "Settings.h"~,
-      %Q~#include "Layout.h"~,
       %Q~#include "#{self.class.name}.h"~,
       map(&:implementation).join("\n\n"),
       *first.method_sections.map(&method(:func_array))
@@ -55,6 +49,12 @@ class Animations < Array
       %Q~#ifndef #{guard}~,
       %Q~#define #{guard}~,
       '',
+      %Q~#include <Arduino.h>~,
+      %Q~#include "FastLED.h"~,
+      %Q~#include "Colors.h"~,
+      %Q~#include "Trigometry.h"~,
+      %Q~#include "Settings.h"~,
+      %Q~#include "Layout.h"~,
       function_signs,
       type_defs,
       function_headers,
