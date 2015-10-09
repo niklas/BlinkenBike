@@ -1,7 +1,6 @@
 setup:
   CRGB test_heat_color;
 pixel:
-  test_heat_color = HeatColor(255 - i*8);
-  *pixel++ = test_heat_color.r; *pixel++ = test_heat_color.g; *pixel++ = test_heat_color.b;
+  *pixel = HeatColor(255 - i*8);
 
 // vi:syntax=cpp

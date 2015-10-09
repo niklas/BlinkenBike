@@ -28,10 +28,9 @@ init:
   }
 pixel:
   if (i < FIRE_HEIGHT) {
-    fire_color = HeatColor(meta[i + FIRE_OFFSET]);
-    *pixel++ = fire_color.r; *pixel++ = fire_color.g; *pixel++ = fire_color.b;
+    *pixel = HeatColor(meta[i + FIRE_OFFSET]);
   } else {
-    *pixel++ = 0; *pixel++ = 0; *pixel++ = 0;
+    *pixel = CRGB::Black;
   }
 step:
   // Cool down every cell a little
