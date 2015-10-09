@@ -56,10 +56,21 @@ class Frame < OpenStruct
         pen.stroke_width TubeWidth
         pen.stroke_opacity 0.7
         pen.line *tube.from, *tube.to
+      end
 
-        tube.leds.each do |led|
-          annotate_led led, 'white', pen
-        end
+      pen.fill('none')
+      all_leds.each_cons(2) do |a,b|
+        ab = [a,b]
+        mx, my = ab.map(&:x).min, ab.map(&:y).max
+        pen.stroke(Magick::Pixel.from_hsla((5*a.index) % 360, 255, 127).to_color)
+        pen.bezier a.x, a.y,
+          a.x + rand(-25..25), b.y + rand(-25..25),
+          b.x + rand(-25..25), a.y + rand(-25..25),
+          b.x, b.y
+      end
+
+      all_leds.each do |led|
+        annotate_led led, 'white', pen
       end
 
       pen.stroke('blue')
