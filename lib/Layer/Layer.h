@@ -8,12 +8,6 @@
 #include "Layout.h"
 #include "FastLED.h"
 
-enum Orientation {
-  ORIENTATION_LINEAR = 0,
-  ORIENTATION_FLOOR = 1,
-};
-
-#define NUM_ORIENTATIONS 2
 #define ORIENTATION_INTERPOLATION 20
 
 class Layer {

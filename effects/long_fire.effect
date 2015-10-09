@@ -27,6 +27,7 @@ setup:
   CRGB fire_color;
   #endif
   byte * firePtr;
+orientation: floor
 init:
   int fireHeight = min(LONG_FIRE_HEIGHT, numPixels);
 
