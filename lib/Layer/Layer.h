@@ -8,7 +8,7 @@
 #include "Layout.h"
 #include "FastLED.h"
 
-#define ORIENTATION_INTERPOLATION 20
+#define ORIENTATION_INTERPOLATION 80
 
 class Layer {
   public:

@@ -99,7 +99,7 @@ void Layer::mapFloorToLinear() {
 
     pixel = scratch[f];
     if (f < FLOOR_PIXEL_COUNT-1) {
-      pixel = blend(scratch[f+1], pixel, ORIENTATION_INTERPOLATION);
+      pixel = blend(pixel, scratch[f+1], ORIENTATION_INTERPOLATION);
     }
     target[l] = pixel;
   }
@@ -117,7 +117,7 @@ void Layer::composeFloorToLinear() {
 
     pixel = blend(target[l], scratch[f], trans);
     if (f < FLOOR_PIXEL_COUNT-1) {
-      pixel = blend(scratch[f+1], pixel, ORIENTATION_INTERPOLATION);
+      pixel = blend(pixel, scratch[f+1], ORIENTATION_INTERPOLATION);
     }
     target[l] = pixel;
   }
