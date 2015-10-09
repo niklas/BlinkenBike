@@ -120,9 +120,7 @@ void callback() {
   }
 #endif
 
-  int pix;
   int frntImgIdx = 1 - backImgIdx;
-  byte * imgPtr;
 
 
   //////////////////////////////////////////////////////////////
