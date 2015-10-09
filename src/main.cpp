@@ -23,7 +23,7 @@
 FASTLED_USING_NAMESPACE
 #include <avr/pgmspace.h>
 #include "TimerOne.h"
-#include "Colors.h"
+#include "Gamma.h"
 #include "Settings.h"
 #include "Effects.h"
 #include "Transitions.h"
@@ -137,6 +137,15 @@ void callback() {
     layer[frntImgIdx].renderComposite();
   }
 #endif
+
+
+  //////////////////////////////////////////////////////////////
+  // apply gamma
+  //////////////////////////////////////////////////////////////
+  for (byte pixel=0; pixel < STRIP_PIXEL_COUNT; pixel++) {
+    strip[pixel] = gamma(strip[pixel]);
+  }
+
 
 
   //////////////////////////////////////////////////////////////
