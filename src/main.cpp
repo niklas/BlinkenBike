@@ -29,6 +29,7 @@
 #include "Transitions.h"
 #include "Layout.h"
 #include "Layer.h"
+#include "FastLED.h"
 #ifdef BENCHMARK_FPS
 #include "benchmark.h"
 #endif

@@ -1,0 +1,71 @@
+// Fire effect like Fire2012 http://pastebin.com/xYEpxqgq
+// in diffference to 'fire', this supports longer fires by using ints cleverly
+setup:
+// the Maximum height of the fire
+  #define LONG_FIRE_HEIGHT (FX_VARS_NUM - 1) * 2
+
+// LONG_FIRE_COOLING: How much does the air cool as it rises?
+// Less cooling = taller flames.  More cooling = shorter flames.
+// Default 55, suggested range 20-100
+  #define LONG_FIRE_COOLING 30
+
+// LONG_FIRE_SPARKING: What chance (out of 255) is there that a new spark will be lit?
+// Higher chance = more roaring fire.  Lower chance = more flickery fire.
+// Default 120, suggested range 50-200.
+  #define LONG_FIRE_SPARKING 100
+
+// LONG_FIRE_BASE: How many pixels release new heat sources.
+  #define LONG_FIRE_BASE 6
+
+// LONG_FIRE_OFFSET: meta[0] is magic, we use the others for the fire
+  #define LONG_FIRE_OFFSET 1
+
+  #define LONG_FIRE_EACH fIre = 0, firePtr = (byte *)&meta[LONG_FIRE_OFFSET]; fIre < fireHeight; fIre++, firePtr++
+
+  #ifndef FIRE_HEIGHT
+  byte fIre;
+  CRGB fire_color;
+  #endif
+  byte * firePtr;
+init:
+  int fireHeight = min(LONG_FIRE_HEIGHT, numPixels);
+
+  // make everything cold (setting both bytes at the same time)
+  for(LONG_FIRE_EACH) {
+    *firePtr = 0;
+  }
+
+pixel:
+  int fireHeight = min(LONG_FIRE_HEIGHT, numPixels);
+  if (i < fireHeight) {
+    firePtr = (byte *)&meta[LONG_FIRE_OFFSET];
+    fire_color = HeatColor(firePtr[i]);
+    *pixel++ = fire_color.r; *pixel++ = fire_color.g; *pixel++ = fire_color.b;
+  } else {
+    *pixel++ = 0; *pixel++ = 0; *pixel++ = 0;
+  }
+step:
+  int fireHeight = min(LONG_FIRE_HEIGHT, numPixels);
+  // Cool down every cell a little
+  for(LONG_FIRE_EACH) {
+    *firePtr = qsub8( *firePtr, random8(0, ((LONG_FIRE_COOLING * 10) / fireHeight) + 2));
+  }
+  // => firePtr points behind last item => fix to last
+  firePtr--;
+
+  // HACK reusing previous value of pointer firePtr
+  //  Heat from each cell drifts 'up' and diffuses a little (going backward)
+  for(fIre=0; fIre < fireHeight - 2; fIre++, firePtr--) {
+    *firePtr = (  *firePtr + *(firePtr-1) + *(firePtr-2) ) / 3;
+  }
+  // => firePtr points third item => fix to first
+  firePtr-=3;
+
+  // HACK reuse previous value of pointer
+  //  Randomly ignite new 'sparks' of heat near the bottom
+  if( random8() < LONG_FIRE_SPARKING ) {
+    int y = random8(LONG_FIRE_BASE);
+    firePtr[y] = qadd8( firePtr[y], random8(160,255) );
+  }
+
+// vi:syntax=cpp
