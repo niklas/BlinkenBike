@@ -71,8 +71,6 @@ void setup() {
 }
 
 int pot;
-unsigned long startedAt = millis();
-unsigned int wait;
 
 void loop() {
   // Very first thing here is to issue the strip data generated from the
@@ -102,11 +100,6 @@ void loop() {
     if (tCounter < - EFFECT_DURATION_STRETCH * effectDurationBase)
       tCounter = - effectDurationBase;
   }
-
-  // try keep a constant framerate
-  wait = MICROS_PER_FRAME - ( millis() - startedAt );
-  if ( (wait > 0) && (wait < 100)) FastLED.delay(wait);
-  startedAt = millis();
 
 }
 
