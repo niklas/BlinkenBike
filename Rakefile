@@ -11,14 +11,13 @@ task :all => [
 generator = 'bin/generate_code.rb'
 
 
-if ENV['EFFECTS']
-  touch 'bin/generate_effects'
-end
-effects = Rake::FileList.new('effects/*.effect', 'bin/generate_effects', 'gen/lib/*.rb')
+effects = Rake::FileList.new('effects/*.effect', 'lib/Effects/*dna', 'gen/lib/*.rb')
 ['lib/Effects/Effects.h', 'lib/Effects/Effects.cpp'].each do |f|
   file f => effects do
-    mkdir_p 'lib/Effects'
-    sh "bin/generate_effects"
+    sh "bin/ribosome #{f}.rb.dna > #{f}"
+  end
+  if ENV['EFFECTS']
+    Rake::Task[f].execute
   end
 end
 
