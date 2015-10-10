@@ -100,7 +100,7 @@ void loop() {
 
     // quickly come back from long durations
     if (tCounter < - EFFECT_DURATION_STRETCH * effectDurationBase)
-      tCounter = -1;
+      tCounter = - effectDurationBase;
   }
 
   // try keep a constant framerate
