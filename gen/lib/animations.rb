@@ -1,4 +1,6 @@
+require 'selective'
 class Animations < Array
+  include Selective
   Testing = ENV['BIKE_ENV'] == 'test'
 
   def self.glob(glb)
@@ -20,19 +22,6 @@ class Animations < Array
 
   def self.item_class
     Object.const_get( name.sub(/s$/,'') )
-  end
-
-  def <<(item)
-    super(item) if selected?(item.name)
-  end
-
-  def selected?(name)
-    selection.empty? || selection.include?(name)
-  end
-
-  def selection
-    return @selection if defined?(@selection)
-    @selection = (ENV[self.class.name.upcase] || '').split(',')
   end
 
   def implementation
