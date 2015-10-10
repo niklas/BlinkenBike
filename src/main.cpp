@@ -1,22 +1,5 @@
-// THIS PROGRAM *WILL* *NOT* *WORK* ON REALLY LONG LED STRIPS.  IT USES
-// AN INORDINATE AMOUNT OF RAM IN ORDER TO ACHIEVE ITS BUTTERY-SMOOTH
-// ANIMATION.  See the 'strandtest' sketch for a simpler and less RAM-
-// intensive example that can process more LEDs (100+).
-
-// ALSO: NOT COMPATIBLE WITH TRINKET OR GEMMA for way too many reasons.
-
-// Example to control LPD8806-based RGB LED Modules in a strip; originally
-// intended for the Adafruit Digital Programmable LED Belt Kit.
-// REQUIRES TIMER1 LIBRARY: http://www.arduino.cc/playground/Code/Timer1
-// ALSO REQUIRES LPD8806 LIBRARY, which should be included with this code.
-
-// I'm generally not fond of canned animation patterns.  Wanting something
-// more nuanced than the usual 8-bit beep-beep-boop-boop pixelly animation,
-// this program smoothly cycles through a set of procedural animated effects
-// and transitions -- it's like a Video Toaster for your waist!  Some of the
-// coding techniques may be a bit obtuse (e.g. function arrays), so novice
-// programmers may have an easier time starting out with the 'strandtest'
-// program also included with the LPD8806 library.
+// Define HardwareSerial_h to suppress loading of the Arduino standard Serial class (saves 173 bytes)
+#define HardwareSerial_h
 
 #include "FastLED.h"
 
@@ -28,9 +11,6 @@ FASTLED_USING_NAMESPACE
 #include "Transitions.h"
 #include "Layout.h"
 #include "Layer.h"
-#ifdef BENCHMARK_FPS
-#include "benchmark.h"
-#endif
 
 CRGB strip[STRIP_PIXEL_COUNT],  // Data for 1 strip worth of imagery
      tmpPixels[FLOOR_PIXEL_COUNT];
@@ -56,9 +36,6 @@ void setup() {
   FastLED.addLeds<LED_TYPE,PIN_STRIP_DATA,PIN_STRIP_CLK,COLOR_ORDER>(strip, STRIP_PIXEL_COUNT).setCorrection(TypicalLEDStrip);
   //FastLED.setBrightness(36);
   FastLED.setMaxRefreshRate(FPS);
-#ifdef BENCHMARK_FPS
-  Serial.begin(9600);
-#endif
 
   pinMode(PIN_POT_SIDE, INPUT);
 
