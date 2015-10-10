@@ -58,7 +58,7 @@ class Animations < Array
   def func_array(section)
     content = map { |a| a.func_name(section) }.join(",\n")
 
-    %Q~#{func_array_name(section)} = {\n#{content}\n};~
+    %Q~#{func_array_name(section)} [] PROGMEM = {\n#{content}\n};~
   end
 
   def function_signs
@@ -78,7 +78,7 @@ class Animations < Array
 
   def attribute_arrays
     first.attribute_sections.map do |section|
-      name    = first.array_name(section)
+      name    = first.func_array_name(section)
       content = map(&:"#{section}_attribute").join(',')
       typ     = self.class.attributes[section]
       %Q~PROGMEM const #{typ} #{name}[] = {#{content}};~

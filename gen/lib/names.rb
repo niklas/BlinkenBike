@@ -25,8 +25,7 @@ module Names
 
   def func_array_name(section, count='')
     type    = type_list_name(section)
-    name    = first.array_name(section)
-    %Q~extern #{type} #{name}~
+    %Q~const #{function_type_name(section)} #{first.func_array_name(section)}~
   end
 
   def attribute_array_names
@@ -34,7 +33,7 @@ module Names
   end
 
   def attribute_array_name(section)
-    name    = first.array_name(section)
+    name    = first.func_array_name(section)
     typ     = self.class.attributes[section]
     %Q~extern const #{typ} #{name}[#{length}];~
   end

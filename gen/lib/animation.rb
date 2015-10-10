@@ -72,8 +72,8 @@ class Animation < Struct.new(:name, :source)
     ].join('_')
   end
 
-  def array_name(section)
-    self.class.name.downcase + section.capitalize
+  def func_array_name(section)
+    self.class.name.downcase + section.capitalize + 's'
   end
 
   def sections
