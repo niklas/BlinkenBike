@@ -21,16 +21,16 @@ effects = Rake::FileList.new('effects/*.effect', 'lib/Effects/*dna', 'gen/lib/*.
   end
 end
 
-if ENV['TRANSITIONS']
-  touch 'bin/generate_transitions'
-end
-transitions = Rake::FileList.new('transitions/*.transition', 'bin/generate_transitions', 'gen/lib/*.rb')
+transitions = Rake::FileList.new('transitions/*.transition', 'lib/Transitions/*dna', 'gen/lib/*.rb')
 ['lib/Transitions/Transitions.h', 'lib/Transitions/Transitions.cpp'].each do |f|
   file f => transitions do
-    mkdir_p 'lib/Transitions'
-    sh "bin/generate_transitions"
+    sh "bin/ribosome #{f}.rb.dna > #{f}"
+  end
+  if ENV['TRANSITIONS']
+    Rake::Task[f].execute
   end
 end
+
 
 ['lib/Layout/Layout.h', 'lib/Layout/Layout.cpp'].each do |layout|
   file layout => ['bicycle.yaml', 'bin/generate_layout', 'gen/lib/tubes.rb', 'lib/Layout/Layout.cpp.erb', 'lib/Layout/Layout.h.erb'] do

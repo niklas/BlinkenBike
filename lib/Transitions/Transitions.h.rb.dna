@@ -1,0 +1,39 @@
+require 'transitions'
+t = Transitions.glob('transitions/*.transition')
+
+.#ifndef __Transitions_H__
+.#define __Transitions_H__
+.
+.#include <Arduino.h>
+.#include "FastLED.h"
+.#include "Settings.h"
+.#include "Layout.h"
+
+.// function_signs
+t.class.functions.each do |section, sign|
+.#define @{t.first.signature_const(section)} @{sign}
+end
+
+.
+.// function_type_defs
+t.method_sections.each do |section|
+.typedef void (*@{t.function_type_name(section)})(@{t.first.signature_const(section)});
+end
+
+.
+.// function_headers
+t.each do |transition|
+.@{transition.header}
+end
+
+.
+.// count_const_definition
+.#define @{t.count_const} @{t.size}
+
+.
+.// func_array_accessor_header
+t.method_sections.each do |section|
+.@{t.func_array_accessor_header(section)}
+end
+
+.#endif
