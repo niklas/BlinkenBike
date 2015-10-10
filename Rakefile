@@ -42,3 +42,10 @@ end
 task :simulate do
   sh 'processing-java --sketch=simulation/fire --run'
 end
+
+firmware = '.pioenvs/diecimilaatmega168/firmware.elf'
+namespace :analyze do
+  task :sram => firmware do
+    sh %Q~nm #{firmware} -C -l -S -td --size-sort | egrep -v ' [tTvVwWaA] | column -t'~
+  end
+end
