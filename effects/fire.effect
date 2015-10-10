@@ -19,10 +19,9 @@ setup:
   #define FIRE_OFFSET 1
 
   #define FIRE_EACH fIre = FIRE_OFFSET; fIre < FIRE_HEIGHT + FIRE_OFFSET; fIre++
-  byte fIre;
-  CRGB fire_color;
 orientation: floor
 init:
+  byte fIre;
   // make everything cold
   for(FIRE_EACH) {
     meta[fIre] = 0;
@@ -34,6 +33,7 @@ pixel:
     *pixel = CRGB::Black;
   }
 step:
+  byte fIre;
   // Cool down every cell a little
   for(FIRE_EACH) {
     meta[fIre] = qsub8( meta[fIre], random8(0, ((FIRE_COOLING * 10) / FIRE_HEIGHT) + 2));
