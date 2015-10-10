@@ -34,6 +34,7 @@ class Animations < Array
       function_headers,
       '// count_const_definition',
       count_const_definition,
+      *method_sections.map(&method(:func_array_accessor_header)),
       '',
       %Q~#endif~
     ].join("\n")
@@ -62,11 +63,20 @@ class Animations < Array
     %Q~#{func_array_type_and_name(section)} [] PROGMEM = {\n#{content}\n};~
   end
 
-  def func_array_accessor(section)
+  def func_array_accessor_header(section)
+    func_array_accessor_type_and_name(section) + ';'
+  end
+
+  def func_array_accessor_type_and_name(section)
     ftype = function_type_name(section)
     fname = func_array_accessor_name(section)
+    %Q~#{ftype} #{fname}(byte i)~
+  end
+
+  def func_array_accessor(section)
+    ftype = function_type_name(section)
     array = func_array_name(section)
-    %Q~#{ftype} #{fname}(byte i) { return (#{ftype}) pgm_read_word(&#{array}[i]) };~
+    %Q~#{func_array_accessor_type_and_name(section)} { return (#{ftype}) pgm_read_word(&#{array}[i]); };~
   end
 
   def function_signs
