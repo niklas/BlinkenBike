@@ -71,12 +71,18 @@ void loop() {
   EVERY_N_MILLISECONDS(400) {
     pot = analogRead(PIN_POT_SIDE);
     shouldAutoTransition = pot < EFFECT_DURATION_POTI_STOP ? false : true;
-    effectDurationBase = FPS + pow(__potiBase, pot) * EFFECT_DURATION_MAX_SECONDS * FPS;
 
-    // quickly come back from long durations
-    if (tCounter < - EFFECT_DURATION_STRETCH * effectDurationBase)
-      tCounter = - effectDurationBase;
+    if (shouldAutoTransition) {
+      effectDurationBase = FPS + pow(__potiBase, pot) * EFFECT_DURATION_MAX_SECONDS * FPS;
+      // quickly come back from long durations
+      if (tCounter < - EFFECT_DURATION_STRETCH * effectDurationBase)
+        tCounter = - effectDurationBase;
+    } else {
+      // start the new transition the moment we leave lock mode
+      tCounter = tCounter < 0 ? -1 : 1;
+    }
   }
+
 
 }
 
@@ -126,8 +132,6 @@ void frame() {
     if (shouldAutoTransition) {
       backImgIdx             = 1 - backImgIdx;     // Invert back index
       tCounter = - random(effectDurationBase, EFFECT_DURATION_STRETCH * effectDurationBase);
-    } else {
-      tCounter = 1; // do not start a new transition
     }
   }
 }
