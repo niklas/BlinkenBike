@@ -1,40 +1,22 @@
+require 'containing'
 require 'selective'
+require 'names'
 class Animations < Array
+  include Containing
   include Selective
-  Testing = ENV['BIKE_ENV'] == 'test'
-
-  def self.glob(glb)
-    klass = item_class
-    items = new
-    Dir[glb].map do |fn|
-      source = File.read(fn)
-      name   = File.basename(fn, '.*')
-      unless Testing
-        if name =~ /^test_/
-          next
-        end
-      end
-
-      items << klass.new(name, source)
-    end
-    items
-  end
-
-  def self.item_class
-    Object.const_get( name.sub(/s$/,'') )
-  end
+  include Names
 
   def implementation
     [
-      %Q~#include "#{self.class.name}.h"~,
+      %Q~#include "#{name}.h"~,
       attribute_arrays,
       map(&:implementation).join("\n\n"),
-      *first.method_sections.map(&method(:func_array))
+      *method_sections.map(&method(:func_array))
     ].join("\n")
   end
 
   def header
-    guard = "__#{self.class.name.upcase}_H__"
+    guard = "__#{name}_H__"
     [
       %Q~#ifndef #{guard}~,
       %Q~#define #{guard}~,
@@ -44,7 +26,7 @@ class Animations < Array
       %Q~#include "Settings.h"~,
       %Q~#include "Layout.h"~,
       function_signs,
-      type_defs,
+      function_type_defs,
       function_headers,
       count_const_definition,
       function_array_names,
@@ -53,30 +35,21 @@ class Animations < Array
     ].join("\n")
   end
 
+  def function_type_defs
+    method_sections.map do |section|
+      %~typedef void (*#{function_type_name(section)})(#{first.signature_const(section)});~
+    end.join("\n")
+  end
+
+
   def type_defs
-    first.method_sections.map do |section|
+    method_sections.map do |section|
       %~typedef void (*#{type_list_name(section)}[])(#{first.signature_const(section)});~
     end.join("\n")
   end
 
-  def type_list_name(section)
-    "Simple#{self.class.name}#{section.capitalize}List"
-  end
-
   def function_headers
     map(&:header).join("\n\n")
-  end
-
-  def func_array_name(section, count='')
-    type    = type_list_name(section)
-    name    = first.array_name(section)
-    %Q~extern #{type} #{name}~
-  end
-
-  def function_array_names
-    first.method_sections.map do |section|
-      func_array_name(section, count_const) + ';'
-    end.join("\n")
   end
 
   def func_array(section)
@@ -109,13 +82,4 @@ class Animations < Array
     end.join("\n")
   end
 
-  def attribute_array_names
-    first.attribute_sections.map(&method(:attribute_array_name)).join("\n")
-  end
-
-  def attribute_array_name(section)
-    name    = first.array_name(section)
-    typ     = self.class.attributes[section]
-    %Q~extern const #{typ} #{name}[#{length}];~
-  end
 end
