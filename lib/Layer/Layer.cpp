@@ -29,7 +29,7 @@ int Layer::pixelCount() {
 
 void Layer::render() {
   if (meta[0] == 0) {
-    effectInit[effectIdx](meta, pixelCount());
+    effectInit(effectIdx)(meta, pixelCount());
   }
 
   switch(orientation) {
@@ -38,15 +38,15 @@ void Layer::render() {
     default: break;
   }
 
-  effectStep[effectIdx](meta, pixelCount());
+  effectStep(effectIdx)(meta, pixelCount());
 }
 
 void Layer::renderComposite() {
   if (meta[0] == 0) {
-    effectInit[effectIdx](meta, pixelCount());
+    effectInit(effectIdx)(meta, pixelCount());
   }
   if (tmeta[0] == 0) {
-    transitionInit[transititionIdx](tmeta, pixelCount());
+    transitionInit(transititionIdx)(tmeta, pixelCount());
   }
 
   switch(orientation) {
@@ -55,18 +55,18 @@ void Layer::renderComposite() {
     default: break;
   }
 
-  effectStep[effectIdx](meta, pixelCount());
+  effectStep(effectIdx)(meta, pixelCount());
 }
 
 void Layer::renderLinear() {
   for(int pix = 0; pix < STRIP_PIXEL_COUNT; pix++) {
-    effectPixel[effectIdx](meta, &target[pix], pix, STRIP_PIXEL_COUNT);
+    effectPixel(effectIdx)(meta, &target[pix], pix, STRIP_PIXEL_COUNT);
   }
 }
 
 void Layer::renderFloor() {
   for(int pix = 0; pix < FLOOR_PIXEL_COUNT; pix++) {
-    effectPixel[effectIdx](meta, &scratch[pix], pix, FLOOR_PIXEL_COUNT);
+    effectPixel(effectIdx)(meta, &scratch[pix], pix, FLOOR_PIXEL_COUNT);
   }
 
   mapFloorToLinear();
@@ -76,10 +76,10 @@ void Layer::renderCompositeLinear() {
   int trans;
 
   for(int pix = 0; pix < STRIP_PIXEL_COUNT; pix++) {
-    effectPixel[effectIdx](meta, &scratch[0], pix, STRIP_PIXEL_COUNT);
+    effectPixel(effectIdx)(meta, &scratch[0], pix, STRIP_PIXEL_COUNT);
 
     // calculate trans btwn 1-256 so we can do a shift devide
-    transitionPixel[transititionIdx](tmeta, &trans, pix, STRIP_PIXEL_COUNT);
+    transitionPixel(transititionIdx)(tmeta, &trans, pix, STRIP_PIXEL_COUNT);
 
     target[pix] = blend(target[pix], scratch[0], trans);
   }
@@ -87,7 +87,7 @@ void Layer::renderCompositeLinear() {
 
 void Layer::renderCompositeFloor() {
   for(int pix = 0; pix < FLOOR_PIXEL_COUNT; pix++) {
-    effectPixel[effectIdx](meta, &scratch[pix], pix, FLOOR_PIXEL_COUNT);
+    effectPixel(effectIdx)(meta, &scratch[pix], pix, FLOOR_PIXEL_COUNT);
   }
 
   composeFloorToLinear();
@@ -115,7 +115,7 @@ void Layer::composeFloorToLinear() {
     f = floorMap(l);
 
     // calculate trans btwn 1-256 so we can do a shift devide
-    transitionPixel[transititionIdx](tmeta, &trans, l, STRIP_PIXEL_COUNT);
+    transitionPixel(transititionIdx)(tmeta, &trans, l, STRIP_PIXEL_COUNT);
 
     pixel = blend(target[l], scratch[f], trans);
     if (f < FLOOR_PIXEL_COUNT-1) {
