@@ -106,7 +106,7 @@ class Frame < OpenStruct
       from: [ xs.min, floor ],
       to:   [ xs.max, floor ],
       virtual: true,
-      led_count: 5
+      led_count: 25
     )
   end
 
