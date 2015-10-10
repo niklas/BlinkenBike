@@ -12,7 +12,7 @@ Layer::Layer(CRGB * theTarget, CRGB * theScratch, int * theTMeta) {
 void Layer::transitionStart() {
   effectIdx       = random(EFFECT_NUM);
   transititionIdx = random(TRANSITION_NUM);
-  orientation     = effectOrientation[effectIdx];
+  orientation     = getEffectOrientation(effectIdx);
   if (orientation == ORIENTATION_NIL)
     orientation = static_cast<Orientation>(random(NUM_ORIENTATIONS));
   meta[0]         = 0; // Effect not yet initialized

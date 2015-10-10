@@ -59,7 +59,6 @@ class Animations < Array
       function_headers,
       count_const_definition,
       function_array_names,
-      attribute_array_names,
       '',
       %Q~#endif~
     ].join("\n")
@@ -117,7 +116,7 @@ class Animations < Array
       name    = first.array_name(section)
       content = map(&:"#{section}_attribute").join(',')
       typ     = self.class.attributes[section]
-      %Q~#{typ} #{name}[] = {#{content}};~
+      %Q~PROGMEM const #{typ} #{name}[] = {#{content}};~
     end.join("\n")
   end
 
@@ -128,6 +127,6 @@ class Animations < Array
   def attribute_array_name(section)
     name    = first.array_name(section)
     typ     = self.class.attributes[section]
-    %Q~extern #{typ} #{name}[#{length}];~
+    %Q~extern const #{typ} #{name}[#{length}];~
   end
 end
