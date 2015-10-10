@@ -29,12 +29,6 @@ module Names
     %Q~extern #{type} #{name}~
   end
 
-  def function_array_names
-    method_sections.map do |section|
-      func_array_name(section, count_const) + ';'
-    end.join("\n")
-  end
-
   def attribute_array_names
     first.attribute_sections.map(&method(:attribute_array_name)).join("\n")
   end

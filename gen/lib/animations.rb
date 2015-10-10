@@ -25,11 +25,14 @@ class Animations < Array
       %Q~#include "FastLED.h"~,
       %Q~#include "Settings.h"~,
       %Q~#include "Layout.h"~,
+      '// function_signs',
       function_signs,
+      '// function_type_defs',
       function_type_defs,
+      '// function_headers',
       function_headers,
+      '// count_const_definition',
       count_const_definition,
-      function_array_names,
       '',
       %Q~#endif~
     ].join("\n")
