@@ -1,0 +1,42 @@
+require 'effects'
+e = Effects.glob('effects/*.effect')
+
+.#ifndef __Effects_H__
+.#define __Effects_H__
+.
+.#include <Arduino.h>
+.#include "FastLED.h"
+.#include "Settings.h"
+.#include "Layout.h"
+
+.
+.// function_signs
+e.class.functions.each do |section, sign|
+.#define @{e.first.signature_const(section)} @{sign}
+end
+
+.
+.// function_type_defs
+e.method_sections.each do |section|
+.typedef void (*@{e.function_type_name(section)})(@{e.first.signature_const(section)});
+end
+
+.
+.// function_headers
+e.each do |effect|
+.@{effect.header}
+end
+
+.
+.// count_const_definition
+.#define @{e.count_const} @{e.size}
+
+.
+.// func_array_accessor_header
+e.method_sections.each do |section|
+.@{e.func_array_accessor_header(section)}
+end
+
+.Orientation getEffectOrientation(byte);
+
+.#endif

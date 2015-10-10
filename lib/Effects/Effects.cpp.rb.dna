@@ -1,0 +1,12 @@
+require 'effects'
+e = Effects.glob('effects/*.effect')
+
+
+.#include "Effects.h"
+
+first.attribute_sections.each do |section|
+  name    = func_array_name(section)
+  content = map(&:"#{section}_attribute").join(',')
+  typ     = self.class.attributes[section]
+.  PROGMEM const @{typ} @{name}[] = {@{content}};~
+end
