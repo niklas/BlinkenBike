@@ -9,7 +9,7 @@ e.first.attribute_sections.each do |section|
   name    = e.func_array_name(section)
   content = e.map(&:"#{section}_attribute").join(',')
   typ     = e.class.attributes[section]
-.PROGMEM const {@{typ} {@{name}[] = {@{content}};
+.PROGMEM const @{typ} @{name}[] = {@{content}};
 end
 
 .
