@@ -11,7 +11,8 @@ class Animations < Array
       %Q~#include "#{name}.h"~,
       attribute_arrays,
       map(&:implementation).join("\n\n"),
-      *method_sections.map(&method(:func_array))
+      *method_sections.map(&method(:func_array)),
+      *method_sections.map(&method(:func_array_accessor)),
     ].join("\n")
   end
 
@@ -58,7 +59,14 @@ class Animations < Array
   def func_array(section)
     content = map { |a| a.func_name(section) }.join(",\n")
 
-    %Q~#{func_array_name(section)} [] PROGMEM = {\n#{content}\n};~
+    %Q~#{func_array_type_and_name(section)} [] PROGMEM = {\n#{content}\n};~
+  end
+
+  def func_array_accessor(section)
+    ftype = function_type_name(section)
+    fname = func_array_accessor_name(section)
+    array = func_array_name(section)
+    %Q~#{ftype} #{fname}(byte i) { return (#{ftype}) pgm_read_word(&#{array}[i]) };~
   end
 
   def function_signs
@@ -78,7 +86,7 @@ class Animations < Array
 
   def attribute_arrays
     first.attribute_sections.map do |section|
-      name    = first.func_array_name(section)
+      name    = func_array_name(section)
       content = map(&:"#{section}_attribute").join(',')
       typ     = self.class.attributes[section]
       %Q~PROGMEM const #{typ} #{name}[] = {#{content}};~

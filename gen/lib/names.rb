@@ -23,9 +23,24 @@ module Names
     ].join
   end
 
-  def func_array_name(section, count='')
+  def func_array_accessor_name(section)
+    [
+      name.downcase,
+      section.capitalize,
+    ].join
+  end
+
+  def func_array_name(section)
+    [
+      name.downcase,
+      section.capitalize,
+      's'
+    ].join
+  end
+
+  def func_array_type_and_name(section, count='')
     type    = type_list_name(section)
-    %Q~const #{function_type_name(section)} #{first.func_array_name(section)}~
+    %Q~const #{function_type_name(section)} #{func_array_name(section)}~
   end
 
   def attribute_array_names
@@ -33,7 +48,7 @@ module Names
   end
 
   def attribute_array_name(section)
-    name    = first.func_array_name(section)
+    name    = func_array_name(section)
     typ     = self.class.attributes[section]
     %Q~extern const #{typ} #{name}[#{length}];~
   end
