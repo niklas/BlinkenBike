@@ -1,51 +1,23 @@
+require 'containing'
+require 'selective'
+require 'names'
 class Animations < Array
-  Testing = ENV['BIKE_ENV'] == 'test'
-
-  def self.glob(glb)
-    klass = item_class
-    items = new
-    Dir[glb].map do |fn|
-      source = File.read(fn)
-      name   = File.basename(fn, '.*')
-      unless Testing
-        if name =~ /^test_/
-          next
-        end
-      end
-
-      items << klass.new(name, source)
-    end
-    items
-  end
-
-  def self.item_class
-    Object.const_get( name.sub(/s$/,'') )
-  end
-
-  def <<(item)
-    super(item) if selected?(item.name)
-  end
-
-  def selected?(name)
-    selection.empty? || selection.include?(name)
-  end
-
-  def selection
-    return @selection if defined?(@selection)
-    @selection = (ENV[self.class.name.upcase] || '').split(',')
-  end
+  include Containing
+  include Selective
+  include Names
 
   def implementation
     [
-      %Q~#include "#{self.class.name}.h"~,
+      %Q~#include "#{name}.h"~,
       attribute_arrays,
       map(&:implementation).join("\n\n"),
-      *first.method_sections.map(&method(:func_array))
+      *method_sections.map(&method(:func_array)),
+      *method_sections.map(&method(:func_array_accessor)),
     ].join("\n")
   end
 
   def header
-    guard = "__#{self.class.name.upcase}_H__"
+    guard = "__#{name}_H__"
     [
       %Q~#ifndef #{guard}~,
       %Q~#define #{guard}~,
@@ -54,47 +26,57 @@ class Animations < Array
       %Q~#include "FastLED.h"~,
       %Q~#include "Settings.h"~,
       %Q~#include "Layout.h"~,
+      '// function_signs',
       function_signs,
-      type_defs,
+      '// function_type_defs',
+      function_type_defs,
+      '// function_headers',
       function_headers,
+      '// count_const_definition',
       count_const_definition,
-      function_array_names,
-      attribute_array_names,
+      *method_sections.map(&method(:func_array_accessor_header)),
       '',
       %Q~#endif~
     ].join("\n")
   end
 
-  def type_defs
-    first.method_sections.map do |section|
-      %~typedef void (*#{type_list_name(section)}[])(#{first.signature_const(section)});~
+  def function_type_defs
+    method_sections.map do |section|
+      %~typedef void (*#{function_type_name(section)})(#{first.signature_const(section)});~
     end.join("\n")
   end
 
-  def type_list_name(section)
-    "Simple#{self.class.name}#{section.capitalize}List"
+
+  def type_defs
+    method_sections.map do |section|
+      %~typedef void (*#{type_list_name(section)}[])(#{first.signature_const(section)});~
+    end.join("\n")
   end
 
   def function_headers
     map(&:header).join("\n\n")
   end
 
-  def func_array_name(section, count='')
-    type    = type_list_name(section)
-    name    = first.array_name(section)
-    %Q~extern #{type} #{name}~
-  end
-
-  def function_array_names
-    first.method_sections.map do |section|
-      func_array_name(section, count_const) + ';'
-    end.join("\n")
-  end
-
   def func_array(section)
     content = map { |a| a.func_name(section) }.join(",\n")
 
-    %Q~#{func_array_name(section)} = {\n#{content}\n};~
+    %Q~#{func_array_type_and_name(section)} [] PROGMEM = {\n#{content}\n};~
+  end
+
+  def func_array_accessor_header(section)
+    func_array_accessor_type_and_name(section) + ';'
+  end
+
+  def func_array_accessor_type_and_name(section)
+    ftype = function_type_name(section)
+    fname = func_array_accessor_name(section)
+    %Q~#{ftype} #{fname}(byte i)~
+  end
+
+  def func_array_accessor(section)
+    ftype = function_type_name(section)
+    array = func_array_name(section)
+    %Q~#{func_array_accessor_type_and_name(section)} { return (#{ftype}) pgm_read_word(&#{array}[i]); };~
   end
 
   def function_signs
@@ -114,20 +96,11 @@ class Animations < Array
 
   def attribute_arrays
     first.attribute_sections.map do |section|
-      name    = first.array_name(section)
+      name    = func_array_name(section)
       content = map(&:"#{section}_attribute").join(',')
       typ     = self.class.attributes[section]
-      %Q~#{typ} #{name}[] = {#{content}};~
+      %Q~PROGMEM const #{typ} #{name}[] = {#{content}};~
     end.join("\n")
   end
 
-  def attribute_array_names
-    first.attribute_sections.map(&method(:attribute_array_name)).join("\n")
-  end
-
-  def attribute_array_name(section)
-    name    = first.array_name(section)
-    typ     = self.class.attributes[section]
-    %Q~extern #{typ} #{name}[#{length}];~
-  end
 end

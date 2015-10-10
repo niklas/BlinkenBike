@@ -22,13 +22,12 @@ setup:
 
   #define LONG_FIRE_EACH fIre = 0, firePtr = (byte *)&meta[LONG_FIRE_OFFSET]; fIre < fireHeight; fIre++, firePtr++
 
-  #ifndef FIRE_HEIGHT
-  byte fIre;
-  CRGB fire_color;
-  #endif
-  byte * firePtr;
+  #define LONG_FIRE_META ((byte *)&meta[LONG_FIRE_OFFSET])
+
 orientation: floor
 init:
+  byte fIre;
+  byte * firePtr;
   int fireHeight = min(LONG_FIRE_HEIGHT, numPixels);
 
   // make everything cold (setting both bytes at the same time)
@@ -39,13 +38,14 @@ init:
 pixel:
   int fireHeight = min(LONG_FIRE_HEIGHT, numPixels);
   if (i < fireHeight) {
-    firePtr = (byte *)&meta[LONG_FIRE_OFFSET];
-    *pixel = HeatColor(firePtr[i]);
+    *pixel = HeatColor(LONG_FIRE_META[i]);
   } else {
     *pixel = CRGB::Black;
   }
 step:
-  int fireHeight = min(LONG_FIRE_HEIGHT, numPixels);
+  byte fIre;
+  byte fireHeight = min(LONG_FIRE_HEIGHT, numPixels);
+  byte * firePtr;
   // Cool down every cell a little
   for(LONG_FIRE_EACH) {
     *firePtr = qsub8( *firePtr, random8(0, ((LONG_FIRE_COOLING * 10) / fireHeight) + 2));
