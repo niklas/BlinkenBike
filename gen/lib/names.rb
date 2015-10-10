@@ -3,13 +3,17 @@ module Names
     @name ||= self.class.name
   end
 
+  def singular_name
+    @singular_name ||= name.sub(/s$/,'')
+  end
+
   def method_sections
     item_class.method_sections
   end
 
   def function_type_name(section)
     [
-      name,
+      singular_name,
       section.capitalize,
       'Function'
     ].join
@@ -17,7 +21,7 @@ module Names
 
   def type_list_name(section)
     [
-      name,
+      singular_name,
       section.capitalize,
       'FunctionList'
     ].join
@@ -25,14 +29,14 @@ module Names
 
   def func_array_accessor_name(section)
     [
-      name.downcase,
+      singular_name.downcase,
       section.capitalize,
     ].join
   end
 
   def func_array_name(section)
     [
-      name.downcase,
+      singular_name.downcase,
       section.capitalize,
       's'
     ].join

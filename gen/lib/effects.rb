@@ -25,7 +25,7 @@ class Effects < Animations
   def implementation
     super + "\n" + <<-EOC
     Orientation getEffectOrientation(byte x) {
-      return (Orientation) pgm_read_byte(&effectOrientation[x]);
+      return (Orientation) pgm_read_byte(&#{func_array_name('orientation')}[x]);
     }
     EOC
   end
