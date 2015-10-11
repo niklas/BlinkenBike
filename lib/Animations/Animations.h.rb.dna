@@ -1,0 +1,31 @@
+.#include <Arduino.h>
+.#include "FastLED.h"
+.#include "Settings.h"
+.#include "Layout.h"
+
+.// function_signs
+a.class.functions.each do |section, sign|
+.#define @{a.first.signature_const(section)} @{sign}
+end
+
+.
+.// function_type_defs
+a.method_sections.each do |section|
+.typedef void (*@{a.function_type_name(section)})(@{a.first.signature_const(section)});
+end
+
+.
+.// function_headers
+a.each do |item|
+.@{item.header}
+end
+
+.
+.// count_const_definition
+.#define @{a.count_const} @{a.size}
+.
+.// func_array_accessor_header
+a.method_sections.each do |section|
+.@{a.func_array_accessor_header(section)}
+end
+

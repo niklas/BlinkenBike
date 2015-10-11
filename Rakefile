@@ -11,7 +11,7 @@ task :all => [
 generator = 'bin/generate_code.rb'
 
 
-effects = Rake::FileList.new('effects/*.effect', 'lib/Effects/*dna', 'gen/lib/*.rb')
+effects = Rake::FileList.new('effects/*.effect', 'lib/Effects/*dna', 'gen/lib/*.rb', 'lib/Animations/*dna')
 ['lib/Effects/Effects.h', 'lib/Effects/Effects.cpp'].each do |f|
   file f => effects do
     sh "bin/ribosome #{f}.rb.dna > #{f}"
@@ -21,7 +21,7 @@ effects = Rake::FileList.new('effects/*.effect', 'lib/Effects/*dna', 'gen/lib/*.
   end
 end
 
-transitions = Rake::FileList.new('transitions/*.transition', 'lib/Transitions/*dna', 'gen/lib/*.rb')
+transitions = Rake::FileList.new('transitions/*.transition', 'lib/Transitions/*dna', 'gen/lib/*.rb', 'lib/Animations/*dna')
 ['lib/Transitions/Transitions.h', 'lib/Transitions/Transitions.cpp'].each do |f|
   file f => transitions do
     sh "bin/ribosome #{f}.rb.dna > #{f}"

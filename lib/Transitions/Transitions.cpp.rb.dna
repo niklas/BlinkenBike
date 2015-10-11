@@ -1,26 +1,7 @@
 require 'transitions'
-t = Transitions.glob('transitions/*.transition')
+a = Transitions.glob('transitions/*.transition')
 
 
 .#include "Transitions.h"
-.
-.// Attribute Arrays
-t.first.attribute_sections.each do |section|
-  name    = t.func_array_name(section)
-  content = t.map(&:"#{section}_attribute").join(',')
-  typ     = t.class.attributes[section]
-.PROGMEM const {@{typ} {@{name}[] = {@{content}};
-end
 
-.
-
-t.each do |transition|
-.@{transition.implementation}
-end
-
-# flash Arrays + Accessors
-t.method_sections.each do |section|
-.@{t.func_array(section)}
-.@{t.func_array_accessor(section)}
-end
-
+./!include("../Animations/Animations.cpp.rb.dna")

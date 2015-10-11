@@ -1,0 +1,20 @@
+.
+.// Attribute Arrays
+a.first.attribute_sections.each do |section|
+  name    = a.func_array_name(section)
+  content = a.map(&:"#{section}_attribute").join(',')
+  typ     = a.class.attributes[section]
+.PROGMEM const @{typ} @{name}[] = {@{content}};
+end
+
+.
+
+a.each do |item|
+.@{item.implementation}
+end
+
+# flash Arrays + Accessors
+a.method_sections.each do |section|
+.@{a.func_array(section)}
+.@{a.func_array_accessor(section)}
+end
