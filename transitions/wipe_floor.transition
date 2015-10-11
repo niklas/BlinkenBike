@@ -1,6 +1,6 @@
 init:
-  meta[1] = random(1, FLOOR_PIXEL_COUNT); // run, in pixels
-  meta[2] = (random(2) == 0) ? 255 : -255; // rise
+  meta[1] = random8(1, FLOOR_PIXEL_COUNT); // run, in pixels
+  meta[2] = (random8(2) == 0) ? 255 : -255; // rise
 pixel:
   // TODO might precalc it
   int f = floorMap(i);

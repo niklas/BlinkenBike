@@ -40,7 +40,7 @@ void setup() {
   pinMode(PIN_POT_SIDE, INPUT);
 
   // Initialize random number generator from a floating analog input.
-  randomSeed(analogRead(0));
+  random16_set_seed(analogRead(0));
   backImgIdx        = 0;
   tCounter = -1;
   shouldAutoTransition = true;
@@ -125,13 +125,13 @@ void frame() {
   tCounter++;
   if (shouldAutoTransition && (tCounter == 0)) { // Transition start
     layer[frntImgIdx].transitionStart();
-    transitionTime = random(FPS/2, 3 * FPS);
+    transitionTime = random16(FPS/2, 3 * FPS);
   }
 
   if (tCounter >= transitionTime) {
     if (shouldAutoTransition) {
       backImgIdx             = 1 - backImgIdx;     // Invert back index
-      tCounter = - random(effectDurationBase, EFFECT_DURATION_STRETCH * effectDurationBase);
+      tCounter = - random16(effectDurationBase, EFFECT_DURATION_STRETCH * effectDurationBase);
     }
   }
 }
