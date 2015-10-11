@@ -10,7 +10,21 @@ end
 .
 
 a.each do |item|
-.@{item.implementation}
+  item.sections.each do |sec, code|
+    case sec
+    when 'setup'
+# just outdent
+.@{code.gsub(/^\s{2}/, '')}
+    when *a.method_sections
+    extra = sec == 'init' ? '  meta[0] = 1;' : ''
+.void @{item.func_name(sec)}(@{item.signature_const(sec)}) {
+.  @{code}
+.  @{extra}
+.};
+    else
+      raise "unknown section: #{sec}"
+    end
+  end
 end
 
 .
