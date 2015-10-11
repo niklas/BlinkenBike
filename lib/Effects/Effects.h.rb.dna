@@ -1,0 +1,11 @@
+require 'effects'
+a = Effects.glob('effects/*.effect')
+
+.#ifndef __Effects_H__
+.#define __Effects_H__
+.
+./!include("../Animations/Animations.h.rb.dna")
+.
+.Orientation getEffectOrientation(byte);
+
+.#endif

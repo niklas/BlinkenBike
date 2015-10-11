@@ -20,42 +20,6 @@ class Animation < Struct.new(:name, :source)
     @attributes = {}
   end
 
-  def implementation
-    sections.map do |sec, code|
-      case sec
-      when 'setup'
-        code.gsub(/^\s{2}/, '') # just outdent
-      when *method_sections
-        c_func(sec, code)
-      else
-        raise "unknown section: #{sec}"
-      end
-    end.join("\n")
-  end
-
-  def header
-    sections.map do |sec, _code|
-      case sec
-      when 'setup'
-        # nuffin
-      when *method_sections
-        c_header(sec) + ';'
-      end
-    end.join("\n")
-  end
-
-  def c_header(sec)
-    name = func_name(sec)
-    sign = signature_const(sec)
-    %Q~void #{name}(#{sign})~
-  end
-
-  def c_func(sec, code)
-    header = c_header(sec)
-    extra = sec == 'init' ? '  meta[0] = 1;' : ''
-    %Q~#{header} {\n#{code}#{extra}\n}\n~
-  end
-
   def signature_const(section)
     [
       self.class.name.upcase,
@@ -70,10 +34,6 @@ class Animation < Struct.new(:name, :source)
       name.downcase,
       section.downcase,
     ].join('_')
-  end
-
-  def func_array_name(section)
-    self.class.name.downcase + section.capitalize + 's'
   end
 
   def sections

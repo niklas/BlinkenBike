@@ -1,0 +1,11 @@
+require 'effects'
+a = Effects.glob('effects/*.effect')
+
+
+.#include "Effects.h"
+
+./!include("../Animations/Animations.cpp.rb.dna")
+
+.Orientation getEffectOrientation(byte x) {
+.  return (Orientation) pgm_read_byte(&effectOrientations[x]);
+.}

@@ -1,0 +1,7 @@
+require 'transitions'
+a = Transitions.glob('transitions/*.transition')
+
+
+.#include "Transitions.h"
+
+./!include("../Animations/Animations.cpp.rb.dna")
