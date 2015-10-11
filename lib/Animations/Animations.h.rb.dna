@@ -15,9 +15,16 @@ a.method_sections.each do |section|
 end
 
 .
-.// function_headers
+.// Effect function headers
 a.each do |item|
-.@{item.header}
+  item.sections.map do |sec, _code|
+    case sec
+    when 'setup'
+      # nuffin
+    when *a.method_sections
+.void @{item.func_name(sec)}(@{item.signature_const(sec)});
+    end
+  end
 end
 
 .

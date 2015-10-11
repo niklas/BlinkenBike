@@ -33,17 +33,6 @@ class Animation < Struct.new(:name, :source)
     end.join("\n")
   end
 
-  def header
-    sections.map do |sec, _code|
-      case sec
-      when 'setup'
-        # nuffin
-      when *method_sections
-        c_header(sec) + ';'
-      end
-    end.join("\n")
-  end
-
   def c_header(sec)
     name = func_name(sec)
     sign = signature_const(sec)
