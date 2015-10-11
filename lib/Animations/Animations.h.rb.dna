@@ -24,8 +24,8 @@ end
 .// count_const_definition
 .#define @{a.count_const} @{a.size}
 .
-.// func_array_accessor_header
+.// Accessors for Effect Function Arrays
 a.method_sections.each do |section|
-.@{a.func_array_accessor_header(section)}
+.@{a.function_type_name(section)} @{a.func_array_accessor_name(section)}(byte i);
 end
 

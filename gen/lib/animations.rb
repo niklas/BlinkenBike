@@ -34,7 +34,6 @@ class Animations < Array
       function_headers,
       '// count_const_definition',
       count_const_definition,
-      *method_sections.map(&method(:func_array_accessor_header)),
       '',
       %Q~#endif~
     ].join("\n")
@@ -61,10 +60,6 @@ class Animations < Array
     content = map { |a| a.func_name(section) }.join(",\n")
 
     %Q~#{func_array_type_and_name(section)} [] PROGMEM = {\n#{content}\n};~
-  end
-
-  def func_array_accessor_header(section)
-    func_array_accessor_type_and_name(section) + ';'
   end
 
   def func_array_accessor_type_and_name(section)
