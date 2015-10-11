@@ -17,7 +17,9 @@ a.each do |item|
 .@{code.gsub(/^\s{2}/, '')}
     when *a.method_sections
     extra = sec == 'init' ? '  meta[0] = 1;' : ''
-.void @{item.func_name(sec)}(@{item.signature_const(sec)}) {
+    fname = item.func_name(sec)
+    fsign = item.signature_const(sec)
+.void @{fname}(@{fsign}) {
 .  @{code}
 .  @{extra}
 .};

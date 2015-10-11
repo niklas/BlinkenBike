@@ -5,7 +5,8 @@
 
 .// function_signs
 a.class.functions.each do |section, sign|
-.#define @{a.first.signature_const(section)} @{sign}
+  sname = a.first.signature_const(section)
+.#define @{sname} @{sign}
 end
 
 .
@@ -22,7 +23,9 @@ a.each do |item|
     when 'setup'
       # nuffin
     when *a.method_sections
-.void @{item.func_name(sec)}(@{item.signature_const(sec)});
+      fname = item.func_name(sec)
+      fsign = item.signature_const(sec)
+.void @{fname}(@{fsign});
     end
   end
 end
