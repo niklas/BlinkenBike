@@ -42,5 +42,5 @@ a.each do |item|
 .@{item.func_name(section)}
 end
 .};
-.@{ftype} @{fname}(byte i) { return ({@{ftype}) pgm_read_word(&@{array}[i]); };
+.@{ftype} @{fname}(byte i) { return (@{ftype}) pgm_read_word(&@{array}[i]); };
 end

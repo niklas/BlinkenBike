@@ -38,6 +38,6 @@ end
 a.method_sections.each do |section|
   ftype = a.function_type_name(section)
   fname = a.func_array_accessor_name(section)
-.@{ftype} {@{fname}(byte i);
+.@{ftype} @{fname}(byte i);
 end
 
