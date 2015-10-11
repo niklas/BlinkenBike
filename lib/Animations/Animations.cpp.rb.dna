@@ -13,8 +13,18 @@ a.each do |item|
 .@{item.implementation}
 end
 
-# flash Arrays + Accessors
+.
+.// flash Arrays + Accessors
 a.method_sections.each do |section|
-.@{a.func_array(section)}
-.@{a.func_array_accessor(section)}
+  ftype = a.function_type_name(section)
+  array = a.func_array_name(section)
+  fname = a.func_array_accessor_name(section)
+  aname = a.func_array_type_and_name(section)
+.@{aname} [] PROGMEM = {
+./!separate(", ")
+a.each do |item|
+.@{item.func_name(section)}
+end
+.};
+.@{ftype} @{fname}(byte i) { return ({@{ftype}) pgm_read_word(&@{array}[i]); };
 end

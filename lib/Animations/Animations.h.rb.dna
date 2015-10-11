@@ -33,6 +33,8 @@ end
 .
 .// Accessors for Effect Function Arrays
 a.method_sections.each do |section|
-.@{a.function_type_name(section)} @{a.func_array_accessor_name(section)}(byte i);
+  ftype = a.function_type_name(section)
+  fname = a.func_array_accessor_name(section)
+.@{ftype} {@{fname}(byte i);
 end
 
