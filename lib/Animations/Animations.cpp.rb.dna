@@ -1,3 +1,4 @@
+a.map(&:sections) # precalc
 .
 .// Attribute Arrays
 a.first.attribute_sections.each do |section|
