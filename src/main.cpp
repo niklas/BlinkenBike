@@ -47,7 +47,6 @@ void setup() {
   random16_set_seed(analogRead(0));
   backImgIdx        = 0;
   tCounter = -1;
-  shouldAutoTransition = true;
   effectDurationBase = 5 * FPS;
 
   preview[0] = CRGB::Red;
@@ -55,8 +54,6 @@ void setup() {
   preview[2] = CRGB::Blue;
   preview[3] = CRGB::Purple;
 }
-
-int pot;
 
 void loop() {
   // Very first thing here is to issue the strip data generated from the
@@ -79,11 +76,9 @@ void loop() {
 
   EVERY_N_MILLISECONDS(400) {
     mode.readInputs();
-    pot = analogRead(PIN_POT_SIDE);
-    shouldAutoTransition = pot < EFFECT_DURATION_POTI_STOP ? false : true;
 
-    if (shouldAutoTransition) {
-      effectDurationBase = FPS + pow(__potiBase, pot) * EFFECT_DURATION_MAX_SECONDS * FPS;
+    if (mode.shouldAutoTransition()) {
+      effectDurationBase = FPS + pow(__potiBase, mode.pot) * EFFECT_DURATION_MAX_SECONDS * FPS;
       // quickly come back from long durations
       if (tCounter < - EFFECT_DURATION_STRETCH * effectDurationBase)
         tCounter = - effectDurationBase;
@@ -112,7 +107,7 @@ void frame() {
   //////////////////////////////////////////////////////////////
   // Secondary effect (foreground) during transition in progress
   //////////////////////////////////////////////////////////////
-  if (shouldAutoTransition) {
+  if (mode.shouldAutoTransition()) {
     if (tCounter > 0) {
       layer[frntImgIdx].renderComposite();
     }
@@ -133,13 +128,13 @@ void frame() {
   // Count up to next transition (or end of current one):
   //////////////////////////////////////////////////////////////
   tCounter++;
-  if (shouldAutoTransition && (tCounter == 0)) { // Transition start
+  if (mode.shouldAutoTransition() && (tCounter == 0)) { // Transition start
     layer[frntImgIdx].transitionStart();
     transitionTime = random16(FPS/2, 3 * FPS);
   }
 
   if (tCounter >= transitionTime) {
-    if (shouldAutoTransition) {
+    if (mode.shouldAutoTransition()) {
       backImgIdx             = 1 - backImgIdx;     // Invert back index
       tCounter = - random16(effectDurationBase, EFFECT_DURATION_STRETCH * effectDurationBase);
     }

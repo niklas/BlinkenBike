@@ -16,10 +16,12 @@ class ModeManager {
       apply(void);
 
     bool
+      shouldAutoTransition(void),
       triggered;
 
     int
       effect,
+      pot,
       selectedEffect;
 
   private:

@@ -32,7 +32,6 @@
 #define STRIP_PIXEL_COUNT 110
 #define PREVIEW_PIXEL_COUNT 4
 extern int  tCounter, transitionTime, effectDurationBase;
-extern bool shouldAutoTransition;
 
 extern float __potiBase;
 
