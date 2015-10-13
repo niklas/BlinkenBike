@@ -31,8 +31,6 @@
 
 #define STRIP_PIXEL_COUNT 110
 #define PREVIEW_PIXEL_COUNT 4
-extern int  tCounter, transitionTime, effectDurationBase;
-
-extern float __potiBase;
+extern int  tCounter, transitionTime;
 
 #endif

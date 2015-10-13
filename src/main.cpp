@@ -47,7 +47,6 @@ void setup() {
   random16_set_seed(analogRead(0));
   backImgIdx        = 0;
   tCounter = -1;
-  effectDurationBase = 5 * FPS;
 
   preview[0] = CRGB::Red;
   preview[1] = CRGB::Green;
@@ -78,10 +77,9 @@ void loop() {
     mode.readInputs();
 
     if (mode.shouldAutoTransition()) {
-      effectDurationBase = FPS + pow(__potiBase, mode.pot) * EFFECT_DURATION_MAX_SECONDS * FPS;
       // quickly come back from long durations
-      if (tCounter < - EFFECT_DURATION_STRETCH * effectDurationBase)
-        tCounter = - effectDurationBase;
+      if (tCounter < - EFFECT_DURATION_STRETCH * mode.effectDurationBase)
+        tCounter = - mode.effectDurationBase;
     } else {
       // start the new transition the moment we leave lock mode
       tCounter = tCounter < 0 ? -1 : 1;
@@ -135,8 +133,8 @@ void frame() {
 
   if (tCounter >= transitionTime) {
     if (mode.shouldAutoTransition()) {
-      backImgIdx             = 1 - backImgIdx;     // Invert back index
-      tCounter = - random16(effectDurationBase, EFFECT_DURATION_STRETCH * effectDurationBase);
+      backImgIdx  = 1 - backImgIdx;     // Invert back index
+      tCounter    = - mode.randomEffectDuration();
     }
   }
 

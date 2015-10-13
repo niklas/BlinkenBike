@@ -22,9 +22,13 @@ class ModeManager {
     int
       effect,
       pot,
+      effectDurationBase,        // Currently selected base for Duration (in frames) of current transition
+      randomEffectDuration(void),
       selectedEffect;
 
   private:
+    float
+      potiBase;
 };
 
 #endif
