@@ -74,7 +74,7 @@ void loop() {
 
   frame();
 
-  EVERY_N_MILLISECONDS(400) {
+  EVERY_N_MILLISECONDS(100) {
     mode.readInputs();
 
     if (mode.shouldAutoTransition()) {
