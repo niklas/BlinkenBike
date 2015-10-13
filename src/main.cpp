@@ -101,7 +101,6 @@ void frame() {
   layer[backImgIdx].render();
 
 
-#ifdef DO_TRANSITION
   //////////////////////////////////////////////////////////////
   // Secondary effect (foreground) during transition in progress
   //////////////////////////////////////////////////////////////
@@ -109,9 +108,38 @@ void frame() {
     if (tCounter > 0) {
       layer[frntImgIdx].renderComposite();
     }
-  }
-#endif
 
+    //////////////////////////////////////////////////////////////
+    // Count up to next transition (or end of current one):
+    //////////////////////////////////////////////////////////////
+    tCounter++;
+
+    if (tCounter == 0) { // Transition start
+      layer[frntImgIdx].transitionStart();
+      transitionTime = random16(FPS/2, 3 * FPS);
+    }
+
+    if (tCounter >= transitionTime) {
+      backImgIdx  = 1 - backImgIdx;     // Invert back index
+      tCounter    = - mode.randomEffectDuration();
+    }
+  }
+
+  //////////////////////////////////////////////////////////////
+  // Additional Effects
+  //////////////////////////////////////////////////////////////
+
+  preview[3] = strip[3];
+
+  if (mode.triggered) {
+    strip[23] = CRGB::Purple;
+  }
+
+
+  //////////////////////////////////////////////////////////////
+  // Status / Preview
+  //////////////////////////////////////////////////////////////
+  preview[1] = mode.shouldAutoTransition() ? CRGB::Green : CRGB::Red;
 
   //////////////////////////////////////////////////////////////
   // apply gamma
@@ -119,28 +147,7 @@ void frame() {
   for (byte pixel=0; pixel < STRIP_PIXEL_COUNT; pixel++) {
     strip[pixel] = gamma(strip[pixel]);
   }
-
-
-
-  //////////////////////////////////////////////////////////////
-  // Count up to next transition (or end of current one):
-  //////////////////////////////////////////////////////////////
-  tCounter++;
-  if (mode.shouldAutoTransition() && (tCounter == 0)) { // Transition start
-    layer[frntImgIdx].transitionStart();
-    transitionTime = random16(FPS/2, 3 * FPS);
-  }
-
-  if (tCounter >= transitionTime) {
-    if (mode.shouldAutoTransition()) {
-      backImgIdx  = 1 - backImgIdx;     // Invert back index
-      tCounter    = - mode.randomEffectDuration();
-    }
-  }
-
-  preview[3] = strip[3];
-
-  if (mode.triggered) {
-    strip[23] = CRGB::Purple;
+  for (byte pixel=0; pixel < PREVIEW_PIXEL_COUNT; pixel++) {
+    preview[pixel] = gamma(preview[pixel]);
   }
 }

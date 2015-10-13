@@ -9,7 +9,6 @@
 #define FX_VARS_NUM 23
 
 #undef BENCHMARK_FPS
-#define DO_TRANSITION
 #define BENCHMARK_EVERY 10
 
 
