@@ -30,6 +30,6 @@
 
 #define STRIP_PIXEL_COUNT 110
 #define PREVIEW_PIXEL_COUNT 4
-extern int  tCounter, transitionTime;
+extern int  tCounter, effectDuration, transitionTime;
 
 #endif

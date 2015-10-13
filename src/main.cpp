@@ -47,6 +47,7 @@ void setup() {
   random16_set_seed(analogRead(0));
   backImgIdx        = 0;
   tCounter = -1;
+  effectDuration = 23; // whatever
 
   preview[0] = CRGB::Red;
   preview[1] = CRGB::Green;
@@ -121,15 +122,14 @@ void frame() {
 
     if (tCounter >= transitionTime) {
       backImgIdx  = 1 - backImgIdx;     // Invert back index
-      tCounter    = - mode.randomEffectDuration();
+      effectDuration = mode.randomEffectDuration();
+      tCounter    = - effectDuration;
     }
   }
 
   //////////////////////////////////////////////////////////////
   // Additional Effects
   //////////////////////////////////////////////////////////////
-
-  preview[3] = strip[3];
 
   if (mode.triggered) {
     strip[23] = CRGB::Purple;
@@ -139,7 +139,19 @@ void frame() {
   //////////////////////////////////////////////////////////////
   // Status / Preview
   //////////////////////////////////////////////////////////////
-  preview[1] = mode.shouldAutoTransition() ? CRGB::Green : CRGB::Red;
+  preview[2] = CRGB::Black;
+
+  if (mode.shouldAutoTransition()) {
+    preview[1] = CRGB::Green;
+    if (tCounter < 0) {
+      if ( (-tCounter < effectDuration >>2) && (effectDuration % -tCounter < 5)) {
+        // in the last quarter while effect is shown, blink LED faster
+        preview[2] = CRGB::Purple;
+      }
+    }
+  } else {
+    preview[1] = CRGB::Red;
+  }
 
   //////////////////////////////////////////////////////////////
   // apply gamma
