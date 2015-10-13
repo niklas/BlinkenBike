@@ -139,18 +139,18 @@ void frame() {
   //////////////////////////////////////////////////////////////
   // Status / Preview
   //////////////////////////////////////////////////////////////
-  preview[2] = CRGB::Black;
+  LED_TICK = CRGB::Black;
 
   if (mode.shouldAutoTransition()) {
-    preview[1] = CRGB::Green;
+    LED_STATUS = CRGB::Green;
     if (tCounter < 0) {
       if ( (-tCounter < effectDuration >>2) && (effectDuration % -tCounter < 5)) {
         // in the last quarter while effect is shown, blink LED faster
-        preview[2] = CRGB::Purple;
+        LED_TICK = CRGB::Purple;
       }
     }
   } else {
-    preview[1] = CRGB::Red;
+    LED_STATUS = CRGB::Red;
   }
 
   //////////////////////////////////////////////////////////////

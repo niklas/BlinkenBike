@@ -32,4 +32,10 @@
 #define PREVIEW_PIXEL_COUNT 4
 extern int  tCounter, effectDuration, transitionTime;
 
+#define LED_STATUS preview[1]
+#define LED_TICK preview[2]
+
+#define LED_PREVIEW_EFFECT preview[0]
+#define LED_PREVIEW_EXTRA preview[0]
+
 #endif
