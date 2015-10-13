@@ -13,6 +13,7 @@ FASTLED_USING_NAMESPACE
 #include "Layer.h"
 
 CRGB strip[STRIP_PIXEL_COUNT],  // Data for 1 strip worth of imagery
+     preview[PREVIEW_PIXEL_COUNT],
      tmpPixels[FLOOR_PIXEL_COUNT];
 byte backImgIdx;                // Index of 'back' image (always 0 or 1)
 int  transVars[FX_VARS_NUM];    // Alpha transition instance variables
@@ -34,6 +35,7 @@ void frame();
 
 void setup() {
   FastLED.addLeds<LED_TYPE,PIN_STRIP_DATA,PIN_STRIP_CLK,COLOR_ORDER>(strip, STRIP_PIXEL_COUNT).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE,PIN_PREVIEW_DATA,PIN_PREVIEW_CLK,COLOR_ORDER>(preview, PREVIEW_PIXEL_COUNT).setCorrection(TypicalLEDStrip);
   //FastLED.setBrightness(36);
   FastLED.setMaxRefreshRate(FPS);
 
@@ -45,6 +47,11 @@ void setup() {
   tCounter = -1;
   shouldAutoTransition = true;
   effectDurationBase = 5 * FPS;
+
+  preview[0] = CRGB::Red;
+  preview[1] = CRGB::Green;
+  preview[2] = CRGB::Blue;
+  preview[3] = CRGB::Purple;
 }
 
 int pot;
@@ -134,4 +141,6 @@ void frame() {
       tCounter = - random16(effectDurationBase, EFFECT_DURATION_STRETCH * effectDurationBase);
     }
   }
+
+  preview[3] = strip[3];
 }

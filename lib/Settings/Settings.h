@@ -30,6 +30,7 @@
 #define EFFECT_DURATION_MAX_SECONDS 60
 
 #define STRIP_PIXEL_COUNT 110
+#define PREVIEW_PIXEL_COUNT 4
 extern int  tCounter, transitionTime, effectDurationBase;
 extern bool shouldAutoTransition;
 
