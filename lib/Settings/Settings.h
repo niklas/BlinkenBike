@@ -13,9 +13,15 @@
 #define BENCHMARK_EVERY 10
 
 
-#define PIN_STRIP_DATA 2
-#define PIN_STRIP_CLK 3
+#define PIN_PREVIEW_DATA 9
+#define PIN_PREVIEW_CLK 10
+#define PIN_STRIP_DATA 11
+#define PIN_STRIP_CLK 12
+#define PIN_KLINKE 13
 #define PIN_POT_SIDE 0
+#define PIN_TOGGLE_1 2
+#define PIN_TOGGLE_2 3
+#define PIN_BUTTONS 4
 #define LED_TYPE LPD8806
 #define COLOR_ORDER BRG
 
