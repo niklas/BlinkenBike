@@ -11,6 +11,7 @@ FASTLED_USING_NAMESPACE
 #include "Transitions.h"
 #include "Layout.h"
 #include "Layer.h"
+#include "ModeManager.h"
 
 CRGB strip[STRIP_PIXEL_COUNT],  // Data for 1 strip worth of imagery
      preview[PREVIEW_PIXEL_COUNT],
@@ -21,6 +22,7 @@ int  transVars[FX_VARS_NUM];    // Alpha transition instance variables
 
 unsigned long frameCount = 0;
 
+ModeManager mode = ModeManager();
 
 Layer layer[2] = {
   Layer(strip, tmpPixels, transVars),
@@ -76,6 +78,7 @@ void loop() {
   frame();
 
   EVERY_N_MILLISECONDS(400) {
+    mode.readInputs();
     pot = analogRead(PIN_POT_SIDE);
     shouldAutoTransition = pot < EFFECT_DURATION_POTI_STOP ? false : true;
 
@@ -143,4 +146,8 @@ void frame() {
   }
 
   preview[3] = strip[3];
+
+  if (mode.triggered) {
+    strip[23] = CRGB::Purple;
+  }
 }

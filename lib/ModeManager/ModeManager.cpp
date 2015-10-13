@@ -1,37 +1,22 @@
-#include "LPD8806.h"
 #include "ModeManager.h"
 
 ModeManager::ModeManager(void) {
-  mode         = ModeWandererYellow;
-  selectedMode = mode;
+  effect         = 0;
+  selectedEffect = effect;
 }
 
 void ModeManager::selectNext(void) {
-  selectedMode = (selectedMode + 1) % MODE_NUM;
+  selectedEffect = (selectedEffect + 1) % EFFECT_NUM;
 }
 
 void ModeManager::selectPrevious(void) {
-  selectedMode = (selectedMode - 1 + MODE_NUM) % MODE_NUM;
+  selectedEffect = (selectedEffect - 1 + EFFECT_NUM) % EFFECT_NUM;
+}
+
+void ModeManager::readInputs(void) {
+  triggered = digitalRead(PIN_KLINKE) == 0 ? false : true;
 }
 
 void ModeManager::apply(void) {
-  mode = selectedMode;
-}
-
-int ModeManager::getMode(void) { return(mode); }
-int ModeManager::getSelectedMode(void) { return(selectedMode); }
-
-// TODO strip.Color is actually RBG?!
-uint32_t ModeManager::getColor(int m, LPD8806 leds, int bright) {
-  switch(m) {
-    case ModeWandererRed:      return( leds.Color( bright , 0      , 0      ));
-    case ModeWandererBlue:     return( leds.Color( 0      , bright , 0      ));
-    case ModeWandererGreen:    return( leds.Color( 0      , 0      , bright ));
-    case ModeWandererWhite:    return( leds.Color( bright , bright , bright ));
-    case ModeWandererPink:     return( leds.Color( bright , 0      , bright ));
-    case ModeWandererCyan:     return( leds.Color( 0      , bright , bright ));
-    case ModeWandererYellow:   return( leds.Color( bright , bright , 0      )); // actually, purple
-    case ModeWandererOrange:   return( leds.Color( bright , 0      , bright >> 2));
-    default:                   return( leds.Color( 0      , 0      , 0      ));
-  }
+  effect = selectedEffect;
 }

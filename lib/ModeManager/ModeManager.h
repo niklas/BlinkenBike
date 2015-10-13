@@ -1,35 +1,28 @@
-#define MODE_NUM 9
+#ifndef __MODE_MANAGER__H_
+#define __MODE_MANAGER__H_
 
-enum {
-  ModeOff           = 0,
-  ModeWandererBlue  = 1,
-  ModeWandererGreen = 2,
-  ModeWandererRed   = 3,
-  ModeWandererPink  = 4,
-  ModeWandererCyan  = 5,
-  ModeWandererYellow  = 6,
-  ModeWandererOrange  = 7,
-  ModeWandererWhite = 8
-};
+#include "Effects.h"
+
+// Here we keep the state of the "app"
 
 class ModeManager {
   public:
     ModeManager();
 
     void
+      readInputs(void),
       selectNext(void),
       selectPrevious(void),
       apply(void);
 
-    int
-      getMode(void),
-      getSelectedMode();
+    bool
+      triggered;
 
-    uint32_t
-      getColor(int m, LPD8806 leds, int bright);
+    int
+      effect,
+      selectedEffect;
 
   private:
-    int
-      mode,
-      selectedMode;
 };
+
+#endif
