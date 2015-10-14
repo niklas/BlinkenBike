@@ -96,49 +96,45 @@ void frame() {
 
   if (mode.isEmergency()) {
 
-    //////////////////////////////////////////////////////////////
-    // Tatue-Tata
-    //////////////////////////////////////////////////////////////
-    for (byte pixel=0; pixel < STRIP_PIXEL_COUNT; pixel++) {
-      if         (pixel % 15 < 5) {
-        strip[pixel] = CRGB::Red;
-      } else if  (pixel % 15 < 10) {
-        strip[pixel] = CRGB::Blue;
-      } else {
-        strip[pixel] = CRGB::Black;
+    if (layer[backImgIdx].effect != Effect_usa_police) {     // transition to emergency not finished yet
+      if (layer[frntImgIdx].effect != Effect_usa_police) {   // transition to emergency not started yet.
+        layer[frntImgIdx].setEffect(Effect_usa_police);
+        transitionTime = 2 * FPS;
+        tCounter = 0;
       }
+    } else {
+      tCounter = -10; // already activated, keep
+    }
+  }
+
+  //////////////////////////////////////////////////////////////
+  // Primary effect (background)
+  //////////////////////////////////////////////////////////////
+  layer[backImgIdx].render();
+
+
+  //////////////////////////////////////////////////////////////
+  // Secondary effect (foreground) during transition in progress
+  //////////////////////////////////////////////////////////////
+  if (mode.shouldAutoTransition()) {
+    if (tCounter > 0) {
+      layer[frntImgIdx].renderComposite();
     }
 
-  } else {
     //////////////////////////////////////////////////////////////
-    // Primary effect (background)
+    // Count up to next transition (or end of current one):
     //////////////////////////////////////////////////////////////
-    layer[backImgIdx].render();
+    tCounter++;
 
+    if (tCounter == 0) { // Transition start
+      layer[frntImgIdx].transitionStart();
+      transitionTime = random16(FPS/2, 3 * FPS);
+    }
 
-    //////////////////////////////////////////////////////////////
-    // Secondary effect (foreground) during transition in progress
-    //////////////////////////////////////////////////////////////
-    if (mode.shouldAutoTransition()) {
-      if (tCounter > 0) {
-        layer[frntImgIdx].renderComposite();
-      }
-
-      //////////////////////////////////////////////////////////////
-      // Count up to next transition (or end of current one):
-      //////////////////////////////////////////////////////////////
-      tCounter++;
-
-      if (tCounter == 0) { // Transition start
-        layer[frntImgIdx].transitionStart();
-        transitionTime = random16(FPS/2, 3 * FPS);
-      }
-
-      if (tCounter >= transitionTime) {
-        backImgIdx  = 1 - backImgIdx;     // Invert back index
-        effectDuration = mode.randomEffectDuration();
-        tCounter    = - effectDuration;
-      }
+    if (tCounter >= transitionTime) {
+      backImgIdx  = 1 - backImgIdx;     // Invert back index
+      effectDuration = mode.randomEffectDuration();
+      tCounter    = - effectDuration;
     }
   }
 

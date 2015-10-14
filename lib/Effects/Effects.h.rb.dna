@@ -4,6 +4,11 @@ a = Effects.glob('effects/*.effect')
 .#ifndef __Effects_H__
 .#define __Effects_H__
 .
+.// Effect IDs
+a.each_with_index do |item, index|
+.#define Effect_@{item.name} @{index}
+end
+.
 ./!include("../Animations/Animations.h.rb.dna")
 .
 .Orientation getEffectOrientation(byte);

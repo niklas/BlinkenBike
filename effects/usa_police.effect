@@ -1,0 +1,14 @@
+//////////////////////////////////////////////////////////////
+// Tatue-Tata
+//////////////////////////////////////////////////////////////
+orientation: linear
+pixel:
+  if         (i % 15 < 5) {
+    *pixel = CRGB::Red;
+  } else if  (i % 15 < 10) {
+    *pixel = CRGB::Blue;
+  } else {
+    *pixel = CRGB::Black;
+  }
+
+// vi:syntax=cpp

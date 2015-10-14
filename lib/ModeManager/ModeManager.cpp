@@ -33,7 +33,7 @@ void ModeManager::readInputs(void) {
 }
 
 bool ModeManager::isEmergency(void) {
-  return(toggle1 == 1 ? true : false);
+  return(toggle2 == 1 ? true : false);
 }
 
 bool ModeManager::shouldAutoTransition(void) {

@@ -19,10 +19,10 @@ class Layer {
     void setEffect(byte);
     void setTransition(byte);
     int pixelCount();
+    byte effect;
   private:
     Orientation orientation;
     byte transititionIdx;           // which Alpha transition to run
-    byte effectIdx;
     int meta[FX_VARS_NUM];
 
     int * tmeta;
