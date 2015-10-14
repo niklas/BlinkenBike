@@ -17,6 +17,7 @@ class ModeManager {
 
     bool
       shouldAutoTransition(void),
+      isEmergency(void),
       triggered;
 
     int
@@ -25,6 +26,9 @@ class ModeManager {
       effectDurationBase,        // Currently selected base for Duration (in frames) of current transition
       randomEffectDuration(void),
       selectedEffect;
+    int
+      toggle1,
+      toggle2;
 
   private:
     float

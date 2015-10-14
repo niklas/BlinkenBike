@@ -7,6 +7,11 @@ ModeManager::ModeManager(void) {
 
   potiBase = pow(1.0/(EFFECT_DURATION_MAX_SECONDS * FPS), 1.0 / 1023);
   effectDurationBase = 5 * FPS;
+
+  pinMode(PIN_POT_SIDE, INPUT);
+  pinMode(PIN_TOGGLE_1, INPUT);
+  pinMode(PIN_TOGGLE_2, INPUT);
+  pinMode(PIN_KLINKE , INPUT);
 }
 
 void ModeManager::selectNext(void) {
@@ -22,6 +27,13 @@ void ModeManager::readInputs(void) {
   pot = analogRead(PIN_POT_SIDE);
 
   effectDurationBase = FPS + pow(potiBase, pot) * EFFECT_DURATION_MAX_SECONDS * FPS;
+
+  toggle1 = digitalRead(PIN_TOGGLE_1);
+  toggle2 = digitalRead(PIN_TOGGLE_2);
+}
+
+bool ModeManager::isEmergency(void) {
+  return(toggle1 == 1 ? true : false);
 }
 
 bool ModeManager::shouldAutoTransition(void) {

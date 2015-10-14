@@ -41,8 +41,6 @@ void setup() {
   //FastLED.setBrightness(36);
   FastLED.setMaxRefreshRate(FPS);
 
-  pinMode(PIN_POT_SIDE, INPUT);
-
   // Initialize random number generator from a floating analog input.
   random16_set_seed(analogRead(0));
   backImgIdx        = 0;
@@ -96,34 +94,51 @@ void frame() {
   int frntImgIdx = 1 - backImgIdx;
 
 
-  //////////////////////////////////////////////////////////////
-  // Primary effect (background)
-  //////////////////////////////////////////////////////////////
-  layer[backImgIdx].render();
-
-
-  //////////////////////////////////////////////////////////////
-  // Secondary effect (foreground) during transition in progress
-  //////////////////////////////////////////////////////////////
-  if (mode.shouldAutoTransition()) {
-    if (tCounter > 0) {
-      layer[frntImgIdx].renderComposite();
-    }
+  if (mode.isEmergency()) {
 
     //////////////////////////////////////////////////////////////
-    // Count up to next transition (or end of current one):
+    // Tatue-Tata
     //////////////////////////////////////////////////////////////
-    tCounter++;
-
-    if (tCounter == 0) { // Transition start
-      layer[frntImgIdx].transitionStart();
-      transitionTime = random16(FPS/2, 3 * FPS);
+    for (byte pixel=0; pixel < STRIP_PIXEL_COUNT; pixel++) {
+      if         (pixel % 15 < 5) {
+        strip[pixel] = CRGB::Red;
+      } else if  (pixel % 15 < 10) {
+        strip[pixel] = CRGB::Blue;
+      } else {
+        strip[pixel] = CRGB::Black;
+      }
     }
 
-    if (tCounter >= transitionTime) {
-      backImgIdx  = 1 - backImgIdx;     // Invert back index
-      effectDuration = mode.randomEffectDuration();
-      tCounter    = - effectDuration;
+  } else {
+    //////////////////////////////////////////////////////////////
+    // Primary effect (background)
+    //////////////////////////////////////////////////////////////
+    layer[backImgIdx].render();
+
+
+    //////////////////////////////////////////////////////////////
+    // Secondary effect (foreground) during transition in progress
+    //////////////////////////////////////////////////////////////
+    if (mode.shouldAutoTransition()) {
+      if (tCounter > 0) {
+        layer[frntImgIdx].renderComposite();
+      }
+
+      //////////////////////////////////////////////////////////////
+      // Count up to next transition (or end of current one):
+      //////////////////////////////////////////////////////////////
+      tCounter++;
+
+      if (tCounter == 0) { // Transition start
+        layer[frntImgIdx].transitionStart();
+        transitionTime = random16(FPS/2, 3 * FPS);
+      }
+
+      if (tCounter >= transitionTime) {
+        backImgIdx  = 1 - backImgIdx;     // Invert back index
+        effectDuration = mode.randomEffectDuration();
+        tCounter    = - effectDuration;
+      }
     }
   }
 
