@@ -16,6 +16,8 @@ class Layer {
     void render();
     void renderComposite();
     void transitionStart();
+    void setEffect(byte);
+    void setTransition(byte);
     int pixelCount();
   private:
     Orientation orientation;

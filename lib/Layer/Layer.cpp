@@ -10,12 +10,20 @@ Layer::Layer(CRGB * theTarget, CRGB * theScratch, int * theTMeta) {
 
 // Randomly pick next image effect and trans effect indices:
 void Layer::transitionStart() {
-  effectIdx       = random(EFFECT_NUM);
-  transititionIdx = random(TRANSITION_NUM);
+  setEffect( random8(EFFECT_NUM) );
+  setTransition( random8(TRANSITION_NUM) );
+}
+
+void Layer::setEffect(byte id) {
+  effectIdx       = id;
   orientation     = getEffectOrientation(effectIdx);
   if (orientation == ORIENTATION_NIL)
-    orientation = static_cast<Orientation>(random(NUM_ORIENTATIONS));
+    orientation = static_cast<Orientation>(random8(NUM_ORIENTATIONS));
   meta[0]         = 0; // Effect not yet initialized
+}
+
+void Layer::setTransition(byte id) {
+  transititionIdx = id;
   tmeta[0]        = 0; // Transition not yet initialized
 }
 
