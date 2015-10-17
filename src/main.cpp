@@ -106,8 +106,7 @@ void frame() {
 
   if (mode.isEmergency()) {
     forceEffect(Effect_usa_police);
-  }
-  if (mode.isCitizen()) {
+  } else if (mode.isCitizen()) {
     forceEffect(Effect_stvzo67);
   }
 
