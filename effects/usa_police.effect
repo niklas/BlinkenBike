@@ -7,7 +7,7 @@ setup:
 
     return !!(
         (m <= min) ||
-        (m >= max1) && (m <= max2)
+        ((m >= max1) && (m <= max2))
     );
   }
 orientation: linear
