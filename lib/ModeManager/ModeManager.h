@@ -17,7 +17,6 @@ class ModeManager {
 
     bool
       shouldAutoTransition(void),
-      isEmergency(void),
       triggered;
 
     int

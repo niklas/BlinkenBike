@@ -104,7 +104,9 @@ void frame() {
   frntImgIdx = 1 - backImgIdx;
 
 
-  if (mode.isEmergency()) {
+  if (mode.toggle1 == 1) {
+    forceEffect(Effect_stvzo67);
+  } else if (mode.toggle2 == 1) {
     forceEffect(Effect_usa_police);
   }
 
