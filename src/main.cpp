@@ -107,6 +107,9 @@ void frame() {
   if (mode.isEmergency()) {
     forceEffect(Effect_usa_police);
   }
+  if (mode.isCitizen()) {
+    forceEffect(Effect_stvzo67);
+  }
 
   //////////////////////////////////////////////////////////////
   // Primary effect (background)

@@ -18,6 +18,7 @@ class ModeManager {
     bool
       shouldAutoTransition(void),
       isEmergency(void),
+      isCitizen(void),
       triggered;
 
     int
