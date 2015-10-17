@@ -10,23 +10,26 @@ setup:
         ((m >= max1) && (m <= max2))
     );
   }
-init:
-  meta[1] = FPS;
-  meta[2] = meta[1]>>1;
 
 orientation: linear
 auto: false
+init:
+  meta[1] = 64;
+  meta[2] = max(4, meta[1]>>2);
+  meta[3] = meta[2]>>2;
 pixel:
 
-  if      IsOnDownTube(i)   { if (frameModPlus(meta[2]   ,2, meta[2]-5,meta[2]-1)) *pixel = CRGB::Red;  }
-  else if IsOnSeatTube(i)   { if (frameModPlus(meta[1]+1 ,4, meta[1]-3,meta[1]-1)) *pixel = CRGB::Blue; }
-  else if IsOnChainRight(i) { if (frameModPlus(meta[2]-2 ,2, meta[2]-3,meta[2]-1)) *pixel = CRGB::Blue; }
-  else if IsOnChainLeft(i)  { if (frameModPlus(meta[2]-1 ,3, meta[2]-3,meta[2]-1)) *pixel = CRGB::Red;  }
-  else if IsOnSeatRight(i)  { if (frameModPlus(meta[1]-5 ,6, meta[1]-4,meta[1]-2)) *pixel = CRGB::Blue; }
-  else if IsOnSeatLeft(i)   { if (frameModPlus(meta[1]-3 ,7, meta[1]-4,meta[1]-2)) *pixel = CRGB::Red;  }
+  if      IsOnDownTube(i)   { if (frameModPlus(meta[2]   ,meta[3]-1, meta[2]-(meta[3]-2),meta[2]-1)) *pixel = CRGB::Red;  }
+  else if IsOnSeatTube(i)   { if (frameModPlus(meta[1]+1 ,meta[3]+1, meta[1]-(meta[3]+1),meta[1]-1)) *pixel = CRGB::Blue; }
+  else if IsOnChainRight(i) { if (frameModPlus(meta[2]-2 ,meta[3]-2, meta[2]-(meta[3]+2),meta[2]-1)) *pixel = CRGB::Blue; }
+  else if IsOnChainLeft(i)  { if (frameModPlus(meta[2]-1 ,meta[3]+1, meta[2]-(meta[3]-1),meta[2]-1)) *pixel = CRGB::Red;  }
+  else if IsOnSeatRight(i)  { if (frameModPlus(meta[1]-5 ,meta[3]+2, meta[1]-(meta[3]-2),meta[1]-2)) *pixel = CRGB::Blue; }
+  else if IsOnSeatLeft(i)   { if (frameModPlus(meta[1]-3 ,meta[3]+4, meta[1]-(meta[3]+4),meta[1]-2)) *pixel = CRGB::Red;  }
   else                      {                               *pixel = CRGB::Black;}
 
 step:
-  meta[1] = map( mode.pot, 0, 1023, 20, 200);
-  meta[2] = meta[1]>>1;
+  // actually, BEFORE would be better
+  meta[1] = map( mode.pot, 0, 1023, 255, 32);
+  meta[2] = max(4, meta[1]>>2);
+  meta[3] = meta[2]>>2;
 // vi:syntax=cpp
