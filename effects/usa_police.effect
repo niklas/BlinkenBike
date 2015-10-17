@@ -11,6 +11,7 @@ setup:
     );
   }
 orientation: linear
+auto: false
 pixel:
   *pixel = CRGB::Black;
 
