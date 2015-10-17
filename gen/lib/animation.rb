@@ -50,7 +50,7 @@ class Animation < Struct.new(:name, :source)
           sections[section] = ''
         when /^(#{attribute_sections.join('|')}):\s*(\w+)\s*$/
           @attributes[$1] = $2
-        when /auto:\s*(false|true)\s*$/
+        when /^auto:\s*(false|true)\s*$/
           self.auto = $1 == 'true'
         when /^\s*#/,%r~^\s*//~
           # ignore comments before first section

@@ -1,11 +1,12 @@
 require 'effects'
 a = Effects.glob('effects/*.effect')
+a.map(&:sections)
 
 .#ifndef __Effects_H__
 .#define __Effects_H__
 .
 .// Effect IDs
-a.each_with_index do |item, index|
+a.by_auto.each_with_index do |item, index|
 .#define Effect_@{item.name} @{index}
 end
 .

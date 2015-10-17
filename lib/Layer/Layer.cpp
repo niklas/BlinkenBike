@@ -10,7 +10,7 @@ Layer::Layer(CRGB * theTarget, CRGB * theScratch, int * theTMeta) {
 
 // Randomly pick next image effect and trans effect indices:
 void Layer::transitionStart() {
-  setEffect( random8(EFFECT_NUM) );
+  setEffect( random8(AUTO_EFFECT_NUM) );
   setTransition( random8(TRANSITION_NUM) );
 }
 

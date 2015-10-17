@@ -39,7 +39,7 @@ a.method_sections.each do |section|
   aname = a.func_array_type_and_name(section)
 .@{aname} [] PROGMEM = {
 ./!separate(", ")
-a.each do |item|
+a.by_auto.each do |item|
 .@{item.func_name(section)}
 end
 .};
