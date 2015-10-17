@@ -32,14 +32,6 @@ void ModeManager::readInputs(void) {
   toggle2 = digitalRead(PIN_TOGGLE_2);
 }
 
-bool ModeManager::isEmergency(void) {
-  return(toggle2 == 1 ? true : false);
-}
-
-bool ModeManager::isCitizen(void) {
-  return(toggle1 == 1 ? true : false);
-}
-
 bool ModeManager::shouldAutoTransition(void) {
   return(pot < EFFECT_DURATION_POTI_STOP ? false : true);
 }
