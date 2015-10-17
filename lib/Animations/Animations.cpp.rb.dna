@@ -3,7 +3,7 @@ a.map(&:sections) # precalc
 .// Attribute Arrays
 a.first.attribute_sections.each do |section|
   name    = a.func_array_name(section)
-  content = a.map(&:"#{section}_attribute").join(',')
+  content = a.by_auto.map(&:"#{section}_attribute").join(',')
   typ     = a.class.attributes[section]
 .PROGMEM const @{typ} @{name}[] = {@{content}};
 end
