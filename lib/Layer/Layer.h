@@ -16,11 +16,13 @@ class Layer {
     void render();
     void renderComposite();
     void transitionStart();
+    void setEffect(byte);
+    void setTransition(byte);
     int pixelCount();
+    byte effect;
   private:
     Orientation orientation;
     byte transititionIdx;           // which Alpha transition to run
-    byte effectIdx;
     int meta[FX_VARS_NUM];
 
     int * tmeta;

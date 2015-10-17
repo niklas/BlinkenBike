@@ -32,6 +32,7 @@ end
 
 .
 .// count_const_definition
+.#define AUTO_@{a.count_const} @{a.select(&:auto).size}
 .#define @{a.count_const} @{a.size}
 .
 .// Accessors for Effect Function Arrays

@@ -1,37 +1,51 @@
-#include "LPD8806.h"
 #include "ModeManager.h"
 
 ModeManager::ModeManager(void) {
-  mode         = ModeWandererYellow;
-  selectedMode = mode;
+  effect         = 0;
+  selectedEffect = effect;
+  pot            = 0;
+
+  potiBase = pow(1.0/(EFFECT_DURATION_MAX_SECONDS * FPS), 1.0 / 1023);
+  effectDurationBase = 5 * FPS;
+
+  pinMode(PIN_POT_SIDE, INPUT);
+  pinMode(PIN_TOGGLE_1, INPUT);
+  pinMode(PIN_TOGGLE_2, INPUT);
+  pinMode(PIN_KLINKE , INPUT);
 }
 
 void ModeManager::selectNext(void) {
-  selectedMode = (selectedMode + 1) % MODE_NUM;
+  selectedEffect = (selectedEffect + 1) % EFFECT_NUM;
 }
 
 void ModeManager::selectPrevious(void) {
-  selectedMode = (selectedMode - 1 + MODE_NUM) % MODE_NUM;
+  selectedEffect = (selectedEffect - 1 + EFFECT_NUM) % EFFECT_NUM;
+}
+
+void ModeManager::readInputs(void) {
+  triggered = digitalRead(PIN_KLINKE) == 0 ? false : true;
+  pot = analogRead(PIN_POT_SIDE);
+
+  effectDurationBase = FPS + pow(potiBase, pot) * EFFECT_DURATION_MAX_SECONDS * FPS;
+
+  toggle1 = digitalRead(PIN_TOGGLE_1);
+  toggle2 = digitalRead(PIN_TOGGLE_2);
+}
+
+bool ModeManager::isEmergency(void) {
+  return(toggle2 == 1 ? true : false);
+}
+
+bool ModeManager::shouldAutoTransition(void) {
+  return(pot < EFFECT_DURATION_POTI_STOP ? false : true);
 }
 
 void ModeManager::apply(void) {
-  mode = selectedMode;
+  effect = selectedEffect;
 }
 
-int ModeManager::getMode(void) { return(mode); }
-int ModeManager::getSelectedMode(void) { return(selectedMode); }
-
-// TODO strip.Color is actually RBG?!
-uint32_t ModeManager::getColor(int m, LPD8806 leds, int bright) {
-  switch(m) {
-    case ModeWandererRed:      return( leds.Color( bright , 0      , 0      ));
-    case ModeWandererBlue:     return( leds.Color( 0      , bright , 0      ));
-    case ModeWandererGreen:    return( leds.Color( 0      , 0      , bright ));
-    case ModeWandererWhite:    return( leds.Color( bright , bright , bright ));
-    case ModeWandererPink:     return( leds.Color( bright , 0      , bright ));
-    case ModeWandererCyan:     return( leds.Color( 0      , bright , bright ));
-    case ModeWandererYellow:   return( leds.Color( bright , bright , 0      )); // actually, purple
-    case ModeWandererOrange:   return( leds.Color( bright , 0      , bright >> 2));
-    default:                   return( leds.Color( 0      , 0      , 0      ));
-  }
+int ModeManager::randomEffectDuration() {
+   return random16(effectDurationBase, EFFECT_DURATION_STRETCH * effectDurationBase);
 }
+
+ModeManager mode = ModeManager();

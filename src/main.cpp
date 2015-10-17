@@ -11,14 +11,13 @@ FASTLED_USING_NAMESPACE
 #include "Transitions.h"
 #include "Layout.h"
 #include "Layer.h"
+#include "ModeManager.h"
 
 CRGB strip[STRIP_PIXEL_COUNT],  // Data for 1 strip worth of imagery
+     preview[PREVIEW_PIXEL_COUNT],
      tmpPixels[FLOOR_PIXEL_COUNT];
 byte backImgIdx;                // Index of 'back' image (always 0 or 1)
 int  transVars[FX_VARS_NUM];    // Alpha transition instance variables
-
-
-unsigned long frameCount = 0;
 
 
 Layer layer[2] = {
@@ -34,20 +33,23 @@ void frame();
 
 void setup() {
   FastLED.addLeds<LED_TYPE,PIN_STRIP_DATA,PIN_STRIP_CLK,COLOR_ORDER>(strip, STRIP_PIXEL_COUNT).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE,PIN_PREVIEW_DATA,PIN_PREVIEW_CLK,COLOR_ORDER>(preview, PREVIEW_PIXEL_COUNT).setCorrection(TypicalLEDStrip);
   //FastLED.setBrightness(36);
   FastLED.setMaxRefreshRate(FPS);
-
-  pinMode(PIN_POT_SIDE, INPUT);
 
   // Initialize random number generator from a floating analog input.
   random16_set_seed(analogRead(0));
   backImgIdx        = 0;
   tCounter = -1;
-  shouldAutoTransition = true;
-  effectDurationBase = 5 * FPS;
-}
+  effectDuration = 23; // whatever
+  frameCount = 0;
 
-int pot;
+
+  preview[0] = CRGB::Red;
+  preview[1] = CRGB::Green;
+  preview[2] = CRGB::Blue;
+  preview[3] = CRGB::Purple;
+}
 
 void loop() {
   // Very first thing here is to issue the strip data generated from the
@@ -68,15 +70,13 @@ void loop() {
 
   frame();
 
-  EVERY_N_MILLISECONDS(400) {
-    pot = analogRead(PIN_POT_SIDE);
-    shouldAutoTransition = pot < EFFECT_DURATION_POTI_STOP ? false : true;
+  EVERY_N_MILLISECONDS(100) {
+    mode.readInputs();
 
-    if (shouldAutoTransition) {
-      effectDurationBase = FPS + pow(__potiBase, pot) * EFFECT_DURATION_MAX_SECONDS * FPS;
+    if (mode.shouldAutoTransition()) {
       // quickly come back from long durations
-      if (tCounter < - EFFECT_DURATION_STRETCH * effectDurationBase)
-        tCounter = - effectDurationBase;
+      if (tCounter < - EFFECT_DURATION_STRETCH * mode.effectDurationBase)
+        tCounter = - mode.effectDurationBase;
     } else {
       // start the new transition the moment we leave lock mode
       tCounter = tCounter < 0 ? -1 : 1;
@@ -92,23 +92,75 @@ void frame() {
   int frntImgIdx = 1 - backImgIdx;
 
 
+  if (mode.isEmergency()) {
+
+    if (layer[backImgIdx].effect != Effect_usa_police) {     // transition to emergency not finished yet
+      if (layer[frntImgIdx].effect != Effect_usa_police) {   // transition to emergency not started yet.
+        layer[frntImgIdx].setEffect(Effect_usa_police);
+        transitionTime = 2 * FPS;
+        tCounter = 0;
+      }
+    } else {
+      tCounter = -10; // already activated, keep
+    }
+  }
+
   //////////////////////////////////////////////////////////////
   // Primary effect (background)
   //////////////////////////////////////////////////////////////
   layer[backImgIdx].render();
 
 
-#ifdef DO_TRANSITION
   //////////////////////////////////////////////////////////////
   // Secondary effect (foreground) during transition in progress
   //////////////////////////////////////////////////////////////
-  if (shouldAutoTransition) {
+  if (mode.shouldAutoTransition()) {
     if (tCounter > 0) {
       layer[frntImgIdx].renderComposite();
     }
-  }
-#endif
 
+    //////////////////////////////////////////////////////////////
+    // Count up to next transition (or end of current one):
+    //////////////////////////////////////////////////////////////
+    tCounter++;
+
+    if (tCounter == 0) { // Transition start
+      layer[frntImgIdx].transitionStart();
+      transitionTime = random16(FPS/2, 3 * FPS);
+    }
+
+    if (tCounter >= transitionTime) {
+      backImgIdx  = 1 - backImgIdx;     // Invert back index
+      effectDuration = mode.randomEffectDuration();
+      tCounter    = - effectDuration;
+    }
+  }
+
+  //////////////////////////////////////////////////////////////
+  // Additional Effects
+  //////////////////////////////////////////////////////////////
+
+  if (mode.triggered) {
+    strip[23] = CRGB::Purple;
+  }
+
+
+  //////////////////////////////////////////////////////////////
+  // Status / Preview
+  //////////////////////////////////////////////////////////////
+  LED_TICK = CRGB::Black;
+
+  if (mode.shouldAutoTransition()) {
+    LED_STATUS = CRGB::Green;
+    if (tCounter < 0) {
+      if ( (-tCounter < effectDuration >>2) && (effectDuration % -tCounter < 5)) {
+        // in the last quarter while effect is shown, blink LED faster
+        LED_TICK = CRGB::Purple;
+      }
+    }
+  } else {
+    LED_STATUS = CRGB::Red;
+  }
 
   //////////////////////////////////////////////////////////////
   // apply gamma
@@ -116,22 +168,7 @@ void frame() {
   for (byte pixel=0; pixel < STRIP_PIXEL_COUNT; pixel++) {
     strip[pixel] = gamma(strip[pixel]);
   }
-
-
-
-  //////////////////////////////////////////////////////////////
-  // Count up to next transition (or end of current one):
-  //////////////////////////////////////////////////////////////
-  tCounter++;
-  if (shouldAutoTransition && (tCounter == 0)) { // Transition start
-    layer[frntImgIdx].transitionStart();
-    transitionTime = random16(FPS/2, 3 * FPS);
-  }
-
-  if (tCounter >= transitionTime) {
-    if (shouldAutoTransition) {
-      backImgIdx             = 1 - backImgIdx;     // Invert back index
-      tCounter = - random16(effectDurationBase, EFFECT_DURATION_STRETCH * effectDurationBase);
-    }
+  for (byte pixel=0; pixel < PREVIEW_PIXEL_COUNT; pixel++) {
+    preview[pixel] = gamma(preview[pixel]);
   }
 }

@@ -4,18 +4,26 @@ Layer::Layer(CRGB * theTarget, CRGB * theScratch, int * theTMeta) {
   orientation = ORIENTATION_LINEAR;
   target = theTarget;
   scratch = theScratch;
-  effectIdx = 0;
+  effect = 0;
   tmeta = theTMeta;
 }
 
 // Randomly pick next image effect and trans effect indices:
 void Layer::transitionStart() {
-  effectIdx       = random(EFFECT_NUM);
-  transititionIdx = random(TRANSITION_NUM);
-  orientation     = getEffectOrientation(effectIdx);
+  setEffect( random8(AUTO_EFFECT_NUM) );
+  setTransition( random8(TRANSITION_NUM) );
+}
+
+void Layer::setEffect(byte id) {
+  effect       = id;
+  orientation     = getEffectOrientation(effect);
   if (orientation == ORIENTATION_NIL)
-    orientation = static_cast<Orientation>(random(NUM_ORIENTATIONS));
+    orientation = static_cast<Orientation>(random8(NUM_ORIENTATIONS));
   meta[0]         = 0; // Effect not yet initialized
+}
+
+void Layer::setTransition(byte id) {
+  transititionIdx = id;
   tmeta[0]        = 0; // Transition not yet initialized
 }
 
@@ -29,7 +37,7 @@ int Layer::pixelCount() {
 
 void Layer::render() {
   if (meta[0] == 0) {
-    effectInit(effectIdx)(meta, pixelCount());
+    effectInit(effect)(meta, pixelCount());
   }
 
   switch(orientation) {
@@ -38,12 +46,12 @@ void Layer::render() {
     default: break;
   }
 
-  effectStep(effectIdx)(meta, pixelCount());
+  effectStep(effect)(meta, pixelCount());
 }
 
 void Layer::renderComposite() {
   if (meta[0] == 0) {
-    effectInit(effectIdx)(meta, pixelCount());
+    effectInit(effect)(meta, pixelCount());
   }
   if (tmeta[0] == 0) {
     transitionInit(transititionIdx)(tmeta, pixelCount());
@@ -55,18 +63,18 @@ void Layer::renderComposite() {
     default: break;
   }
 
-  effectStep(effectIdx)(meta, pixelCount());
+  effectStep(effect)(meta, pixelCount());
 }
 
 void Layer::renderLinear() {
   for(int pix = 0; pix < STRIP_PIXEL_COUNT; pix++) {
-    effectPixel(effectIdx)(meta, &target[pix], pix, STRIP_PIXEL_COUNT);
+    effectPixel(effect)(meta, &target[pix], pix, STRIP_PIXEL_COUNT);
   }
 }
 
 void Layer::renderFloor() {
   for(int pix = 0; pix < FLOOR_PIXEL_COUNT; pix++) {
-    effectPixel(effectIdx)(meta, &scratch[pix], pix, FLOOR_PIXEL_COUNT);
+    effectPixel(effect)(meta, &scratch[pix], pix, FLOOR_PIXEL_COUNT);
   }
 
   mapFloorToLinear();
@@ -76,7 +84,7 @@ void Layer::renderCompositeLinear() {
   int trans;
 
   for(int pix = 0; pix < STRIP_PIXEL_COUNT; pix++) {
-    effectPixel(effectIdx)(meta, &scratch[0], pix, STRIP_PIXEL_COUNT);
+    effectPixel(effect)(meta, &scratch[0], pix, STRIP_PIXEL_COUNT);
 
     // calculate trans btwn 1-256 so we can do a shift devide
     transitionPixel(transititionIdx)(tmeta, &trans, pix, STRIP_PIXEL_COUNT);
@@ -87,7 +95,7 @@ void Layer::renderCompositeLinear() {
 
 void Layer::renderCompositeFloor() {
   for(int pix = 0; pix < FLOOR_PIXEL_COUNT; pix++) {
-    effectPixel(effectIdx)(meta, &scratch[pix], pix, FLOOR_PIXEL_COUNT);
+    effectPixel(effect)(meta, &scratch[pix], pix, FLOOR_PIXEL_COUNT);
   }
 
   composeFloorToLinear();

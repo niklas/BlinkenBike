@@ -1,5 +1,6 @@
 #ifndef __SETTINGS_H__
 #define __SETTINGS_H__
+#include "ModeManager.h"
 
 #define FPS 33
 #define MICROS_PER_FRAME 1000 / FPS
@@ -9,13 +10,18 @@
 #define FX_VARS_NUM 23
 
 #undef BENCHMARK_FPS
-#define DO_TRANSITION
 #define BENCHMARK_EVERY 10
 
 
-#define PIN_STRIP_DATA 2
-#define PIN_STRIP_CLK 3
+#define PIN_PREVIEW_DATA 9
+#define PIN_PREVIEW_CLK 10
+#define PIN_STRIP_DATA 11
+#define PIN_STRIP_CLK 12
+#define PIN_KLINKE 13
 #define PIN_POT_SIDE 0
+#define PIN_TOGGLE_1 2
+#define PIN_TOGGLE_2 3
+#define PIN_BUTTONS 4
 #define LED_TYPE LPD8806
 #define COLOR_ORDER BRG
 
@@ -24,9 +30,14 @@
 #define EFFECT_DURATION_MAX_SECONDS 60
 
 #define STRIP_PIXEL_COUNT 110
-extern int  tCounter, transitionTime, effectDurationBase;
-extern bool shouldAutoTransition;
+#define PREVIEW_PIXEL_COUNT 4
+extern int  tCounter, effectDuration, transitionTime;
+extern unsigned long frameCount;
 
-extern float __potiBase;
+#define LED_STATUS preview[1]
+#define LED_TICK preview[2]
+
+#define LED_PREVIEW_EFFECT preview[0]
+#define LED_PREVIEW_EXTRA preview[0]
 
 #endif

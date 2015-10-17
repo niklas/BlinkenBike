@@ -2,6 +2,7 @@ setup:
   #define STVZO67_LENGTH_FRONT 12
   #define STVZO67_LENGTH_BACK 8
 orientation: floor
+auto: false
 pixel:
   if (i < STVZO67_LENGTH_FRONT) {
     // Front

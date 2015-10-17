@@ -10,4 +10,8 @@ class Animations < Array
     first.class.name.upcase + '_NUM'
   end
 
+  def by_auto
+    sort_by { |e| e.auto ? 0 : 1 }
+  end
+
 end
