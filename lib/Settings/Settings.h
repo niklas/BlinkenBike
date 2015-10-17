@@ -31,6 +31,7 @@
 #define STRIP_PIXEL_COUNT 110
 #define PREVIEW_PIXEL_COUNT 4
 extern int  tCounter, effectDuration, transitionTime;
+extern unsigned long frameCount;
 
 #define LED_STATUS preview[1]
 #define LED_TICK preview[2]

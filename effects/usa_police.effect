@@ -1,14 +1,24 @@
 //////////////////////////////////////////////////////////////
 // Tatue-Tata
 //////////////////////////////////////////////////////////////
+setup:
+  bool frameModPlus(byte peri, byte min, byte max1, byte max2) {
+    byte m = frameCount % peri;
+
+    return !!(
+        (m <= min) ||
+        (m >= max1) && (m <= max2)
+    );
+  }
 orientation: linear
 pixel:
-  if         (i % 15 < 5) {
-    *pixel = CRGB::Red;
-  } else if  (i % 15 < 10) {
-    *pixel = CRGB::Blue;
-  } else {
-    *pixel = CRGB::Black;
-  }
+  *pixel = CRGB::Black;
+
+  if      IsOnDownTube(i)   { if (frameModPlus(15,2, 6, 8)) *pixel = CRGB::Red;  }
+  else if IsOnSeatTube(i)   { if (frameModPlus(25,4, 8,10)) *pixel = CRGB::Blue; }
+  else if IsOnChainRight(i) { if (frameModPlus(11,2, 7, 9)) *pixel = CRGB::Blue; }
+  else if IsOnChainLeft(i)  { if (frameModPlus(12,3, 7, 9)) *pixel = CRGB::Red;  }
+  else if IsOnSeatRight(i)  { if (frameModPlus(21,6,18,20)) *pixel = CRGB::Blue; }
+  else if IsOnSeatLeft(i)   { if (frameModPlus(23,7,18,19)) *pixel = CRGB::Red;  }
 
 // vi:syntax=cpp

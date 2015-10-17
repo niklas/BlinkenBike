@@ -14,5 +14,9 @@ enum Orientation : byte {
 
 #define NUM_ORIENTATIONS 2
 
+<% tubes.each do |tube| %>
+#define IsOn<%= tube.clean_name %>(x) ( (x >= <%= tube.leds.first.index %>) && (x <= <%= tube.leds.last.index %>) )
+<% end %>
+
 #endif
 // vi:syntax=cpp

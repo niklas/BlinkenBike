@@ -152,6 +152,11 @@ class Tube < OpenStruct
     end
   end
 
+  # for use in generated code
+  def clean_name
+    name.gsub(/\b(\w)/) { |m| m[0].upcase }.gsub(/\s+/,'')
+  end
+
   def leds
     return @leds if defined?(@leds)
     length = (to_x - from_x).to_f

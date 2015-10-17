@@ -20,8 +20,6 @@ byte backImgIdx;                // Index of 'back' image (always 0 or 1)
 int  transVars[FX_VARS_NUM];    // Alpha transition instance variables
 
 
-unsigned long frameCount = 0;
-
 ModeManager mode = ModeManager();
 
 Layer layer[2] = {
@@ -46,6 +44,8 @@ void setup() {
   backImgIdx        = 0;
   tCounter = -1;
   effectDuration = 23; // whatever
+  frameCount = 0;
+
 
   preview[0] = CRGB::Red;
   preview[1] = CRGB::Green;
