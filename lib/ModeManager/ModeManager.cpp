@@ -47,3 +47,5 @@ void ModeManager::apply(void) {
 int ModeManager::randomEffectDuration() {
    return random16(effectDurationBase, EFFECT_DURATION_STRETCH * effectDurationBase);
 }
+
+ModeManager mode = ModeManager();

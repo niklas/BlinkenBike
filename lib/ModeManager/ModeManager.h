@@ -34,5 +34,6 @@ class ModeManager {
     float
       potiBase;
 };
+extern ModeManager mode;
 
 #endif

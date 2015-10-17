@@ -20,8 +20,6 @@ byte backImgIdx;                // Index of 'back' image (always 0 or 1)
 int  transVars[FX_VARS_NUM];    // Alpha transition instance variables
 
 
-ModeManager mode = ModeManager();
-
 Layer layer[2] = {
   Layer(strip, tmpPixels, transVars),
   Layer(strip, tmpPixels, transVars)
