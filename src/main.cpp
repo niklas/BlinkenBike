@@ -16,7 +16,7 @@ FASTLED_USING_NAMESPACE
 CRGB strip[STRIP_PIXEL_COUNT],  // Data for 1 strip worth of imagery
      preview[PREVIEW_PIXEL_COUNT],
      tmpPixels[FLOOR_PIXEL_COUNT];
-byte backImgIdx;                // Index of 'back' image (always 0 or 1)
+byte backImgIdx, frntImgIdx;    // Index of 'back'/'front' image (always 0 or 1)
 int  transVars[FX_VARS_NUM];    // Alpha transition instance variables
 
 
@@ -86,23 +86,26 @@ void loop() {
 
 }
 
+void forceEffect(byte effect) {
+  if (layer[backImgIdx].effect != effect) {     // transition to emergency not finished yet
+    if (layer[frntImgIdx].effect != effect) {   // transition to emergency not started yet.
+      layer[frntImgIdx].setEffect(effect);
+      transitionTime = 2 * FPS;
+      tCounter = 0;
+    }
+  } else {
+    tCounter = -10; // already activated, keep
+  }
+}
+
 // Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
 void frame() {
 
-  int frntImgIdx = 1 - backImgIdx;
+  frntImgIdx = 1 - backImgIdx;
 
 
   if (mode.isEmergency()) {
-
-    if (layer[backImgIdx].effect != Effect_usa_police) {     // transition to emergency not finished yet
-      if (layer[frntImgIdx].effect != Effect_usa_police) {   // transition to emergency not started yet.
-        layer[frntImgIdx].setEffect(Effect_usa_police);
-        transitionTime = 2 * FPS;
-        tCounter = 0;
-      }
-    } else {
-      tCounter = -10; // already activated, keep
-    }
+    forceEffect(Effect_usa_police);
   }
 
   //////////////////////////////////////////////////////////////
