@@ -37,3 +37,13 @@ void Fire__eachStep(byte * f, byte l, byte cooling, byte sparking, byte base) {
     f[y] = qadd8( f[y], random8(160,255) );
   }
 }
+
+// TODO might precalc it
+int Wipe__y(int run, int rise, byte pixelCount, int i) {
+  long b = (rise > 0) ?
+    (255L + (pixelCount * rise / run)) *
+      tCounter / transitionTime - (pixelCount * rise / run) :
+    (255L - (pixelCount * rise / run)) *
+      tCounter / transitionTime;
+  return( i * rise / run + b );
+}
