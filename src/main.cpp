@@ -105,23 +105,27 @@ void forceEffect(byte effect) {
 }
 
 void fartEffect() {
-  byte pixel;
+  byte pixel, p, fade;
   CRGB color;
-  for (pixel = 0; pixel < SEAT_FIRE_HEIGHT; pixel++) {
-    color = HeatColor(seatFire[pixel]).fadeLightBy(255-seatOnFire);
-    strip[FirstOnSeatTube+pixel] %= 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
-    strip[FirstOnSeatTube+pixel] += color;
-  }
+
   Fire__eachStep(seatFire, SEAT_FIRE_HEIGHT,
                  255 - scale8(seatOnFire, SEAT_FIRE_WARMING),
                  scale8(seatOnFire, SEAT_FIRE_SPARKING),
                  SEAT_FIRE_BASE);
-  for (pixel = 0; pixel < (SEAT_FIRE_HEIGHT >> 1); pixel++) {
-    color = HeatColor(seatFire[pixel<<1]).fadeLightBy(255-seatOnFire);
-    strip[LastOnSeatLeft-pixel] %= 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
-    strip[LastOnSeatLeft-pixel] += color;
-    strip[LastOnSeatRight-pixel] %= 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
-    strip[LastOnSeatRight-pixel] += color;
+
+  fade  = 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
+  for (pixel = 0; pixel < SEAT_FIRE_HEIGHT; pixel++) {
+    color = HeatColor(seatFire[pixel]).fadeLightBy(255-seatOnFire);
+    strip[FirstOnSeatTube+pixel] %= fade;
+    strip[FirstOnSeatTube+pixel] += color;
+
+    if (pixel % 2 == 0) {
+      p = pixel >> 1;
+      strip[LastOnSeatLeft-p] %= fade;
+      strip[LastOnSeatLeft-p] += color;
+      strip[LastOnSeatRight-p] %= fade;
+      strip[LastOnSeatRight-p] += color;
+    }
   }
 }
 
