@@ -104,10 +104,30 @@ void forceEffect(byte effect) {
   }
 }
 
+void fartEffect() {
+  byte pixel;
+  CRGB color;
+  for (pixel = 0; pixel < SEAT_FIRE_HEIGHT; pixel++) {
+    color = HeatColor(seatFire[pixel]).fadeLightBy(255-seatOnFire);
+    strip[FirstOnSeatTube+pixel] %= 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
+    strip[FirstOnSeatTube+pixel] += color;
+  }
+  Fire__eachStep(seatFire, SEAT_FIRE_HEIGHT,
+                 255 - scale8(seatOnFire, SEAT_FIRE_WARMING),
+                 scale8(seatOnFire, SEAT_FIRE_SPARKING),
+                 SEAT_FIRE_BASE);
+  for (pixel = 0; pixel < (SEAT_FIRE_HEIGHT >> 1); pixel++) {
+    color = HeatColor(seatFire[pixel<<1]).fadeLightBy(255-seatOnFire);
+    strip[LastOnSeatLeft-pixel] %= 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
+    strip[LastOnSeatLeft-pixel] += color;
+    strip[LastOnSeatRight-pixel] %= 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
+    strip[LastOnSeatRight-pixel] += color;
+  }
+}
+
 // Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
 void frame() {
   byte pixel;
-  CRGB color;
 
   frntImgIdx = 1 - backImgIdx;
 
@@ -158,25 +178,7 @@ void frame() {
   } else {
     if (seatOnFire > 0) seatOnFire = qsub8(seatOnFire, 16);
   }
-
-  if (seatOnFire > 0) {
-    for (pixel = 0; pixel < SEAT_FIRE_HEIGHT; pixel++) {
-      color = HeatColor(seatFire[pixel]).fadeLightBy(255-seatOnFire);
-      strip[FirstOnSeatTube+pixel] %= 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
-      strip[FirstOnSeatTube+pixel] += color;
-    }
-    Fire__eachStep(seatFire, SEAT_FIRE_HEIGHT,
-                   255 - scale8(seatOnFire, SEAT_FIRE_WARMING),
-                   scale8(seatOnFire, SEAT_FIRE_SPARKING),
-                   SEAT_FIRE_BASE);
-    for (pixel = 0; pixel < (SEAT_FIRE_HEIGHT >> 1); pixel++) {
-      color = HeatColor(seatFire[pixel<<1]).fadeLightBy(255-seatOnFire);
-      strip[LastOnSeatLeft-pixel] %= 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
-      strip[LastOnSeatLeft-pixel] += color;
-      strip[LastOnSeatRight-pixel] %= 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
-      strip[LastOnSeatRight-pixel] += color;
-    }
-  }
+  if (seatOnFire > 0) fartEffect();
 
 
   //////////////////////////////////////////////////////////////
