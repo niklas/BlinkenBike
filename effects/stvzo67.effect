@@ -11,10 +11,10 @@ init:
 pixel:
   if (i < meta[2]) {
     // Front
-    *pixel = CHSV( 64, 32, dim8_video( map( i,1,meta[2],250,5) ) );
+    *pixel = CHSV( HUE_YELLOW, 32, dim8_video( map( i,1,meta[2],250,5) ) );
   } else if (i >= numPixels - meta[3]) {
     // Back
-    *pixel = CHSV( 0, 250, dim8_video( map( i,numPixels - meta[3], numPixels - 1, 5, 250) ) );
+    *pixel = CHSV( HUE_RED, 250, dim8_video( map( i,numPixels - meta[3], numPixels - 1, 5, 250) ) );
   } else {
     *pixel = CRGB::Black;
   }
