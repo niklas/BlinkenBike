@@ -16,6 +16,8 @@ enum Orientation : byte {
 
 <% tubes.each do |tube| %>
 #define IsOn<%= tube.clean_name %>(x) ( (x >= <%= tube.leds.first.index %>) && (x <= <%= tube.leds.last.index %>) )
+#define FirstOn<%= tube.clean_name %> <%= tube.leds.first.index %>
+#define LastOn<%= tube.clean_name %> <%= tube.leds.last.index %>
 <% end %>
 
 #endif

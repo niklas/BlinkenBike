@@ -19,6 +19,10 @@ CRGB strip[STRIP_PIXEL_COUNT],  // Data for 1 strip worth of imagery
 byte backImgIdx, frntImgIdx;    // Index of 'back'/'front' image (always 0 or 1)
 int  transVars[FX_VARS_NUM];    // Alpha transition instance variables
 
+#define SEAT_FIRE_HEIGHT 10
+byte seatOnFire;
+byte seatFire[SEAT_FIRE_HEIGHT];
+
 
 Layer layer[2] = {
   Layer(strip, tmpPixels, transVars),
@@ -43,6 +47,9 @@ void setup() {
   tCounter = -1;
   effectDuration = 23; // whatever
   frameCount = 0;
+
+  Fire__init(seatFire, SEAT_FIRE_HEIGHT);
+  seatOnFire = 0;
 
 
   preview[0] = CRGB::Red;
@@ -145,8 +152,16 @@ void frame() {
   // Additional Effects
   //////////////////////////////////////////////////////////////
 
+  if (seatOnFire > 0) seatOnFire = qsub8(seatOnFire, 4);
   if (mode.triggered) {
-    strip[23] = CRGB::Purple;
+    seatOnFire = qadd8(seatOnFire, 23);
+  }
+
+  if (seatOnFire > 0) {
+    Fire__eachStep(seatFire, SEAT_FIRE_HEIGHT);
+    for (byte x = 0; x < SEAT_FIRE_HEIGHT; x++) {
+      strip[FirstOnSeatTube+x] = HeatColor(seatFire[x]);
+    }
   }
 
 
