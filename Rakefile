@@ -47,4 +47,7 @@ namespace :analyze do
   task :sram => firmware do
     sh %Q~nm #{firmware} -C -l -S -td --size-sort | egrep -v ' [tTvVwWaA] ' | column -t~
   end
+  task :flash => firmware do
+    sh %Q~nm #{firmware} -C -l -S -td --size-sort | egrep -v ' [bBdDgG] '~
+  end
 end
