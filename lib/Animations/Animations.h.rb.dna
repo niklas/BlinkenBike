@@ -2,6 +2,7 @@
 .#include "FastLED.h"
 .#include "Settings.h"
 .#include "Layout.h"
+.#include "Fire.h"
 
 .// function_signs
 a.class.functions.each do |section, sign|

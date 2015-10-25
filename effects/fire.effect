@@ -1,53 +1,20 @@
 // Fire effect like Fire2012 http://pastebin.com/xYEpxqgq
 setup:
-  #define FIRE_HEIGHT FX_VARS_NUM - 1
-
-// FIRE_COOLING: How much does the air cool as it rises?
-// Less cooling = taller flames.  More cooling = shorter flames.
-// Default 55, suggested range 20-100
-  #define FIRE_COOLING 85
-
-// FIRE_SPARKING: What chance (out of 255) is there that a new spark will be lit?
-// Higher chance = more roaring fire.  Lower chance = more flickery fire.
-// Default 120, suggested range 50-200.
-  #define FIRE_SPARKING 200
-
-// FIRE_BASE: How many pixels release new heat sources.
-  #define FIRE_BASE 3
-
 // FIRE_OFFSET: meta[0] is magic, we use the others for the fire
   #define FIRE_OFFSET 1
+  #define FIRE_HEIGHT (FX_VARS_NUM - FIRE_OFFSET) * 2
+  #define FIRE_META ((byte *)&meta[FIRE_OFFSET])
 
-  #define FIRE_EACH fIre = FIRE_OFFSET; fIre < FIRE_HEIGHT + FIRE_OFFSET; fIre++
 orientation: floor
 init:
-  byte fIre;
-  // make everything cold
-  for(FIRE_EACH) {
-    meta[fIre] = 0;
-  }
+  Fire__init(FIRE_META, FIRE_HEIGHT);
 pixel:
   if (i < FIRE_HEIGHT) {
-    *pixel = HeatColor(meta[i + FIRE_OFFSET]);
+    *pixel = HeatColor(FIRE_META[i]);
   } else {
     *pixel = CRGB::Black;
   }
 step:
-  byte fIre;
-  // Cool down every cell a little
-  for(FIRE_EACH) {
-    meta[fIre] = qsub8( meta[fIre], random8(0, ((FIRE_COOLING * 10) / FIRE_HEIGHT) + 2));
-  }
-
-  //  Heat from each cell drifts 'up' and diffuses a little
-  for(fIre = FIRE_HEIGHT - 1; fIre >= 2; fIre--) {
-    meta[fIre] = (meta[fIre] + meta[fIre - 1] + meta[fIre - 2] ) / 3;
-  }
-
-  //  Randomly ignite new 'sparks' of heat near the bottom
-  if( random8() < FIRE_SPARKING ) {
-    int y = random8(FIRE_BASE) + FIRE_OFFSET;
-    meta[y] = qadd8( meta[y], random8(160,255) );
-  }
+  Fire__eachStep(FIRE_META, FIRE_HEIGHT);
 
 // vi:syntax=cpp
