@@ -19,7 +19,6 @@ CRGB strip[STRIP_PIXEL_COUNT],  // Data for 1 strip worth of imagery
 byte backImgIdx, frntImgIdx;    // Index of 'back'/'front' image (always 0 or 1)
 int  transVars[FX_VARS_NUM];    // Alpha transition instance variables
 
-#define SEAT_FIRE_HEIGHT 10
 byte seatOnFire;
 byte seatFire[SEAT_FIRE_HEIGHT];
 
@@ -108,6 +107,7 @@ void forceEffect(byte effect) {
 // Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
 void frame() {
   byte pixel;
+  CRGB color;
 
   frntImgIdx = 1 - backImgIdx;
 
@@ -160,9 +160,21 @@ void frame() {
   }
 
   if (seatOnFire > 0) {
-    Fire__eachStep(seatFire, SEAT_FIRE_HEIGHT, 255 - seatOnFire, seatOnFire, 3);
     for (pixel = 0; pixel < SEAT_FIRE_HEIGHT; pixel++) {
-      strip[FirstOnSeatTube+pixel] = blend(strip[FirstOnSeatTube+pixel], HeatColor(seatFire[pixel]), seatOnFire);
+      color = HeatColor(seatFire[pixel]).fadeLightBy(255-seatOnFire);
+      strip[FirstOnSeatTube+pixel] %= 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
+      strip[FirstOnSeatTube+pixel] += color;
+    }
+    Fire__eachStep(seatFire, SEAT_FIRE_HEIGHT,
+                   255 - scale8(seatOnFire, SEAT_FIRE_WARMING),
+                   scale8(seatOnFire, SEAT_FIRE_SPARKING),
+                   SEAT_FIRE_BASE);
+    for (pixel = 0; pixel < (SEAT_FIRE_HEIGHT >> 1); pixel++) {
+      color = HeatColor(seatFire[pixel<<1]).fadeLightBy(255-seatOnFire);
+      strip[LastOnSeatLeft-pixel] %= 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
+      strip[LastOnSeatLeft-pixel] += color;
+      strip[LastOnSeatRight-pixel] %= 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
+      strip[LastOnSeatRight-pixel] += color;
     }
   }
 
