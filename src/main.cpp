@@ -107,6 +107,7 @@ void forceEffect(byte effect) {
 
 // Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
 void frame() {
+  byte pixel;
 
   frntImgIdx = 1 - backImgIdx;
 
@@ -158,9 +159,9 @@ void frame() {
   }
 
   if (seatOnFire > 0) {
-    Fire__eachStep(seatFire, SEAT_FIRE_HEIGHT);
-    for (byte x = 0; x < SEAT_FIRE_HEIGHT; x++) {
-      strip[FirstOnSeatTube+x] = HeatColor(seatFire[x]);
+    Fire__eachStep(seatFire, SEAT_FIRE_HEIGHT, 255 - seatOnFire, seatOnFire, 3);
+    for (pixel = 0; pixel < SEAT_FIRE_HEIGHT; pixel++) {
+      strip[FirstOnSeatTube+pixel] = blend(strip[FirstOnSeatTube+pixel], HeatColor(seatFire[pixel]), seatOnFire);
     }
   }
 
@@ -185,10 +186,10 @@ void frame() {
   //////////////////////////////////////////////////////////////
   // apply gamma
   //////////////////////////////////////////////////////////////
-  for (byte pixel=0; pixel < STRIP_PIXEL_COUNT; pixel++) {
+  for (pixel=0; pixel < STRIP_PIXEL_COUNT; pixel++) {
     strip[pixel] = gamma(strip[pixel]);
   }
-  for (byte pixel=0; pixel < PREVIEW_PIXEL_COUNT; pixel++) {
+  for (pixel=0; pixel < PREVIEW_PIXEL_COUNT; pixel++) {
     preview[pixel] = gamma(preview[pixel]);
   }
 }
