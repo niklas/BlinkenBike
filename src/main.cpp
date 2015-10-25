@@ -153,9 +153,10 @@ void frame() {
   // Additional Effects
   //////////////////////////////////////////////////////////////
 
-  if (seatOnFire > 0) seatOnFire = qsub8(seatOnFire, 4);
   if (mode.triggered) {
     seatOnFire = qadd8(seatOnFire, 23);
+  } else {
+    if (seatOnFire > 0) seatOnFire = qsub8(seatOnFire, 16);
   }
 
   if (seatOnFire > 0) {
