@@ -19,7 +19,7 @@ pixel:
     *pixel = CRGB::Black;
   }
 step:
-  if (random8(3) == 0) {
+  if (random8(meta[2]) < STVZO67_MIN_LENGTH) {
     meta[4] = - meta[4];
   }
   meta[2] = max(STVZO67_MIN_LENGTH, min(STVZO67_LENGTH_FRONT, meta[2] + meta[4]));
