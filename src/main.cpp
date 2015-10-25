@@ -104,6 +104,11 @@ void forceEffect(byte effect) {
   }
 }
 
+void fadeWithLight(byte pos, byte fade, CRGB color) {
+  strip[pos] %= fade;
+  strip[pos] += color;
+}
+
 void fartEffect() {
   byte pixel, p, fade;
   CRGB color;
@@ -116,15 +121,12 @@ void fartEffect() {
   fade  = 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
   for (pixel = 0; pixel < SEAT_FIRE_HEIGHT; pixel++) {
     color = HeatColor(seatFire[pixel]).fadeLightBy(255-seatOnFire);
-    strip[FirstOnSeatTube+pixel] %= fade;
-    strip[FirstOnSeatTube+pixel] += color;
+    fadeWithLight(FirstOnSeatTube+pixel, fade, color);
 
     if (pixel % 2 == 0) {
       p = pixel >> 1;
-      strip[LastOnSeatLeft-p] %= fade;
-      strip[LastOnSeatLeft-p] += color;
-      strip[LastOnSeatRight-p] %= fade;
-      strip[LastOnSeatRight-p] += color;
+      fadeWithLight(LastOnSeatLeft-p, fade, color);
+      fadeWithLight(LastOnSeatRight-p, fade, color);
     }
   }
 }
