@@ -203,14 +203,4 @@ void frame() {
   } else {
     LED_STATUS = CRGB::Red;
   }
-
-  //////////////////////////////////////////////////////////////
-  // apply gamma
-  //////////////////////////////////////////////////////////////
-  for (pixel=0; pixel < STRIP_PIXEL_COUNT; pixel++) {
-    strip[pixel] = gamma(strip[pixel]);
-  }
-  for (pixel=0; pixel < PREVIEW_PIXEL_COUNT; pixel++) {
-    preview[pixel] = gamma(preview[pixel]);
-  }
 }
