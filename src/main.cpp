@@ -203,7 +203,9 @@ void frame() {
         LED_TICK = CRGB::Purple;
       }
     }
+    layer[frntImgIdx].renderPreview(&LED_PREVIEW_EFFECT);
   } else {
     LED_STATUS = CRGB::Red;
+    LED_PREVIEW_EFFECT = CRGB::Black;
   }
 }

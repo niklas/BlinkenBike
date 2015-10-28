@@ -14,6 +14,7 @@ class Layer {
   public:
     Layer(CRGB *, CRGB *, int * t);
     void render();
+    void renderPreview(CRGB *);
     void renderComposite();
     void transitionStart();
     void setEffect(byte);

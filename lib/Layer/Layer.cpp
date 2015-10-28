@@ -72,6 +72,10 @@ void Layer::renderLinear() {
   }
 }
 
+void Layer::renderPreview(CRGB * preview) {
+  effectPixel(effect)(meta, preview, 0, FLOOR_PIXEL_COUNT);
+}
+
 void Layer::renderFloor() {
   for(int pix = 0; pix < FLOOR_PIXEL_COUNT; pix++) {
     effectPixel(effect)(meta, &scratch[pix], pix, FLOOR_PIXEL_COUNT);
