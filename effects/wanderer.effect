@@ -22,16 +22,17 @@ pixel:
                diff,
                abs( i - (meta[b] + meta[4]) % numPixels )
               );
+    if (5 > diff) {
+      *pixel = CRGB(
+        (meta[1] * diff) >> 2,
+        (meta[2] * diff) >> 2,
+        (meta[3] * diff) >> 2
+      );
+      return;
+    }
   }
-  if (5 > diff) {
-    *pixel = CRGB(
-      (meta[1] * diff) >> 2,
-      (meta[2] * diff) >> 2,
-      (meta[3] * diff) >> 2
-    );
-  } else {
-    *pixel = CRGB::Black;
-  }
+
+  *pixel = CRGB::Black;
 
 
 step:

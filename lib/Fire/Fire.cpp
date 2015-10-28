@@ -8,12 +8,22 @@ void Fire__init(byte * f, byte l) {
   }
 }
 
-void Fire__eachStep(byte * f, byte l) {
+// @param cooling: How much does the air cool as it rises?
+// Less cooling = taller flames.  More cooling = shorter flames.
+// Default 55, suggested range 20-100
+
+// @param sparking: What chance (out of 255) is there that a new spark will be lit?
+// Higher chance = more roaring fire.  Lower chance = more flickery fire.
+// Default 120, suggested range 50-200.
+
+// @param base: How many pixels release new heat sources.
+
+void Fire__eachStep(byte * f, byte l, byte cooling, byte sparking, byte base) {
   byte h;
 
   // Cool down every cell a little
   for(h = 0; h < l; h++) {
-    f[h] = qsub8( f[h], random8(0, ((FIRE_COOLING * 10) / l) + 2));
+    f[h] = qsub8( f[h], random8(0, ((cooling * 10) / l) + 2));
   }
 
   //  Heat from each cell drifts 'up' and diffuses a little
@@ -22,8 +32,18 @@ void Fire__eachStep(byte * f, byte l) {
   }
 
   //  Randomly ignite new 'sparks' of heat near the bottom
-  if( random8() < FIRE_SPARKING ) {
-    byte y = random8(FIRE_BASE);
+  if( random8() < sparking ) {
+    byte y = random8(base);
     f[y] = qadd8( f[y], random8(160,255) );
   }
+}
+
+// TODO might precalc it
+int Wipe__y(int run, int rise, byte pixelCount, int i) {
+  long b = (rise > 0) ?
+    (255L + (pixelCount * rise / run)) *
+      tCounter / transitionTime - (pixelCount * rise / run) :
+    (255L - (pixelCount * rise / run)) *
+      tCounter / transitionTime;
+  return( i * rise / run + b );
 }

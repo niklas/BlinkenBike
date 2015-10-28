@@ -1,6 +1,7 @@
 #ifndef __SETTINGS_H__
 #define __SETTINGS_H__
 #include "ModeManager.h"
+#include "Layout.h"
 
 #define FPS 33
 #define MICROS_PER_FRAME 1000 / FPS
@@ -39,5 +40,11 @@ extern unsigned long frameCount;
 
 #define LED_PREVIEW_EFFECT preview[0]
 #define LED_PREVIEW_EXTRA preview[0]
+
+#define SEAT_FIRE_HEIGHT LastOnSeatTube - FirstOnSeatTube
+#define SEAT_FIRE_SPARKING 140
+#define SEAT_FIRE_WARMING 225
+#define SEAT_FIRE_BASE 4
+#define SEAT_FIRE_TRANS 255-188
 
 #endif

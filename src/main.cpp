@@ -19,6 +19,9 @@ CRGB strip[STRIP_PIXEL_COUNT],  // Data for 1 strip worth of imagery
 byte backImgIdx, frntImgIdx;    // Index of 'back'/'front' image (always 0 or 1)
 int  transVars[FX_VARS_NUM];    // Alpha transition instance variables
 
+byte seatOnFire;
+byte seatFire[SEAT_FIRE_HEIGHT];
+
 
 Layer layer[2] = {
   Layer(strip, tmpPixels, transVars),
@@ -43,6 +46,9 @@ void setup() {
   tCounter = -1;
   effectDuration = 23; // whatever
   frameCount = 0;
+
+  Fire__init(seatFire, SEAT_FIRE_HEIGHT);
+  seatOnFire = 0;
 
 
   preview[0] = CRGB::Red;
@@ -94,20 +100,51 @@ void forceEffect(byte effect) {
       tCounter = 0;
     }
   } else {
-    tCounter = -10; // already activated, keep
+    if (tCounter >= 0) tCounter -= 2; // animate back
+    else tCounter = -2; // already activated, keep
+  }
+}
+
+void fadeWithLight(byte pos, byte fade, CRGB color) {
+  strip[pos] %= fade;
+  strip[pos] += color;
+}
+
+void fartEffect() {
+  byte pixel, p, fade;
+  CRGB color;
+
+  Fire__eachStep(seatFire, SEAT_FIRE_HEIGHT,
+                 255 - scale8(seatOnFire, SEAT_FIRE_WARMING),
+                 scale8(seatOnFire, SEAT_FIRE_SPARKING),
+                 SEAT_FIRE_BASE);
+
+  fade  = 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
+  for (pixel = 0; pixel < SEAT_FIRE_HEIGHT; pixel++) {
+    color = HeatColor(seatFire[pixel]).fadeLightBy(255-seatOnFire);
+    fadeWithLight(FirstOnSeatTube+pixel, fade, color);
+
+    if (pixel % 2 == 0) {
+      p = pixel >> 1;
+      fadeWithLight(LastOnSeatLeft-p, fade, color);
+      fadeWithLight(LastOnSeatRight-p, fade, color);
+    }
   }
 }
 
 // Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
 void frame() {
+  byte pixel;
 
   frntImgIdx = 1 - backImgIdx;
 
 
-  if (mode.toggle1 == 1) {
-    forceEffect(Effect_stvzo67);
-  } else if (mode.toggle2 == 1) {
-    forceEffect(Effect_usa_police);
+  if (tCounter < 0) { // no animation going
+    if (mode.toggle1 == 1) {
+      forceEffect(Effect_stvzo67);
+    } else if (mode.toggle2 == 1) {
+      forceEffect(Effect_usa_police);
+    }
   }
 
   //////////////////////////////////////////////////////////////
@@ -146,8 +183,11 @@ void frame() {
   //////////////////////////////////////////////////////////////
 
   if (mode.triggered) {
-    strip[23] = CRGB::Purple;
+    seatOnFire = qadd8(seatOnFire, 23);
+  } else {
+    if (seatOnFire > 0) seatOnFire = qsub8(seatOnFire, 16);
   }
+  if (seatOnFire > 0) fartEffect();
 
 
   //////////////////////////////////////////////////////////////
@@ -165,15 +205,5 @@ void frame() {
     }
   } else {
     LED_STATUS = CRGB::Red;
-  }
-
-  //////////////////////////////////////////////////////////////
-  // apply gamma
-  //////////////////////////////////////////////////////////////
-  for (byte pixel=0; pixel < STRIP_PIXEL_COUNT; pixel++) {
-    strip[pixel] = gamma(strip[pixel]);
-  }
-  for (byte pixel=0; pixel < PREVIEW_PIXEL_COUNT; pixel++) {
-    preview[pixel] = gamma(preview[pixel]);
   }
 }

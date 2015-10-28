@@ -1,16 +1,27 @@
 setup:
   #define STVZO67_LENGTH_FRONT 12
   #define STVZO67_LENGTH_BACK 8
+  #define STVZO67_MIN_LENGTH 3
 orientation: floor
 auto: false
+init:
+  meta[2] = STVZO67_LENGTH_FRONT;
+  meta[3] = STVZO67_LENGTH_BACK;
+  meta[4] = -1;  // direction
 pixel:
-  if (i < STVZO67_LENGTH_FRONT) {
+  if (i < meta[2]) {
     // Front
-    *pixel = CHSV( 64, 32, dim8_video( map( i,1,STVZO67_LENGTH_FRONT,250,5) ) );
-  } else if (i >= numPixels - STVZO67_LENGTH_BACK) {
+    *pixel = CHSV( HUE_YELLOW, 32, dim8_video( map( i,1,meta[2],250,5) ) );
+  } else if (i >= numPixels - meta[3]) {
     // Back
-    *pixel = CHSV( 0, 250, dim8_video( map( i,numPixels - STVZO67_LENGTH_BACK, numPixels - 1, 5, 250) ) );
+    *pixel = CHSV( HUE_RED, 250, dim8_video( map( i,numPixels - meta[3], numPixels - 1, 5, 250) ) );
   } else {
     *pixel = CRGB::Black;
   }
+step:
+  if (random8(meta[2]) < STVZO67_MIN_LENGTH) {
+    meta[4] = - meta[4];
+  }
+  meta[2] = max(STVZO67_MIN_LENGTH, min(STVZO67_LENGTH_FRONT, meta[2] + meta[4]));
+  meta[3] = max(STVZO67_MIN_LENGTH, min(STVZO67_LENGTH_BACK,  meta[3] + meta[4]));
 // vi:syntax=cpp

@@ -2,14 +2,7 @@ init:
   meta[1] = random8(1, FLOOR_PIXEL_COUNT); // run, in pixels
   meta[2] = (random8(2) == 0) ? 255 : -255; // rise
 pixel:
-  // TODO might precalc it
-  int f = floorMap(i);
-  long b = (meta[2] > 0) ?
-    (255L + (FLOOR_PIXEL_COUNT * meta[2] / meta[1])) *
-      tCounter / transitionTime - (FLOOR_PIXEL_COUNT * meta[2] / meta[1]) :
-    (255L - (FLOOR_PIXEL_COUNT * meta[2] / meta[1])) *
-      tCounter / transitionTime;
-  int y = f * meta[2] / meta[1] + b; // y=mx+b, fixed-point style
+  int y = Wipe__y(meta[1], meta[2], FLOOR_PIXEL_COUNT, floorMap(i));
   if(y < 0)         *pixel = 0;
   else if(y >= 255) *pixel = 255;
   else              *pixel = (byte)y;

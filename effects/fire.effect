@@ -15,6 +15,6 @@ pixel:
     *pixel = CRGB::Black;
   }
 step:
-  Fire__eachStep(FIRE_META, FIRE_HEIGHT);
+  Fire__eachStep(FIRE_META, FIRE_HEIGHT, 50, 100, 6);
 
 // vi:syntax=cpp
