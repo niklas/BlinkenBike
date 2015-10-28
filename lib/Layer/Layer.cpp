@@ -4,14 +4,18 @@ Layer::Layer(CRGB * theTarget, CRGB * theScratch, int * theTMeta) {
   orientation = ORIENTATION_LINEAR;
   target = theTarget;
   scratch = theScratch;
-  effect = 0;
   tmeta = theTMeta;
+
+  setRandomEffect();
 }
 
 // Randomly pick next image effect and trans effect indices:
 void Layer::transitionStart() {
-  setEffect( random8(AUTO_EFFECT_NUM) );
   setTransition( random8(TRANSITION_NUM) );
+}
+
+void Layer::setRandomEffect() {
+  setEffect( random8(AUTO_EFFECT_NUM) );
 }
 
 void Layer::setEffect(byte id) {
@@ -19,12 +23,12 @@ void Layer::setEffect(byte id) {
   orientation     = getEffectOrientation(effect);
   if (orientation == ORIENTATION_NIL)
     orientation = static_cast<Orientation>(random8(NUM_ORIENTATIONS));
-  meta[0]         = 0; // Effect not yet initialized
+  effectInit(effect)(meta, pixelCount());
 }
 
 void Layer::setTransition(byte id) {
   transititionIdx = id;
-  tmeta[0]        = 0; // Transition not yet initialized
+  transitionInit(transititionIdx)(tmeta, pixelCount());
 }
 
 int Layer::pixelCount() {
@@ -36,10 +40,6 @@ int Layer::pixelCount() {
 }
 
 void Layer::render() {
-  if (meta[0] == 0) {
-    effectInit(effect)(meta, pixelCount());
-  }
-
   switch(orientation) {
     case ORIENTATION_LINEAR: renderLinear(); break;
     case ORIENTATION_FLOOR: renderFloor(); break;
@@ -50,13 +50,6 @@ void Layer::render() {
 }
 
 void Layer::renderComposite() {
-  if (meta[0] == 0) {
-    effectInit(effect)(meta, pixelCount());
-  }
-  if (tmeta[0] == 0) {
-    transitionInit(transititionIdx)(tmeta, pixelCount());
-  }
-
   switch(orientation) {
     case ORIENTATION_LINEAR: renderCompositeLinear(); break;
     case ORIENTATION_FLOOR: renderCompositeFloor(); break;
@@ -73,7 +66,10 @@ void Layer::renderLinear() {
 }
 
 void Layer::renderPreview(CRGB * preview) {
-  effectPixel(effect)(meta, preview, 0, FLOOR_PIXEL_COUNT);
+  CRGB nxt;
+  effectPixel(effect)(meta, &nxt, 0, pixelCount());
+  *preview = blend(*preview, nxt, 127);
+  effectStep(effect)(meta, pixelCount());
 }
 
 void Layer::renderFloor() {

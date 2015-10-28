@@ -33,7 +33,7 @@ void ModeManager::readInputs(void) {
 }
 
 bool ModeManager::shouldAutoTransition(void) {
-  return(pot < EFFECT_DURATION_POTI_STOP ? false : true);
+  return !(pot < EFFECT_DURATION_POTI_STOP);
 }
 
 void ModeManager::apply(void) {

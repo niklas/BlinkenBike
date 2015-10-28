@@ -50,11 +50,10 @@ void setup() {
   Fire__init(seatFire, SEAT_FIRE_HEIGHT);
   seatOnFire = 0;
 
-
-  preview[0] = CRGB::Red;
-  preview[1] = CRGB::Green;
-  preview[2] = CRGB::Blue;
-  preview[3] = CRGB::Purple;
+  LED_PREVIEW_EFFECT = CRGB::Red;
+  LED_STATUS         = CRGB::Green;
+  LED_TICK           = CRGB::Blue;
+  LED_PREVIEW_EXTRA  = CRGB::Black;
 }
 
 void loop() {
@@ -172,6 +171,9 @@ void frame() {
     }
 
     if (tCounter >= transitionTime) {
+      // select the next effect so we can preview it
+      layer[backImgIdx].setRandomEffect();
+
       backImgIdx  = 1 - backImgIdx;     // Invert back index
       effectDuration = mode.randomEffectDuration();
       tCounter    = - effectDuration;
@@ -196,16 +198,30 @@ void frame() {
   LED_TICK = CRGB::Black;
 
   if (mode.shouldAutoTransition()) {
-    LED_STATUS = CRGB::Green;
+    if (mode.toggle1 == 1) {
+      LED_STATUS = ( (frameCount>>7) % 2 == 0 ) ? CRGB::White : CRGB::Red;
+    } else if (mode.toggle2 == 1) {
+      LED_STATUS = ( (frameCount>>3) % 3 == 0 ) ? CRGB::Red : CRGB::Blue;
+    } else {
+      LED_STATUS = CRGB::Green;
+    }
     if (tCounter < 0) {
       if ( (-tCounter < effectDuration >>2) && (effectDuration % -tCounter < 5)) {
         // in the last quarter while effect is shown, blink LED faster
         LED_TICK = CRGB::Purple;
       }
     }
-    layer[frntImgIdx].renderPreview(&LED_PREVIEW_EFFECT);
   } else {
     LED_STATUS = CRGB::Red;
+  }
+
+  if (mode.shouldAutoTransition()) {
+    if (tCounter < 0) {
+      layer[frntImgIdx].renderPreview(&LED_PREVIEW_EFFECT);
+    } else {
+      LED_PREVIEW_EFFECT.nscale8(230);
+    }
+  } else {
     LED_PREVIEW_EFFECT = CRGB::Black;
   }
 }
