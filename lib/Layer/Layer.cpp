@@ -23,12 +23,12 @@ void Layer::setEffect(byte id) {
   orientation     = getEffectOrientation(effect);
   if (orientation == ORIENTATION_NIL)
     orientation = static_cast<Orientation>(random8(NUM_ORIENTATIONS));
-  meta[0]         = 0; // Effect not yet initialized
+  effectInit(effect)(meta, pixelCount());
 }
 
 void Layer::setTransition(byte id) {
   transititionIdx = id;
-  tmeta[0]        = 0; // Transition not yet initialized
+  transitionInit(transititionIdx)(tmeta, pixelCount());
 }
 
 int Layer::pixelCount() {
@@ -40,10 +40,6 @@ int Layer::pixelCount() {
 }
 
 void Layer::render() {
-  if (meta[0] == 0) {
-    effectInit(effect)(meta, pixelCount());
-  }
-
   switch(orientation) {
     case ORIENTATION_LINEAR: renderLinear(); break;
     case ORIENTATION_FLOOR: renderFloor(); break;
@@ -54,13 +50,6 @@ void Layer::render() {
 }
 
 void Layer::renderComposite() {
-  if (meta[0] == 0) {
-    effectInit(effect)(meta, pixelCount());
-  }
-  if (tmeta[0] == 0) {
-    transitionInit(transititionIdx)(tmeta, pixelCount());
-  }
-
   switch(orientation) {
     case ORIENTATION_LINEAR: renderCompositeLinear(); break;
     case ORIENTATION_FLOOR: renderCompositeFloor(); break;
