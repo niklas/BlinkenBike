@@ -100,7 +100,8 @@ void forceEffect(byte effect) {
       tCounter = 0;
     }
   } else {
-    tCounter = -10; // already activated, keep
+    if (tCounter >= 0) tCounter -= 2; // animate back
+    else tCounter = -2; // already activated, keep
   }
 }
 
@@ -138,10 +139,12 @@ void frame() {
   frntImgIdx = 1 - backImgIdx;
 
 
-  if (mode.toggle1 == 1) {
-    forceEffect(Effect_stvzo67);
-  } else if (mode.toggle2 == 1) {
-    forceEffect(Effect_usa_police);
+  if (tCounter < 0) { // no animation going
+    if (mode.toggle1 == 1) {
+      forceEffect(Effect_stvzo67);
+    } else if (mode.toggle2 == 1) {
+      forceEffect(Effect_usa_police);
+    }
   }
 
   //////////////////////////////////////////////////////////////
