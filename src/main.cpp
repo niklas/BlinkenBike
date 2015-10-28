@@ -86,6 +86,17 @@ void loop() {
       // start the new transition the moment we leave lock mode
       tCounter = tCounter < 0 ? -1 : 1;
     }
+
+    if (mode.buttons1 > 960) {
+      // reinitilaize the current effect
+      layer[frntImgIdx].setEffect(layer[frntImgIdx].effect);
+    } else if (mode.buttons1 > 910) {
+      // next effect
+      layer[frntImgIdx].setRandomEffect();
+    } else if (mode.buttons1 > 510) {
+      // start transition immediately
+      tCounter = -1;
+    }
   }
 
 

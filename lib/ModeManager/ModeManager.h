@@ -26,6 +26,7 @@ class ModeManager {
       randomEffectDuration(void),
       selectedEffect;
     int
+      buttons1,
       toggle1,
       toggle2;
 
