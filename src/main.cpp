@@ -198,7 +198,13 @@ void frame() {
   LED_TICK = CRGB::Black;
 
   if (mode.shouldAutoTransition()) {
-    LED_STATUS = CRGB::Green;
+    if (mode.toggle1 == 1) {
+      LED_STATUS = ( (frameCount>>7) % 2 == 0 ) ? CRGB::White : CRGB::Red;
+    } else if (mode.toggle2 == 1) {
+      LED_STATUS = ( (frameCount>>3) % 3 == 0 ) ? CRGB::Red : CRGB::Blue;
+    } else {
+      LED_STATUS = CRGB::Green;
+    }
     if (tCounter < 0) {
       if ( (-tCounter < effectDuration >>2) && (effectDuration % -tCounter < 5)) {
         // in the last quarter while effect is shown, blink LED faster
