@@ -66,7 +66,8 @@ void Layer::renderLinear() {
 }
 
 void Layer::renderPreview(CRGB * preview) {
-  effectPixel(effect)(meta, preview, 0, FLOOR_PIXEL_COUNT);
+  effectPixel(effect)(meta, preview, 0, pixelCount());
+  effectStep(effect)(meta, pixelCount());
 }
 
 void Layer::renderFloor() {

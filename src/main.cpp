@@ -206,9 +206,13 @@ void frame() {
         LED_TICK = CRGB::Purple;
       }
     }
-    layer[frntImgIdx].renderPreview(&LED_PREVIEW_EFFECT);
   } else {
     LED_STATUS = CRGB::Red;
+  }
+
+  if (mode.shouldAutoTransition() && (tCounter < 0)) {
+    layer[frntImgIdx].renderPreview(&LED_PREVIEW_EFFECT);
+  } else {
     LED_PREVIEW_EFFECT = CRGB::Black;
   }
 }
