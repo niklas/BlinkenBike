@@ -66,7 +66,9 @@ void Layer::renderLinear() {
 }
 
 void Layer::renderPreview(CRGB * preview) {
-  effectPixel(effect)(meta, preview, 0, pixelCount());
+  CRGB nxt;
+  effectPixel(effect)(meta, &nxt, 0, pixelCount());
+  *preview = blend(*preview, nxt, 127);
   effectStep(effect)(meta, pixelCount());
 }
 
