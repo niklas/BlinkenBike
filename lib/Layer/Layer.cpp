@@ -4,14 +4,18 @@ Layer::Layer(CRGB * theTarget, CRGB * theScratch, int * theTMeta) {
   orientation = ORIENTATION_LINEAR;
   target = theTarget;
   scratch = theScratch;
-  effect = 0;
   tmeta = theTMeta;
+
+  setRandomEffect();
 }
 
 // Randomly pick next image effect and trans effect indices:
 void Layer::transitionStart() {
-  setEffect( random8(AUTO_EFFECT_NUM) );
   setTransition( random8(TRANSITION_NUM) );
+}
+
+void Layer::setRandomEffect() {
+  setEffect( random8(AUTO_EFFECT_NUM) );
 }
 
 void Layer::setEffect(byte id) {

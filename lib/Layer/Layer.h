@@ -18,6 +18,7 @@ class Layer {
     void renderComposite();
     void transitionStart();
     void setEffect(byte);
+    void setRandomEffect();
     void setTransition(byte);
     int pixelCount();
     byte effect;

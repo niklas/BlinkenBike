@@ -172,6 +172,9 @@ void frame() {
     }
 
     if (tCounter >= transitionTime) {
+      // select the next effect so we can preview it
+      layer[backImgIdx].setRandomEffect();
+
       backImgIdx  = 1 - backImgIdx;     // Invert back index
       effectDuration = mode.randomEffectDuration();
       tCounter    = - effectDuration;
