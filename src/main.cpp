@@ -50,11 +50,10 @@ void setup() {
   Fire__init(seatFire, SEAT_FIRE_HEIGHT);
   seatOnFire = 0;
 
-
-  preview[0] = CRGB::Red;
-  preview[1] = CRGB::Green;
-  preview[2] = CRGB::Blue;
-  preview[3] = CRGB::Purple;
+  LED_PREVIEW_EFFECT = CRGB::Red;
+  LED_STATUS         = CRGB::Green;
+  LED_TICK           = CRGB::Blue;
+  LED_PREVIEW_EXTRA  = CRGB::Black;
 }
 
 void loop() {
