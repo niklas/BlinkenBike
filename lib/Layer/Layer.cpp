@@ -20,6 +20,10 @@ void Layer::setRandomEffect() {
 
 void Layer::setEffect(byte id) {
   effect       = id;
+  initEffect();
+}
+
+void Layer::initEffect() {
   orientation     = getEffectOrientation(effect);
   if (orientation == ORIENTATION_NIL)
     orientation = static_cast<Orientation>(random8(NUM_ORIENTATIONS));

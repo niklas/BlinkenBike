@@ -89,7 +89,7 @@ void loop() {
 
     if (mode.buttons1 > 960) {
       // reinitilaize the current effect
-      layer[frntImgIdx].setEffect(layer[frntImgIdx].effect);
+      layer[frntImgIdx].initEffect();
     } else if (mode.buttons1 > 910) {
       // next effect
       layer[frntImgIdx].setRandomEffect();
