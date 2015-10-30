@@ -44,16 +44,16 @@ void setup() {
   random16_set_seed(analogRead(0));
   backImgIdx        = 0;
   tCounter = -1;
-  effectDuration = 23; // whatever
+  // effectDuration = 23; // whatever
   frameCount = 0;
 
   Fire__init(seatFire, SEAT_FIRE_HEIGHT);
   seatOnFire = 0;
 
-  LED_PREVIEW_EFFECT = CRGB::Red;
-  LED_STATUS         = CRGB::Green;
-  LED_TICK           = CRGB::Blue;
-  LED_PREVIEW_EXTRA  = CRGB::Black;
+  //LED_PREVIEW_EFFECT = CRGB::Red;
+  //LED_STATUS         = CRGB::Green;
+  //LED_TICK           = CRGB::Blue;
+  //LED_PREVIEW_EXTRA  = CRGB::Black;
 }
 
 void loop() {
