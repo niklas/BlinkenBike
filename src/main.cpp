@@ -44,16 +44,16 @@ void setup() {
   random16_set_seed(analogRead(0));
   backImgIdx        = 0;
   tCounter = -1;
-  effectDuration = 23; // whatever
+  // effectDuration = 23; // whatever
   frameCount = 0;
 
   Fire__init(seatFire, SEAT_FIRE_HEIGHT);
   seatOnFire = 0;
 
-  LED_PREVIEW_EFFECT = CRGB::Red;
-  LED_STATUS         = CRGB::Green;
-  LED_TICK           = CRGB::Blue;
-  LED_PREVIEW_EXTRA  = CRGB::Black;
+  //LED_PREVIEW_EFFECT = CRGB::Red;
+  //LED_STATUS         = CRGB::Green;
+  //LED_TICK           = CRGB::Blue;
+  //LED_PREVIEW_EXTRA  = CRGB::Black;
 }
 
 void loop() {
@@ -85,6 +85,18 @@ void loop() {
     } else {
       // start the new transition the moment we leave lock mode
       tCounter = tCounter < 0 ? -1 : 1;
+    }
+
+    // Buttons, from nearest to farthest
+    if (mode.buttons1 > 960) {
+      // start transition immediately
+      tCounter = -1;
+    } else if (mode.buttons1 > 910) {
+      // next effect
+      layer[backImgIdx].setRandomEffect();
+    } else if (mode.buttons1 > 510) {
+      // reinitilaize the current effect
+      layer[backImgIdx].initEffect();
     }
   }
 

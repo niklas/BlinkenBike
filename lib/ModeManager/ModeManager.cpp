@@ -30,6 +30,7 @@ void ModeManager::readInputs(void) {
 
   toggle1 = digitalRead(PIN_TOGGLE_1);
   toggle2 = digitalRead(PIN_TOGGLE_2);
+  buttons1 = analogRead(PIN_BUTTONS);
 }
 
 bool ModeManager::shouldAutoTransition(void) {
