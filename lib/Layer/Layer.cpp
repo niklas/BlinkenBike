@@ -35,28 +35,28 @@ void Layer::setTransition(byte id) {
 }
 
 int Layer::pixelCount() {
-  switch(orientation) {
-    case ORIENTATION_LINEAR: return(STRIP_PIXEL_COUNT);
-    case ORIENTATION_FLOOR:  return(FLOOR_PIXEL_COUNT);
-    default: return(0);
+  if (orientation == ORIENTATION_LINEAR) {
+    return STRIP_PIXEL_COUNT;
+  } else {
+    return FLOOR_PIXEL_COUNT;
   }
 }
 
 void Layer::render() {
-  switch(orientation) {
-    case ORIENTATION_LINEAR: renderLinear(); break;
-    case ORIENTATION_FLOOR: renderFloor(); break;
-    default: break;
+  if (orientation == ORIENTATION_LINEAR) {
+    renderLinear();
+  } else {
+    renderFloor();
   }
 
   effectStep(effect)(meta, pixelCount());
 }
 
 void Layer::renderComposite() {
-  switch(orientation) {
-    case ORIENTATION_LINEAR: renderCompositeLinear(); break;
-    case ORIENTATION_FLOOR: renderCompositeFloor(); break;
-    default: break;
+  if (orientation == ORIENTATION_LINEAR) {
+    renderCompositeLinear();
+  } else {
+    renderCompositeFloor();
   }
 
   effectStep(effect)(meta, pixelCount());
