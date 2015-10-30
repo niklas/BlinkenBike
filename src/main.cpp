@@ -87,15 +87,16 @@ void loop() {
       tCounter = tCounter < 0 ? -1 : 1;
     }
 
+    // Buttons, from nearest to farthest
     if (mode.buttons1 > 960) {
-      // reinitilaize the current effect
-      layer[frntImgIdx].initEffect();
-    } else if (mode.buttons1 > 910) {
-      // next effect
-      layer[frntImgIdx].setRandomEffect();
-    } else if (mode.buttons1 > 510) {
       // start transition immediately
       tCounter = -1;
+    } else if (mode.buttons1 > 910) {
+      // next effect
+      layer[backImgIdx].setRandomEffect();
+    } else if (mode.buttons1 > 510) {
+      // reinitilaize the current effect
+      layer[backImgIdx].initEffect();
     }
   }
 
