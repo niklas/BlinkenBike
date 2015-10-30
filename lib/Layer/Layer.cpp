@@ -1,7 +1,6 @@
 #include "Layer.h"
 
 Layer::Layer(CRGB * theTarget, CRGB * theScratch, int * theTMeta) {
-  orientation = ORIENTATION_LINEAR;
   target = theTarget;
   scratch = theScratch;
   tmeta = theTMeta;
