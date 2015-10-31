@@ -1,0 +1,22 @@
+// Rainbow effect (1 or more full loops of color wheel at 100% saturation).
+// Not a big fan of this pattern (it's way overused with LED stuff), but it's
+// practically part of the Geneva Convention by now.
+init:
+  // Number of repetitions (complete loops around color wheel); any
+  // more than 4 per meter just looks too chaotic and un-rainbow-like.
+  // Store as hue 'distance' around complete belt:
+  meta[1] = (1 + random16(8 * ((numPixels + 31) / 32))) * 64;
+  // Frame-to-frame hue increment (speed) -- may be positive or negative,
+  // but magnitude shouldn't be so small as to be boring.  It's generally
+  // still less than a full pixel per frame, making motion very smooth.
+  meta[2] = 4 + random16(meta[1]) / numPixels;
+  // Reverse speed and hue shift direction half the time.
+  if(random8(2) == 0) meta[1] = -meta[1];
+  if(random8(2) == 0) meta[2] = -meta[2];
+  meta[3] = 0; // Current position
+pixel:
+  *pixel = CHSV(meta[3] + meta[1] * i / numPixels, 255, 255);
+step:
+  meta[3] += meta[2];
+
+// vi:syntax=cpp

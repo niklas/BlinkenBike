@@ -1,0 +1,10 @@
+init:
+  meta[1] = random8(1, numPixels); // run, in pixels
+  meta[2] = (random8(2) == 0) ? 255 : -255; // rise
+pixel:
+  int y = Wipe__y(meta[1], meta[2], numPixels, i);
+  if(y < 0)         *pixel = 0;
+  else if(y >= 255) *pixel = 255;
+  else              *pixel = (byte)y;
+
+// vi:syntax=cpp

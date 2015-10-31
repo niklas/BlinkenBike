@@ -1,0 +1,24 @@
+#ifndef __LAYOUT_H__
+#define __LAYOUT_H__
+#include <Arduino.h>
+#define FLOOR_PIXEL_COUNT <%= floor_tube.led_count %>
+byte floorMap(byte);
+
+enum Orientation : byte {
+  ORIENTATION_LINEAR = 0,
+  ORIENTATION_FLOOR = 1,
+
+
+  ORIENTATION_NIL = 255
+};
+
+#define NUM_ORIENTATIONS 2
+
+<% tubes.each do |tube| %>
+#define IsOn<%= tube.clean_name %>(x) ( (x >= <%= tube.leds.first.index %>) && (x <= <%= tube.leds.last.index %>) )
+#define FirstOn<%= tube.clean_name %> <%= tube.leds.first.index %>
+#define LastOn<%= tube.clean_name %> <%= tube.leds.last.index %>
+<% end %>
+
+#endif
+// vi:syntax=cpp

@@ -1,0 +1,9 @@
+require 'transitions'
+a = Transitions.glob('transitions/*.transition')
+
+.#ifndef __Transitions_H__
+.#define __Transitions_H__
+.
+./!include("../Animations/Animations.h.rb.dna")
+.
+.#endif

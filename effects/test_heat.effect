@@ -1,0 +1,7 @@
+orientation: linear
+setup:
+  CRGB test_heat_color;
+pixel:
+  *pixel = HeatColor(255 - i*8);
+
+// vi:syntax=cpp

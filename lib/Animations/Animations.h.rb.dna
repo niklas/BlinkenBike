@@ -1,0 +1,45 @@
+.#include <Arduino.h>
+.#include "FastLED.h"
+.#include "Settings.h"
+.#include "Layout.h"
+.#include "Fire.h"
+
+.// function_signs
+a.class.functions.each do |section, sign|
+  sname = a.first.signature_const(section)
+.#define @{sname} @{sign}
+end
+
+.
+.// function_type_defs
+a.method_sections.each do |section|
+.typedef void (*@{a.function_type_name(section)})(@{a.first.signature_const(section)});
+end
+
+.
+.// Effect function headers
+a.each do |item|
+  item.sections.map do |sec, _code|
+    case sec
+    when 'setup'
+      # nuffin
+    when *a.method_sections
+      fname = item.func_name(sec)
+      fsign = item.signature_const(sec)
+.void @{fname}(@{fsign});
+    end
+  end
+end
+
+.
+.// count_const_definition
+.#define AUTO_@{a.count_const} @{a.select(&:auto).size}
+.#define @{a.count_const} @{a.size}
+.
+.// Accessors for Effect Function Arrays
+a.method_sections.each do |section|
+  ftype = a.function_type_name(section)
+  fname = a.func_array_accessor_name(section)
+.@{ftype} @{fname}(byte i);
+end
+

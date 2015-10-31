@@ -1,0 +1,20 @@
+// Fire effect like Fire2012 http://pastebin.com/xYEpxqgq
+setup:
+// FIRE_OFFSET: meta[0] is magic, we use the others for the fire
+  #define FIRE_OFFSET 1
+  #define FIRE_HEIGHT (FX_VARS_NUM - FIRE_OFFSET) * 2
+  #define FIRE_META ((byte *)&meta[FIRE_OFFSET])
+
+orientation: floor
+init:
+  Fire__init(FIRE_META, FIRE_HEIGHT);
+pixel:
+  if (i < FIRE_HEIGHT) {
+    *pixel = HeatColor(FIRE_META[i]);
+  } else {
+    *pixel = CRGB::Black;
+  }
+step:
+  Fire__eachStep(FIRE_META, FIRE_HEIGHT, 50, 100, 6);
+
+// vi:syntax=cpp

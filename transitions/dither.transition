@@ -1,0 +1,17 @@
+init:
+  int hiBit, n = (numPixels - 1) >> 1;
+  for(hiBit=1; n; n >>=1) hiBit <<= 1;
+  meta[1] = hiBit;
+pixel:
+  long fade;
+  int  bit, reverse, hiWord;
+  for(reverse=0, bit=1; bit <= meta[1]; bit <<= 1) {
+    reverse <<= 1;
+    if(i & bit) reverse |= 1;
+  }
+  fade   = 256L * numPixels * tCounter / transitionTime;
+  hiWord = (fade >> 8);
+  if(reverse == hiWord)     *pixel = (fade & 255); // Remainder
+  else if(reverse < hiWord) *pixel = 255;
+  else                      *pixel = 0;
+// vi:syntax=cpp

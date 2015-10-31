@@ -1,0 +1,10 @@
+// Simplest rendering effect: fill entire image with solid color
+orientation: linear
+init:
+  meta[1] = random8(); // R
+  meta[2] = random8(); // G
+  meta[3] = random8(); // B
+pixel:
+  *pixel = CRGB(meta[1], meta[2], meta[3]);
+
+// vi:syntax=cpp

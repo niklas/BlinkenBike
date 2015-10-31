@@ -1,0 +1,15 @@
+// Test pattern: repetitive Red, Green, Blue, Blank
+orientation: linear
+init:
+  meta[1] = random8(90,180); // brightness
+  meta[2] = random8(1,23); // brightness
+pixel:
+  switch(i % 5) {
+     case 0: *pixel = CRGB(meta[1], meta[2], meta[2]); break;
+     case 1: *pixel = CRGB(meta[2], meta[1], meta[2]); break;
+     case 2: *pixel = CRGB(meta[2], meta[2], meta[1]); break;
+     case 3:
+     case 4: *pixel = CRGB::Black; break;
+  }
+// vi:syntax=cpp
+

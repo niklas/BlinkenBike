@@ -1,59 +1,239 @@
-#ifdef ENERGIA
-  #include "Energia.h"
-#else
-  #include "Arduino.h"
-#endif
+// Define HardwareSerial_h to suppress loading of the Arduino standard Serial class (saves 173 bytes)
+#define HardwareSerial_h
 
-#include "LPD8806.h"
-#include "SPI.h"
+#include "FastLED.h"
 
-#define ON_BOARD_LED 13
+FASTLED_USING_NAMESPACE
+#include <avr/pgmspace.h>
+#include "Gamma.h"
+#include "Settings.h"
+#include "Effects.h"
+#include "Transitions.h"
+#include "Layout.h"
+#include "Layer.h"
+#include "ModeManager.h"
+
+CRGB strip[STRIP_PIXEL_COUNT],  // Data for 1 strip worth of imagery
+     preview[PREVIEW_PIXEL_COUNT],
+     tmpPixels[FLOOR_PIXEL_COUNT];
+byte backImgIdx, frntImgIdx;    // Index of 'back'/'front' image (always 0 or 1)
+int  transVars[FX_VARS_NUM];    // Alpha transition instance variables
+
+byte seatOnFire;
+byte seatFire[SEAT_FIRE_HEIGHT];
 
 
-// Number of RGB LEDs in strand
-int nLEDs = 32;
+Layer layer[2] = {
+  Layer(strip, tmpPixels, transVars),
+  Layer(strip, tmpPixels, transVars)
+};
 
-// Chose 2 pins for output; can be any valid output pins:
-int dataPin  = 2;
-int clockPin = 3;
 
-// First parameter is the number of LEDs in the strand.  The LED strips
-// are 32 LEDs per meter but you can extend or cut the strip.  Next two
-// parameters are SPI data and clock pins:
-LPD8806 strip = LPD8806(nLEDs, dataPin, clockPin);
 
-void setup()
-{
-  pinMode(ON_BOARD_LED, OUTPUT);     // set pin as output
-  strip.begin();
-  strip.show();
-}
+void frame();
 
-// Chase one dot down the full strip.  Good for testing purposes.
-void colorChase(uint32_t c, uint8_t wait) {
-  int i;
+// ---------------------------------------------------------------------------
 
-  digitalWrite(ON_BOARD_LED, HIGH);
+void setup() {
+  FastLED.addLeds<LED_TYPE,PIN_STRIP_DATA,PIN_STRIP_CLK,COLOR_ORDER>(strip, STRIP_PIXEL_COUNT).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<LED_TYPE,PIN_PREVIEW_DATA,PIN_PREVIEW_CLK,COLOR_ORDER>(preview, PREVIEW_PIXEL_COUNT).setCorrection(TypicalLEDStrip);
+  //FastLED.setBrightness(36);
+  FastLED.setMaxRefreshRate(FPS);
 
-  // Start by turning all pixels off:
-  for(i=0; i<strip.numPixels(); i++) strip.setPixelColor(i, 0);
+  // Initialize random number generator from a floating analog input.
+  random16_set_seed(analogRead(0));
+  backImgIdx        = 0;
+  tCounter = -1;
+  // effectDuration = 23; // whatever
+  frameCount = 0;
 
-  // Then display one pixel at a time:
-  for(i=0; i<strip.numPixels(); i++) {
-    strip.setPixelColor(i, c); // Set new pixel 'on'
-    strip.show();              // Refresh LED states
-    strip.setPixelColor(i, 0); // Erase pixel, but don't refresh!
-    delay(wait);
-  }
+  Fire__init(seatFire, SEAT_FIRE_HEIGHT);
+  seatOnFire = 0;
 
-  strip.show(); // Refresh to turn off last pixel
-  digitalWrite(ON_BOARD_LED, LOW);   // set the LED off
-  delay(wait);
+  //LED_PREVIEW_EFFECT = CRGB::Red;
+  //LED_STATUS         = CRGB::Green;
+  //LED_TICK           = CRGB::Blue;
+  //LED_PREVIEW_EXTRA  = CRGB::Black;
 }
 
 void loop() {
-  colorChase(strip.Color(127,  0,  0), 100); // Red
-  colorChase(strip.Color(  0,127,  0), 100); // Green
-  colorChase(strip.Color(  0,  0,127), 100); // Blue
-  colorChase(strip.Color(127,127,127), 100); // White
+  // Very first thing here is to issue the strip data generated from the
+  // *previous* callback.  It's done this way on purpose because show() is
+  // roughly constant-time, so the refresh will always occur on a uniform
+  // beat with respect to the Timer1 interrupt.  The various effects
+  // rendering and compositing code is not constant-time, and that
+  // unevenness would be apparent if show() were called at the end.
+  FastLED.show();
+  frameCount++;
+
+#ifdef BENCHMARK_FPS
+  if (frameCount % BENCHMARK_EVERY == 0) {
+    end_benchmark(BENCHMARK_EVERY);
+    start_benchmark();
+  }
+#endif
+
+  frame();
+
+  EVERY_N_MILLISECONDS(100) {
+    mode.readInputs();
+
+    if (mode.shouldAutoTransition()) {
+      // quickly come back from long durations
+      if (tCounter < - EFFECT_DURATION_STRETCH * mode.effectDurationBase)
+        tCounter = - mode.effectDurationBase;
+    } else {
+      // start the new transition the moment we leave lock mode
+      tCounter = tCounter < 0 ? -1 : 1;
+    }
+
+    // Buttons, from nearest to farthest
+    if (mode.buttons1 > 960) {
+      // start transition immediately
+      tCounter = -1;
+    } else if (mode.buttons1 > 910) {
+      // next effect
+      layer[backImgIdx].setRandomEffect();
+    } else if (mode.buttons1 > 510) {
+      // reinitilaize the current effect
+      layer[backImgIdx].initEffect();
+    }
+  }
+
+
+}
+
+void forceEffect(byte effect) {
+  if (layer[backImgIdx].effect != effect) {     // transition to emergency not finished yet
+    if (layer[frntImgIdx].effect != effect) {   // transition to emergency not started yet.
+      layer[frntImgIdx].setEffect(effect);
+      transitionTime = 2 * FPS;
+      tCounter = 0;
+    }
+  } else {
+    if (tCounter >= 0) tCounter -= 2; // animate back
+    else tCounter = -2; // already activated, keep
+  }
+}
+
+void fadeWithLight(byte pos, byte fade, CRGB color) {
+  strip[pos] %= fade;
+  strip[pos] += color;
+}
+
+void fartEffect() {
+  byte pixel, p, fade;
+  CRGB color;
+
+  Fire__eachStep(seatFire, SEAT_FIRE_HEIGHT,
+                 255 - scale8(seatOnFire, SEAT_FIRE_WARMING),
+                 scale8(seatOnFire, SEAT_FIRE_SPARKING),
+                 SEAT_FIRE_BASE);
+
+  fade  = 255 - scale8(seatOnFire, SEAT_FIRE_TRANS);
+  for (pixel = 0; pixel < SEAT_FIRE_HEIGHT; pixel++) {
+    color = HeatColor(seatFire[pixel]).fadeLightBy(255-seatOnFire);
+    fadeWithLight(FirstOnSeatTube+pixel, fade, color);
+
+    if (pixel % 2 == 0) {
+      p = pixel >> 1;
+      fadeWithLight(LastOnSeatLeft-p, fade, color);
+      fadeWithLight(LastOnSeatRight-p, fade, color);
+    }
+  }
+}
+
+// Timer1 interrupt handler.  Called at equal intervals; 60 Hz by default.
+void frame() {
+  byte pixel;
+
+  frntImgIdx = 1 - backImgIdx;
+
+
+  if (tCounter < 0) { // no animation going
+    if (mode.toggle1 == 1) {
+      forceEffect(Effect_stvzo67);
+    } else if (mode.toggle2 == 1) {
+      forceEffect(Effect_usa_police);
+    }
+  }
+
+  //////////////////////////////////////////////////////////////
+  // Primary effect (background)
+  //////////////////////////////////////////////////////////////
+  layer[backImgIdx].render();
+
+
+  //////////////////////////////////////////////////////////////
+  // Secondary effect (foreground) during transition in progress
+  //////////////////////////////////////////////////////////////
+  if (mode.shouldAutoTransition()) {
+    if (tCounter > 0) {
+      layer[frntImgIdx].renderComposite();
+    }
+
+    //////////////////////////////////////////////////////////////
+    // Count up to next transition (or end of current one):
+    //////////////////////////////////////////////////////////////
+    tCounter++;
+
+    if (tCounter == 0) { // Transition start
+      layer[frntImgIdx].transitionStart();
+      transitionTime = random16(FPS/2, 3 * FPS);
+    }
+
+    if (tCounter >= transitionTime) {
+      // select the next effect so we can preview it
+      layer[backImgIdx].setRandomEffect();
+
+      backImgIdx  = 1 - backImgIdx;     // Invert back index
+      effectDuration = mode.randomEffectDuration();
+      tCounter    = - effectDuration;
+    }
+  }
+
+  //////////////////////////////////////////////////////////////
+  // Additional Effects
+  //////////////////////////////////////////////////////////////
+
+  if (mode.triggered) {
+    seatOnFire = qadd8(seatOnFire, 23);
+  } else {
+    if (seatOnFire > 0) seatOnFire = qsub8(seatOnFire, 16);
+  }
+  if (seatOnFire > 0) fartEffect();
+
+
+  //////////////////////////////////////////////////////////////
+  // Status / Preview
+  //////////////////////////////////////////////////////////////
+  LED_TICK = CRGB::Black;
+
+  if (mode.shouldAutoTransition()) {
+    if (mode.toggle1 == 1) {
+      LED_STATUS = ( (frameCount>>7) % 2 == 0 ) ? CRGB::White : CRGB::Red;
+    } else if (mode.toggle2 == 1) {
+      LED_STATUS = ( (frameCount>>3) % 3 == 0 ) ? CRGB::Red : CRGB::Blue;
+    } else {
+      LED_STATUS = CRGB::Green;
+    }
+    if (tCounter < 0) {
+      if ( (-tCounter < effectDuration >>2) && (effectDuration % -tCounter < 5)) {
+        // in the last quarter while effect is shown, blink LED faster
+        LED_TICK = CRGB::Purple;
+      }
+    }
+  } else {
+    LED_STATUS = CRGB::Red;
+  }
+
+  if (mode.shouldAutoTransition()) {
+    if (tCounter < 0) {
+      layer[frntImgIdx].renderPreview(&LED_PREVIEW_EFFECT);
+    } else {
+      LED_PREVIEW_EFFECT.nscale8(230);
+    }
+  } else {
+    LED_PREVIEW_EFFECT = CRGB::Black;
+  }
 }

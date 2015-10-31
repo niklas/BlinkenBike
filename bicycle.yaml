@@ -1,0 +1,60 @@
+---
+:floor: 1981
+:tubes:
+  # Order is important
+  - :name: down tube
+    :from:
+    - 924
+    - 604
+    :to:
+    - 1667
+    - 1515
+    :led_count: 20
+  - :name: chain left
+    :from:
+    - 1790
+    - 1546
+    :to:
+    - 2600
+    - 1474
+    :led_count: 14
+  - :name: seat left
+    :from:
+    - 2606
+    - 1377
+    :to:
+    - 2066
+    - 717
+    :led_count: 16
+  - :name: seat tube
+    :from:
+    - 2006
+    - 692
+    :to:
+    - 1776
+    - 1384
+    :led_count: 14
+  - :name: chain right
+    :from:
+    - 1790
+    - 1546
+    :to:
+    - 2600
+    - 1474
+    :led_count: 14
+  - :name: seat right
+    :from:
+    - 2606
+    - 1377
+    :to:
+    - 2066
+    - 717
+    :led_count: 16
+  - :name: top tube
+    :from:
+    - 1996
+    - 594
+    :to:
+    - 1011
+    - 360
+    :led_count: 16

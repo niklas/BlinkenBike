@@ -1,0 +1,13 @@
+#include "Layout.h"
+#include "Settings.h"
+#include <avr/pgmspace.h>
+
+const byte FLOOR_MAP[STRIP_PIXEL_COUNT] PROGMEM = {
+<%= all_leds.map(&:floor).map(&:index).join(',') %>
+};
+
+byte floorMap(byte lin) {
+  return pgm_read_byte(&FLOOR_MAP[lin]);
+}
+
+// vi:syntax=cpp
